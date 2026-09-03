@@ -65,6 +65,10 @@
           .cw-tableau td[data-label]::before { content: attr(data-label) " : "; color: #6b7280; font-size: 0.8125rem; }
           .cw-tableau td[colspan] { padding: 0.75rem 0 !important; }
           .cw-legende { display: none; }
+          .cw-defile { max-height: none !important; overflow-y: visible !important; }
+          .cw-detail { white-space: normal !important; overflow: visible !important; text-overflow: clip !important; }
+          .cw-activite { flex-wrap: wrap; }
+          .cw-activite > div { flex-basis: 100%; }
         }
 
         /* Card padding boost — p-3 and p-4 are too tight */
@@ -9291,13 +9295,13 @@ function AdminDashboard() {
         <Card className="p-4 md:col-span-2">
           <h3 className="font-medium mb-4 flex items-center gap-2">
             <TrendingUp className="w-5 h-5 text-teal-500" />
-            Évolution des signalements reçus — {pd.label}
+            Signalements reçus — {pd.label}
           </h3>
           {(() => {
-            const maxVal = Math.max(...monthlyData.map(d => d.signalements));
+            const maxVal = Math.max(1, ...monthlyData.map(d => d.signalements));
             const barH = 120; // max bar height in px
             return (
-            <div className="flex items-end gap-1 sm:gap-2" style={{ height: '160px' }}>
+            <div className="flex items-end gap-1 sm:gap-2" style={{ height: monthlyData.length <= 7 ? '184px' : '160px' }}>
               {monthlyData.map(d => (
                 <div key={d.label} className="flex-1 flex flex-col items-center justify-end h-full">
                   <div className="w-full flex items-end justify-center gap-0.5 mb-1">
@@ -9305,14 +9309,15 @@ function AdminDashboard() {
                     <div className="flex-1 bg-emerald-500 rounded-t-sm" style={{ height: `${Math.max(4, (d.verifies / maxVal) * barH)}px` }} title={`${d.verifies} vérifiés`} />
                   </div>
                   <span className="text-sm text-gray-500 leading-none">{d.label}</span>
+                  {monthlyData.length <= 7 && <span className="text-xs text-gray-600 leading-none" style={{ marginTop: 4 }}>{d.signalements} · {d.verifies}</span>}
                 </div>
               ))}
             </div>
             );
           })()}
           <div className="flex items-center justify-center gap-6 mt-4">
-            <div className="flex items-center gap-2"><div className="w-3 h-3 rounded bg-teal-200" /><span className="text-sm text-gray-700">Signalements reçus</span></div>
-            <div className="flex items-center gap-2"><div className="w-3 h-3 rounded bg-emerald-400" /><span className="text-sm text-gray-800">Publiés après modération</span></div>
+            <div className="flex items-center gap-2"><div className="w-3 h-3 rounded bg-teal-200" /><span className="text-sm text-gray-700">Reçus</span></div>
+            <div className="flex items-center gap-2"><div className="w-3 h-3 rounded bg-emerald-400" /><span className="text-sm text-gray-800">Publiés</span></div>
           </div>
         </Card>
 
@@ -9322,12 +9327,12 @@ function AdminDashboard() {
             <Activity className="w-5 h-5 text-indigo-500" />
             Activité récente
           </h3>
-          <div className="space-y-3 max-h-56 overflow-y-auto">
+          <div className="space-y-3 max-h-56 overflow-y-auto cw-defile">
             {activiteAffichee.map((a, i) => (
-              <div key={i} className="flex items-start gap-3">
+              <div key={i} className="flex items-start gap-3 cw-activite">
                 <span className={`px-2 py-0.5 rounded text-xs flex-shrink-0 ${activityColors[a.type]}`}>{a.action}</span>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm text-gray-700 truncate">{a.detail}</p>
+                  <p className="text-sm text-gray-700 truncate cw-detail">{a.detail}</p>
                   <p className="text-sm text-gray-600">{a.time}</p>
                 </div>
               </div>
@@ -9341,7 +9346,7 @@ function AdminDashboard() {
         <Card className="p-4">
           <h3 className="font-medium mb-4 flex items-center gap-2">
             <ClipboardList className="w-5 h-5 text-amber-500" />
-            Types d'incidents signalés les plus fréquents
+            Types d'incidents
           </h3>
           <div className="space-y-3">
             {incidentTypes.map((inc, i) => (
@@ -9393,13 +9398,13 @@ function AdminDashboard() {
           {alertInstitutions.length === 0 ? (
             <p className="text-gray-500 text-sm">Aucun établissement critique</p>
           ) : (
-            <div className="space-y-2 max-h-64 overflow-y-auto">
+            <div className="space-y-2 max-h-64 overflow-y-auto cw-defile">
               {alertInstitutions.slice(0, 8).map(i => (
                 <div key={i.id} className={`flex items-center gap-3 p-3 rounded-lg ${i.rating === 'inadequate' ? 'bg-slate-50' : 'bg-amber-50'}`}>
                   <AlertTriangle className={`w-5 h-5 flex-shrink-0 ${i.rating === 'inadequate' ? 'text-slate-600' : 'text-amber-600'}`} />
                   <div className="flex-1 min-w-0">
-                    <span className="text-sm font-medium block truncate">{i.name}</span>
-                    <span className="text-sm text-gray-700">{i.city} • {i.reports} signalements reçus • fiabilité {i.reliability}%</span>
+                    <span className="text-sm font-medium block truncate cw-detail">{i.name}</span>
+                    <span className="text-sm text-gray-700">{i.city} • {i.reports} signalements reçus</span>
                   </div>
                   <RatingBadge rating={i.rating} size="xs" />
                 </div>
@@ -9440,7 +9445,7 @@ function AdminDashboard() {
 
       {/* Répartition par note */}
       <Card className="p-4">
-        <h3 className="font-medium mb-4">Répartition des établissements par note d'évaluation</h3>
+        <h3 className="font-medium mb-4">Établissements par niveau</h3>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {Object.entries(DB.ratings).map(([key, r]) => {
             const count = DB.institutions.filter(i => i.rating === key).length;
