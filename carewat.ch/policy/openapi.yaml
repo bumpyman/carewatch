@@ -1,0 +1,502 @@
+openapi: 3.1.0
+
+info:
+  title: CareWatch Policy API
+  description: |
+    API publique de CareWatch Policy — Observatoire participatif de l'équité sanitaire en Suisse romande.
+    Convivens Lab · HEG-Genève (HES-SO) · carewat.ch
+    
+    Données sous licence AGPL-3.0. Sources : OBSAN, OFS, OFSP, Swissvotes, Parlament.ch.
+    Hébergement Suisse (Infomaniak, Genève). IA : Anthropic Claude.
+    
+    Références scientifiques : Lancet, NEJM, OCDE, Wagstaff (1989), Johansson et al. (2019).
+  version: "1.1.0"
+  contact:
+    name: Convivens Lab — HEG-Genève
+    url: https://www.convivens.ch
+    email: david-zacharie.issom@hesge.ch
+  license:
+    name: AGPL-3.0
+    url: https://www.gnu.org/licenses/agpl-3.0.html
+
+externalDocs:
+  description: Documentation complète — carewat.ch
+  url: https://carewat.ch
+
+servers:
+  - url: https://carewat.ch/policy
+    description: Production (Infomaniak, Genève)
+
+tags:
+  - name: policies
+    description: Lois, initiatives et projets de politique de santé
+  - name: score
+    description: Score composite de santé publique (0–100)
+  - name: parties
+    description: Positions et classements des partis politiques
+  - name: cantons
+    description: Baselines et données par canton
+  - name: meta
+    description: Métadonnées et état de l'API
+
+paths:
+
+  /api/v1/policies:
+    get:
+      tags: [policies]
+      summary: Liste toutes les politiques de santé
+      description: |
+        Retourne la liste complète des lois, initiatives et projets documentés dans CareWatch Policy.
+        Filtrable par niveau, catégorie, canton, statut et année.
+      parameters:
+        - name: lv
+          in: query
+          description: "Niveau : federal | cantonal | communal | frontalier"
+          schema:
+            type: string
+            enum: [federal, cantonal, communal, frontalier]
+        - name: cat
+          in: query
+          description: "Catégorie thématique (ex: Santé, Social, Travail, Fiscal)"
+          schema:
+            type: string
+        - name: canton
+          in: query
+          description: "Code canton (ex: GE, VD, VS, NE, BE, JU)"
+          schema:
+            type: string
+            enum: [GE, VD, VS, NE, BE, JU, CH]
+        - name: st
+          in: query
+          description: "Statut : acc (accepté) | rej (rejeté) | cours | prop | proj"
+          schema:
+            type: string
+            enum: [acc, rej, cours, prop, proj]
+        - name: year_min
+          in: query
+          description: Année minimale
+          schema:
+            type: integer
+            example: 2020
+        - name: year_max
+          in: query
+          description: Année maximale
+          schema:
+            type: integer
+            example: 2026
+        - name: lang
+          in: query
+          description: "Langue de la réponse (défaut : fr)"
+          schema:
+            type: string
+            enum: [fr, de, it]
+            default: fr
+      responses:
+        "200":
+          description: Liste des politiques
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                    example: 172
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Policy"
+
+  /api/v1/policies/{id}:
+    get:
+      tags: [policies]
+      summary: Détails d'une politique
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Identifiant unique de la politique (ex. lamal_1996)
+          schema:
+            type: string
+            example: lamal_1996
+        - name: lang
+          in: query
+          schema:
+            type: string
+            enum: [fr, de, it]
+            default: fr
+      responses:
+        "200":
+          description: Détails complets de la politique
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PolicyDetail"
+        "404":
+          description: Politique non trouvée
+
+  /api/v1/policies/{id}/effects:
+    get:
+      tags: [policies]
+      summary: Effets estimés sur les 4 indicateurs de santé publique
+      description: |
+        Retourne les effets estimés sur les indicateurs de santé :
+        renoncement aux soins (%), espérance de vie en bonne santé (ans),
+        décès évitables (/100k) et inégalités de santé (Gini).
+        
+        Sources : OBSAN ESS-CH 2022, Johansson et al. Lancet 2019, OFSP 2022, Wagstaff 1989.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Effets estimés
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Effects"
+
+  /api/v1/score:
+    get:
+      tags: [score]
+      summary: Calcule le score composite de santé (0–100) pour un panier de politiques
+      description: |
+        Score composite calculé selon la formule CareWatch :
+        
+          Score = 50
+            + (baseline.renoncement − renoncement) × 1.2   [ESS-CH OBSAN 2022]
+            + (espérance − baseline.espérance) × 5.0        [Johansson et al., Lancet 2019]
+            + (baseline.mortEvit − mortEvit) × 0.22         [OFSP 2022]
+            + (baseline.gini − gini) × 4.0                  [Wagstaff 1989 ; OCSTAT GE]
+        
+        La baseline dépend du canton sélectionné (défaut : GE 2022).
+      parameters:
+        - name: ids
+          in: query
+          required: true
+          description: Liste d'identifiants séparés par des virgules
+          schema:
+            type: string
+            example: lamal_1996,avs13,psy
+        - name: canton
+          in: query
+          description: "Canton de référence pour la baseline (défaut : GE)"
+          schema:
+            type: string
+            enum: [GE, VD, VS, NE, BE, JU, CH]
+            default: GE
+      responses:
+        "200":
+          description: Score et indicateurs agrégés
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Score"
+
+  /api/v1/parties:
+    get:
+      tags: [parties]
+      summary: Classement des partis par impact sur la santé publique
+      parameters:
+        - name: lv
+          in: query
+          description: "Filtre par niveau de politique"
+          schema:
+            type: string
+            enum: [all, federal, cantonal]
+            default: all
+      responses:
+        "200":
+          description: Classement des partis
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PartyRanking"
+
+  /api/v1/parties/{id}/positions:
+    get:
+      tags: [parties]
+      summary: Liste des votes d'un parti (pour / contre)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: "Identifiant du parti (ex: PS, PLR, UDC, Verts, Centre, PVL, MCG, EaG)"
+          schema:
+            type: string
+            example: PS
+      responses:
+        "200":
+          description: Positions documentées du parti
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PartyPositions"
+
+  /api/v1/cantons:
+    get:
+      tags: [cantons]
+      summary: Baselines des indicateurs de santé par canton
+      description: |
+        Données de référence par canton utilisées pour le calcul du score.
+        Sources : OBSAN, OFS, OCSTAT 2022–2024.
+      responses:
+        "200":
+          description: Baselines cantonales
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  $ref: "#/components/schemas/CantonBaseline"
+
+  /api/v1/ping:
+    get:
+      tags: [meta]
+      summary: Vérification de disponibilité de l'API
+      responses:
+        "200":
+          description: API disponible
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  version:
+                    type: string
+                    example: "1.1.0"
+                  entries:
+                    type: integer
+                    example: 172
+                  timestamp:
+                    type: string
+                    format: date-time
+
+components:
+  schemas:
+
+    Policy:
+      type: object
+      properties:
+        id:
+          type: string
+          example: lamal_1996
+        name:
+          type: string
+          example: "Loi fédérale sur l'assurance-maladie (LAMal)"
+        lv:
+          type: string
+          enum: [federal, cantonal, communal, frontalier]
+        cat:
+          type: string
+          example: Santé
+        icon:
+          type: string
+          example: "🏥"
+        year:
+          type: integer
+          example: 1996
+        st:
+          type: string
+          enum: [acc, rej, cours, prop, proj]
+        stl:
+          type: string
+          example: "✓ 1996"
+        imp:
+          type: integer
+          minimum: 1
+          maximum: 10
+          description: Score d'impact (1–10)
+        commune:
+          type: string
+          example: Genève
+
+    PolicyDetail:
+      allOf:
+        - $ref: "#/components/schemas/Policy"
+        - type: object
+          properties:
+            whatisit:
+              type: string
+            desc:
+              type: string
+            data:
+              type: string
+            src:
+              type: string
+            effects:
+              $ref: "#/components/schemas/Effects"
+            gains:
+              type: array
+              items:
+                $ref: "#/components/schemas/Stakeholder"
+            pertes:
+              type: array
+              items:
+                $ref: "#/components/schemas/Stakeholder"
+            groups:
+              $ref: "#/components/schemas/Groups"
+
+    Effects:
+      type: object
+      description: |
+        Effets estimés sur 4 indicateurs de santé publique.
+        Valeur positive = amélioration. Valeur négative = détérioration.
+        Exceptions : renoncement, mortEvit et gini — négatif = amélioration.
+      properties:
+        renoncement:
+          type: number
+          description: "Variation du taux de renoncement aux soins (%, négatif = amélioration)"
+          example: -2.5
+        esperance:
+          type: number
+          description: "Variation de l'espérance de vie en bonne santé (ans, positif = amélioration)"
+          example: 0.8
+        mortEvit:
+          type: number
+          description: "Variation des décès évitables /100k (négatif = amélioration)"
+          example: -18.0
+        gini:
+          type: number
+          description: "Variation de l'indice Gini de santé (négatif = réduction des inégalités)"
+          example: -0.8
+
+    Score:
+      type: object
+      properties:
+        score:
+          type: integer
+          minimum: 0
+          maximum: 100
+          description: "Score composite (50 = baseline canton, 100 = idéal théorique)"
+          example: 67
+        canton:
+          type: string
+          example: GE
+        baseline:
+          $ref: "#/components/schemas/CantonBaseline"
+        result:
+          $ref: "#/components/schemas/Effects"
+        policies_included:
+          type: array
+          items:
+            type: string
+          example: [lamal_1996, avs13, psy]
+
+    Stakeholder:
+      type: object
+      properties:
+        who:
+          type: string
+          example: "Personnes à faible revenu"
+        quoi:
+          type: string
+          example: "Accès aux soins dentaires"
+        chiffre:
+          type: string
+          example: "40% des adultes renoncent aux soins dentaires faute de moyens"
+
+    Groups:
+      type: object
+      description: Score d'impact par groupe de population (0–30)
+      properties:
+        precaires:
+          type: integer
+        familles:
+          type: integer
+        migrants:
+          type: integer
+        malades:
+          type: integer
+        seniors:
+          type: integer
+        jeunes:
+          type: integer
+
+    PartyRanking:
+      type: object
+      properties:
+        rank:
+          type: integer
+        party_id:
+          type: string
+          example: PS
+        party_name:
+          type: string
+          example: Parti socialiste
+        score:
+          type: number
+          example: 42.3
+        votes_pour:
+          type: integer
+        votes_contre:
+          type: integer
+        total_positions:
+          type: integer
+
+    PartyPositions:
+      type: object
+      properties:
+        party_id:
+          type: string
+        pour:
+          type: array
+          description: IDs des politiques soutenues
+          items:
+            type: string
+        contre:
+          type: array
+          description: IDs des politiques combattues
+          items:
+            type: string
+        tensions:
+          type: array
+          items:
+            type: object
+            properties:
+              pol:
+                type: string
+              texte:
+                type: string
+
+    CantonBaseline:
+      type: object
+      description: "Données de référence OBSAN/OFS 2022–2024"
+      properties:
+        label:
+          type: string
+          example: "GE · Genève"
+        pop:
+          type: integer
+          example: 510000
+        renoncement:
+          type: number
+          description: "Taux de renoncement aux soins (%)"
+          example: 18.0
+        esperance:
+          type: number
+          description: "Espérance de vie en bonne santé (ans)"
+          example: 67.8
+        mortEvit:
+          type: number
+          description: "Décès évitables /100k habitants"
+          example: 158.0
+        gini:
+          type: number
+          description: "Indice Gini de santé"
+          example: 6.2
+
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-CareWatch-Key
+      description: "Clé API (optionnelle pour les endpoints publics en lecture seule)"

@@ -1,0 +1,547 @@
+openapi: 3.0.3
+info:
+  title: CareWatch Open Data API
+  description: |
+    API publique de l'Observatoire participatif de l'équité des soins en Suisse romande.
+    
+    **Accès libre** pour les données publiques (100 requêtes/heure).  
+    **Clé API gratuite** pour un accès étendu (10'000 requêtes/jour) — contactez contact@carewat.ch.
+    
+    Données sous licence **CC BY-NC-SA 4.0**.
+    
+    Citation recommandée :  
+    `CareWatch - Observatoire participatif de l'équité des soins. (2026). [Dataset]. Disponible sur : https://data.carewat.ch`
+  version: "1.0.0"
+  contact:
+    name: CareWatch
+    email: contact@carewat.ch
+    url: https://carewat.ch
+  license:
+    name: CC BY-NC-SA 4.0
+    url: https://creativecommons.org/licenses/by-nc-sa/4.0/
+
+servers:
+  - url: https://api.carewat.ch/v1
+    description: Production (Infomaniak Genève)
+
+security:
+  - {}
+  - BearerAuth: []
+
+tags:
+  - name: Institutions
+    description: Établissements de santé et leurs évaluations
+  - name: Statistiques
+    description: Indicateurs agrégés de l'observatoire
+  - name: DMS
+    description: Scores d'expérience patient (Discrimination, Minimisation, Stéréotypes)
+  - name: Inspections
+    description: Rapports d'inspection CEC
+  - name: Référentiels
+    description: Taxonomies et référentiels
+
+paths:
+  /institutions:
+    get:
+      tags: [Institutions]
+      summary: Liste des établissements avec évaluations
+      description: Retourne la liste des établissements de Suisse romande avec leurs évaluations d'équité.
+      parameters:
+        - name: canton
+          in: query
+          schema:
+            type: string
+            enum: [GE, VD, VS, FR, NE, JU, BE]
+          description: Filtrer par canton
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [hospital, clinic, rehabilitation, psychiatry]
+          description: Type d'établissement
+        - name: rating
+          in: query
+          schema:
+            type: string
+            enum: [outstanding, good, requires_improvement, inadequate]
+          description: Filtrer par évaluation
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/offset'
+      responses:
+        '200':
+          description: Liste des établissements
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Institution'
+                  meta:
+                    $ref: '#/components/schemas/PaginationMeta'
+              example:
+                data:
+                  - id: "ge-hug-cluse"
+                    name: "HUG Cluse-Roseraie"
+                    fullName: "Hôpitaux Universitaires de Genève — Cluse-Roseraie"
+                    city: "Genève"
+                    canton: "GE"
+                    rating: "good"
+                    reports: 45
+                    reliability: 82
+                    verified: 38
+                    contested: 3
+                meta:
+                  total: 54
+                  limit: 50
+                  offset: 0
+
+  /institutions/{id}:
+    get:
+      tags: [Institutions]
+      summary: Détail d'un établissement
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Identifiant de l'établissement (ex. ge-hug-cluse)
+      responses:
+        '200':
+          description: Détail de l'établissement
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InstitutionDetail'
+        '404':
+          description: Établissement non trouvé
+
+  /institutions/{id}/reports:
+    get:
+      tags: [Institutions]
+      summary: Signalements anonymisés d'un établissement
+      description: Retourne les signalements publics (vérifiés) pour un établissement donné. Toutes les données sont anonymisées.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [verified, contested]
+        - name: from
+          in: query
+          schema:
+            type: string
+            format: date
+          description: Date de début (ISO 8601)
+        - name: to
+          in: query
+          schema:
+            type: string
+            format: date
+          description: Date de fin (ISO 8601)
+        - $ref: '#/components/parameters/limit'
+      responses:
+        '200':
+          description: Liste des signalements anonymisés
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AnonymizedReport'
+                  meta:
+                    $ref: '#/components/schemas/PaginationMeta'
+
+  /institutions/{id}/dms:
+    get:
+      tags: [DMS]
+      summary: Scores DMS d'un établissement
+      description: Retourne les scores DMS (Discrimination, Minimisation, Stéréotypes) agrégés pour un établissement.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Scores DMS
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DMSScores'
+
+  /stats:
+    get:
+      tags: [Statistiques]
+      summary: Statistiques globales de l'observatoire
+      responses:
+        '200':
+          description: Statistiques globales
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GlobalStats'
+              example:
+                totalExperiences: 847
+                totalInstitutions: 54
+                cantons: 7
+                positiveRate: 35
+                avgReliability: 78
+                lastUpdated: "2026-02-11T00:00:00Z"
+
+  /stats/cantons:
+    get:
+      tags: [Statistiques]
+      summary: Statistiques par canton
+      parameters:
+        - name: canton
+          in: query
+          schema:
+            type: string
+            enum: [GE, VD, VS, FR, NE, JU, BE]
+      responses:
+        '200':
+          description: Statistiques ventilées par canton
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CantonStats'
+
+  /stats/timeline:
+    get:
+      tags: [Statistiques]
+      summary: Évolution temporelle des signalements
+      parameters:
+        - name: from
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: to
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: granularity
+          in: query
+          schema:
+            type: string
+            enum: [day, week, month, quarter]
+            default: month
+      responses:
+        '200':
+          description: Données temporelles
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        period:
+                          type: string
+                        reports:
+                          type: integer
+                        verified:
+                          type: integer
+                        contested:
+                          type: integer
+
+  /dms/scores:
+    get:
+      tags: [DMS]
+      summary: Scores DMS de tous les établissements
+      parameters:
+        - name: min_respondents
+          in: query
+          schema:
+            type: integer
+            default: 10
+          description: Nombre minimum de répondants pour inclusion
+        - name: canton
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Scores DMS agrégés
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/DMSScores'
+
+  /inspections:
+    get:
+      tags: [Inspections]
+      summary: Rapports d'inspection CEC
+      parameters:
+        - name: canton
+          in: query
+          schema:
+            type: string
+        - name: year
+          in: query
+          schema:
+            type: integer
+        - name: rating
+          in: query
+          schema:
+            type: string
+            enum: [outstanding, good, requires_improvement, inadequate]
+      responses:
+        '200':
+          description: Liste des inspections
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Inspection'
+
+  /services:
+    get:
+      tags: [Référentiels]
+      summary: Référentiel des services médicaux
+      responses:
+        '200':
+          description: Liste des services
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        name:
+                          type: string
+                        category:
+                          type: string
+
+  /incidents/types:
+    get:
+      tags: [Référentiels]
+      summary: Taxonomie des types d'incidents
+      responses:
+        '200':
+          description: Liste des types d'incidents
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        label:
+                          type: string
+                        category:
+                          type: string
+                          enum: [discrimination, quality, rights, positive]
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      description: |
+        Clé API pour accès étendu (10'000 req/jour).
+        Demandez une clé gratuite : contact@carewat.ch
+
+  parameters:
+    limit:
+      name: limit
+      in: query
+      schema:
+        type: integer
+        default: 50
+        maximum: 200
+      description: Nombre maximum de résultats
+    offset:
+      name: offset
+      in: query
+      schema:
+        type: integer
+        default: 0
+      description: Décalage pour la pagination
+
+  schemas:
+    Institution:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "ge-hug-cluse"
+        name:
+          type: string
+          example: "HUG Cluse-Roseraie"
+        fullName:
+          type: string
+          example: "Hôpitaux Universitaires de Genève — Cluse-Roseraie"
+        city:
+          type: string
+          example: "Genève"
+        canton:
+          type: string
+          example: "GE"
+        rating:
+          type: string
+          enum: [outstanding, good, requires_improvement, inadequate]
+        reports:
+          type: integer
+          description: Nombre total de signalements
+        reliability:
+          type: integer
+          description: Score de fiabilité (0-100)
+        verified:
+          type: integer
+          description: Signalements publiés après modération
+        contested:
+          type: integer
+          description: Signalements contestés par l'établissement
+
+    InstitutionDetail:
+      allOf:
+        - $ref: '#/components/schemas/Institution'
+        - type: object
+          properties:
+            services:
+              type: array
+              items:
+                type: string
+            dms:
+              $ref: '#/components/schemas/DMSScores'
+
+    AnonymizedReport:
+      type: object
+      properties:
+        code:
+          type: string
+          example: "CW7K9M2P"
+          description: Code anonyme du signalement
+        date:
+          type: string
+          format: date
+        incidentType:
+          type: string
+        service:
+          type: string
+        status:
+          type: string
+          enum: [verified, contested]
+        grounds:
+          type: array
+          items:
+            type: string
+          description: Motifs de discrimination perçus
+
+    DMSScores:
+      type: object
+      properties:
+        institutionId:
+          type: string
+        discrimination:
+          type: number
+          format: float
+          description: Score de discrimination (0-10, 10 = aucune discrimination)
+        minimisation:
+          type: number
+          format: float
+          description: Score de minimisation (0-10)
+        stereotypes:
+          type: number
+          format: float
+          description: Score de stéréotypes (0-10)
+        respondents:
+          type: integer
+          description: Nombre de répondants
+
+    GlobalStats:
+      type: object
+      properties:
+        totalExperiences:
+          type: integer
+        totalInstitutions:
+          type: integer
+        cantons:
+          type: integer
+        positiveRate:
+          type: integer
+          description: Pourcentage de retours positifs
+        avgReliability:
+          type: integer
+        lastUpdated:
+          type: string
+          format: date-time
+
+    CantonStats:
+      type: object
+      properties:
+        canton:
+          type: string
+        reports:
+          type: integer
+        institutions:
+          type: integer
+        avgReliability:
+          type: integer
+
+    Inspection:
+      type: object
+      properties:
+        institutionId:
+          type: string
+        date:
+          type: string
+          format: date
+        rating:
+          type: string
+          enum: [outstanding, good, requires_improvement, inadequate]
+        summary:
+          type: string
+
+    PaginationMeta:
+      type: object
+      properties:
+        total:
+          type: integer
+        limit:
+          type: integer
+        offset:
+          type: integer

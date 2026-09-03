@@ -1,0 +1,22 @@
+# Sauvegardes locales et fichiers de travail
+sauvegardes/
+carewat.ch/index.html.bak
+carewat.ch/index.html.avant-supabase
+carewat.ch/_index.html
+carewat.ch/.claude/
+.claude/
+
+# Identifiants réels (configuration SMTP déposée hors du dossier web sur Infomaniak)
+infomaniak/carewatch_smtp.php
+
+# Codes d'invitation de l'alpha fermée et données nominatives des testeurs
+sql/carewatch_v2_supabase_invitations_nda.sql
+sql/carewatch_v2_supabase_invitations_etudiants.sql
+docs/Codes_invitation_CareWatch_alpha.docx
+
+# Système
+Thumbs.db
+.DS_Store
+
+# Clés d'API des sous-sites (policy)
+carewat.ch/policy/.env

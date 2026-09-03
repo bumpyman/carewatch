@@ -1,0 +1,15 @@
+{
+  "title": "CareWatch : observatoire participatif de l'équité des soins en Suisse romande",
+  "upload_type": "software",
+  "description": "<p>Plateforme de signalement anonyme et de suivi des situations d'iniquité vécues dans les soins en Suisse romande. Code source de l'application web (React mono-fichier), schéma et fonctions de la base Supabase, script d'envoi SMTP, documents de cadrage. Les données publiées sont dé-identifiées et ne concernent que les témoignages vérifiés.</p>",
+  "creators": [
+    { "name": "Issom, David", "affiliation": "Haute école de gestion de Genève (HES-SO)" }
+  ],
+  "license": "AGPL-3.0-or-later",
+  "access_right": "open",
+  "language": "fra",
+  "keywords": ["équité des soins", "discrimination", "santé", "Suisse romande", "participatif", "open data"],
+  "related_identifiers": [
+    { "identifier": "https://carewat.ch", "relation": "isSupplementTo", "resource_type": "other" }
+  ]
+}

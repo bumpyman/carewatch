@@ -1,0 +1,1617 @@
+<!DOCTYPE html>
+<!--
+  Observatoire des inegalites et iniquites de sante, maquette d'integration au portail SaGe
+  Copyright (C) 2026 Convivens Lab, HEG-Geneve (HES-SO)
+  SPDX-License-Identifier: AGPL-3.0-or-later
+
+  Ce programme est un logiciel libre : vous pouvez le redistribuer et le modifier
+  selon les termes de la GNU Affero General Public License publiee par la
+  Free Software Foundation, version 3 de la licence ou toute version ulterieure.
+  Ce programme est distribue dans l'espoir d'etre utile, SANS AUCUNE GARANTIE,
+  y compris les garanties implicites de commercialisation et d'adequation a un
+  usage particulier. Texte complet : https://www.gnu.org/licenses/agpl-3.0.html
+  Fond de carte : swisstopo swissBOUNDARIES3D, donnees ouvertes.
+-->
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SaGe x CareWatch · Observatoire des inégalités et iniquités de santé</title>
+<style>
+  :root{
+    /* palette relevée sur le prototype SaGe */
+    --marine:#232D4F;         /* barre latérale et titres */
+    --marine-2:#2C3766;      /* survol barre latérale */
+    --marine-texte:#2A3563;  /* titres de sections */
+    --texte:#3E4767;         /* corps de texte */
+    --texte-doux:#59627E;    /* texte secondaire */
+    --or:#C9A35C;            /* wordmark saGe */
+    --peche-1:#FCEDE3;       /* dégradé bandeau haut */
+    --peche-2:#F9DCCB;
+    --corail:#D04552;        /* urgences */
+    --corail-fonce:#B03844;
+    --pervenche:#5563BE;     /* bouton primaire */
+    --pervenche-fonce:#44529F;
+    --orange:#EFA35C;        /* soulignement de titres */
+    --fond:#F7F5F2;          /* fond de page */
+    --carte:#FFFFFF;
+    --trait:#E7E4DE;
+    --ok:#2F7E5B; --ok-fond:#DFF3E9;
+    --bleu-chip:#3D5AA9; --bleu-chip-fond:#E3ECFA;
+    --teal-chip:#186666; --teal-chip-fond:#DDF0F0;
+    --peche-chip:#A8532A; --peche-chip-fond:#FDE8DC;
+    --alerte:#B23A47; --alerte-fond:#FBE3E6;
+    --q1:#DCEDEA; --q2:#A9D2CB; --q3:#F3CE8C; --q4:#E89A66; --q5:#D95563;
+    --lac:#DCE9F5;
+    --titres:"Comfortaa","Quicksand","Trebuchet MS","Segoe UI",sans-serif;
+    --corps:"Nunito","Segoe UI",Verdana,sans-serif;
+    --mono:Consolas,"Liberation Mono",monospace;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:var(--corps);background:var(--fond);color:var(--texte);font-size:17px;line-height:1.6;overflow-x:hidden}
+
+  .proto{background:#EFEDE8;color:var(--texte-doux);font-size:12px;padding:5px 20px;text-align:center}
+
+  /* ---------- coquille SaGe : barre latérale + colonne principale ---------- */
+  .coquille{display:flex;min-height:100vh}
+  aside.laterale{width:230px;background:var(--marine);color:#fff;display:flex;flex-direction:column;flex-shrink:0}
+  .marque{padding:22px 20px;border-bottom:1px solid rgba(255,255,255,.12);display:flex;align-items:center;gap:10px}
+  .coeur{width:26px;height:26px}
+  .wordmark{font-family:var(--titres);font-size:24px;color:var(--or);letter-spacing:.02em;line-height:1}
+  .wordmark small{display:block;font-size:10px;color:#D8DBEA;letter-spacing:.14em;text-transform:lowercase;margin-top:3px;font-family:var(--corps)}
+  nav.menu{display:flex;flex-direction:column;padding-top:6px}
+  nav.menu a{color:#D8DBEA;text-decoration:none;font-size:16px;padding:14px 20px;display:flex;align-items:center;gap:11px;border-left:3px solid transparent}
+  nav.menu a:hover{background:var(--marine-2);color:#fff}
+  nav.menu a.actif{background:var(--marine-2);color:#fff;border-left-color:var(--or);font-weight:700}
+  nav.menu svg{width:17px;height:17px;flex-shrink:0}
+  .dep{margin-top:auto;padding:16px 20px;border-top:1px solid rgba(255,255,255,.12);color:#D8DBEA;font-size:15px;display:flex;align-items:center;gap:9px}
+
+  .colonne{flex:1;min-width:0;display:flex;flex-direction:column}
+
+  /* bandeau haut pêche */
+  .haut{background:linear-gradient(90deg,var(--peche-1),var(--peche-2));padding:14px 28px;display:flex;align-items:center;gap:14px}
+  .miettes{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--marine-texte);display:flex;align-items:center;gap:8px;font-weight:600}
+  .miettes .maison{width:26px;height:26px;border:1.5px solid var(--marine-texte);border-radius:8px;display:inline-flex;align-items:center;justify-content:center}
+  .haut .droite{margin-left:auto;display:flex;gap:10px;align-items:center}
+  .loupe{width:36px;height:36px;background:#fff;border-radius:10px;border:none;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 8px rgba(35,45,79,.10)}
+  .btn-urgences{background:var(--corail);color:#fff;border:none;border-radius:8px;padding:10px 16px;font-size:12.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;font-family:var(--corps)}
+  .btn-urgences:hover{background:var(--corail-fonce)}
+
+  /* héros */
+  .heros{background:linear-gradient(120deg,var(--peche-1) 55%,var(--peche-2));padding:34px 32px 30px;position:relative}
+  .heros h1{font-family:var(--titres);font-weight:600;font-size:31px;line-height:1.25;color:var(--marine-texte);max-width:760px;letter-spacing:-.01em}
+  .heros .souligne{width:56px;height:4px;background:var(--orange);border-radius:2px;margin:14px 0 12px}
+  .heros p{max-width:780px;font-size:16.5px;color:var(--texte)}
+  .vague{display:block;width:100%;height:26px;margin-bottom:-1px}
+
+  /* onglets internes façon SaGe */
+  .porte-onglets{padding:0 32px;margin-top:18px}
+  .onglets{background:var(--carte);border-radius:14px;box-shadow:0 6px 20px rgba(35,45,79,.07);display:flex;flex-wrap:wrap;gap:4px;padding:8px 12px 0}
+  .onglet{border:none;background:none;font-family:var(--corps);font-size:16px;font-weight:600;color:var(--texte-doux);padding:12px 14px 14px;cursor:pointer;position:relative;white-space:nowrap}
+  .onglet.actif{color:var(--marine-texte)}
+  .onglet.actif::after{content:"";position:absolute;left:14px;right:14px;bottom:0;height:3px;background:var(--orange);border-radius:2px}
+  .onglet:focus-visible{outline:2px solid var(--pervenche);border-radius:8px}
+  .btn-menu{display:none;width:100%;align-items:center;justify-content:space-between;background:var(--carte);border:1.5px solid var(--trait);border-radius:12px;padding:13px 16px;font-family:var(--corps);font-size:15.5px;font-weight:700;color:var(--marine-texte);cursor:pointer;box-shadow:0 6px 20px rgba(35,45,79,.07)}
+  .btn-menu svg{transition:transform .15s}
+  .btn-menu.ouvert svg{transform:rotate(180deg)}
+  #causes-ema{flex-wrap:wrap}
+  #causes-ema button{flex:1 1 30%;min-width:30%;aspect-ratio:auto;padding:8px 2px;font-size:11.5px}
+  @media (max-width:1279px){
+    .btn-menu{display:flex}
+    .onglets{display:none;flex-direction:column;gap:2px;padding:8px;margin-top:8px}
+    .onglets.ouvert{display:flex}
+    .onglet{text-align:left;padding:13px 12px;border-radius:10px;white-space:normal}
+    .onglet.actif{background:var(--peche-1)}
+    .onglet.actif::after{display:none}
+  }
+  .sel-mobile{display:none}
+  @media (max-width:720px){
+    .porte-onglets{padding:0 16px}
+    main{padding:20px 16px 50px}
+    .heros{padding:26px 18px 24px}
+    .heros h1{font-size:23px}
+    .heros p{font-size:16px}
+    .haut{padding:12px 16px;flex-wrap:wrap;gap:10px}
+    .miettes{font-size:11px}
+    .btn-urgences{padding:9px 12px;font-size:11px}
+    h2.section{font-size:21px}
+    .carte-ui{padding:16px}
+    .val-grande{font-size:30px}
+    .ligne-strate .n{width:128px;font-size:12.5px}
+    .tels{gap:16px}
+    .tel{width:100%;max-width:300px}
+    .pied-int{padding:24px 18px}
+    .pied-bas{padding:12px 18px}
+    .ss-onglet{flex:1 1 100%}
+    select.champ{max-width:none}
+  }
+
+  main{padding:24px 32px 60px;max-width:1220px}
+  .ecran{display:none}
+  .ecran.actif{display:block}
+  h2.section{font-family:var(--titres);font-weight:600;font-size:24px;color:var(--marine-texte);margin-bottom:6px}
+  .souligne{width:46px;height:4px;background:var(--orange);border-radius:2px;margin:10px 0 14px}
+  .chapeau{color:var(--texte-doux);font-size:17px;max-width:840px;margin-bottom:22px}
+
+  .carte-ui{background:var(--carte);border-radius:16px;padding:22px;box-shadow:0 6px 20px rgba(35,45,79,.07)}
+  .etiquette{font-size:12.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--texte-doux);display:block;margin-bottom:10px;font-weight:700}
+  .grille{display:grid;gap:18px}
+  .g-2{grid-template-columns:1fr 1fr}
+  .g-carte{grid-template-columns:minmax(0,7fr) minmax(0,5fr);align-items:start}
+  @media (max-width:980px){.g-2,.g-carte{grid-template-columns:1fr}.coquille{flex-direction:column}aside.laterale{width:100%}}
+
+  .chip{display:inline-flex;align-items:center;border-radius:99px;padding:5px 13px;font-size:13px;font-weight:700}
+  .chip.vert{background:var(--ok-fond);color:var(--ok)}
+  .chip.bleu{background:var(--bleu-chip-fond);color:var(--bleu-chip)}
+  .chip.teal{background:var(--teal-chip-fond);color:var(--teal-chip)}
+  .chip.peche{background:var(--peche-chip-fond);color:var(--peche-chip)}
+  .chip.rouge{background:var(--alerte-fond);color:var(--alerte)}
+
+  .puce{display:inline-flex;align-items:center;border:1.5px solid var(--trait);border-radius:99px;padding:8px 16px;font-size:15px;background:var(--carte);cursor:pointer;color:var(--texte);font-family:var(--corps);font-weight:600}
+  .puce.active{background:var(--marine);color:#fff;border-color:var(--marine)}
+  .rang-puces{display:flex;gap:9px;flex-wrap:wrap}
+  select.champ{font-family:var(--corps);font-size:16px;padding:11px 14px;border:1.5px solid var(--trait);border-radius:10px;background:var(--carte);color:var(--texte);width:100%;max-width:560px}
+
+  .maj{display:inline-flex;align-items:center;gap:8px;font-size:15px;border-radius:8px;padding:6px 12px;background:var(--ok-fond);color:var(--ok);font-weight:700}
+  .maj .pt{width:8px;height:8px;border-radius:50%;background:var(--ok)}
+  .maj.orange{background:var(--peche-chip-fond);color:var(--peche-chip)} .maj.orange .pt{background:var(--peche-chip)}
+
+  .carte-geo{display:block;margin:0 auto;width:100%;height:auto;max-height:440px}
+  .carte-map{align-self:start}
+  @media (min-width:981px){.carte-map{position:sticky;top:96px}}
+  .tableau-cadre{position:relative;width:100%;height:min(78vh,880px);min-height:520px;border-radius:12px;overflow:hidden;background:var(--fond);border:1px solid var(--trait)}
+  .tableau-cadre iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+  @media (max-width:720px){.tableau-cadre{height:min(70vh,720px);min-height:460px}}
+  .etude{border:1.5px solid var(--trait);border-radius:12px;padding:14px 16px;background:var(--carte)}
+  .etude h4{font-family:var(--titres);font-size:16px;color:var(--marine-texte);margin-bottom:4px}
+  .etude .an{font-size:12.5px;color:var(--pervenche-fonce);font-weight:800;letter-spacing:.04em}
+  .etude p{font-size:14px;color:var(--texte-doux);margin-top:6px}
+  .theme-lig{display:flex;gap:12px;align-items:baseline;padding:11px 0;border-bottom:1px solid var(--trait);flex-wrap:wrap}
+  .theme-lig:last-child{border-bottom:none}
+  .theme-lig .th{flex:0 0 260px;font-weight:700;color:var(--marine-texte);font-size:15.5px}
+  .theme-lig .fl{color:var(--texte-doux);font-size:15px;flex:1;min-width:200px}
+  .theme-lig .dom{white-space:nowrap}
+  @media (max-width:720px){.theme-lig .th{flex-basis:100%}}
+  .pub{border-left:4px solid var(--pervenche);background:var(--fond);border-radius:0 12px 12px 0;padding:14px 16px;margin-bottom:12px}
+  .pub .haut{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:6px}
+  .pub .rev{font-size:13px;color:var(--texte-doux);font-weight:700}
+  .pub h4{font-size:16px;color:var(--marine-texte);margin:2px 0 6px;line-height:1.35}
+  .pub p{font-size:15px;color:var(--texte)}
+  .pub .lien-ind{font-size:13.5px;color:var(--pervenche-fonce);font-weight:700;margin-top:8px;display:inline-block}
+  .commune{stroke:#fff;stroke-width:1.1;cursor:pointer}
+  .commune:hover{opacity:.8}
+  .commune.sel{stroke:var(--marine);stroke-width:2.2}
+  .legende-echelle{display:flex;margin-top:14px;border-radius:6px;overflow:hidden}
+  .legende-echelle .cran{height:12px;flex:1}
+  .legende-lib{display:flex;justify-content:space-between;font-size:13px;color:var(--texte-doux);margin-top:5px;font-weight:600}
+
+  .val-grande{font-size:36px;font-weight:800;letter-spacing:-.02em;line-height:1.1;color:var(--marine-texte);font-family:var(--corps)}
+  .val-unite{font-size:16px;color:var(--texte-doux);font-weight:600}
+  .ligne-strate{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--trait);font-size:14px}
+  .ligne-strate:last-child{border-bottom:none}
+  .barre-strate{flex:1;height:10px;background:var(--fond);border-radius:5px;overflow:hidden}
+  .barre-strate i{display:block;height:100%;background:var(--pervenche);border-radius:5px}
+  .ligne-strate .v{font-size:13px;width:52px;text-align:right;color:var(--texte-doux);font-weight:700}
+  .ligne-strate .n{width:170px;color:var(--texte-doux)}
+  .def-indic{font-size:16px;color:var(--texte);background:var(--fond);border-radius:10px;padding:12px 14px;margin-top:14px}
+  .liste-simple li{list-style:none;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--trait);font-size:16px}
+  .liste-simple li:last-child{border-bottom:none}
+
+  /* fiche grand public */
+  .q-bloc{margin-bottom:16px}
+  .q-bloc h3{font-family:var(--titres);font-weight:600;font-size:17px;color:var(--marine-texte);margin-bottom:6px}
+  .q-bloc p{font-size:16.5px;color:var(--texte)}
+  .chiffre-ex{display:flex;gap:14px;flex-wrap:wrap;margin:12px 0}
+  .chiffre-ex .c{flex:1;min-width:150px;background:var(--fond);border-radius:12px;padding:14px 16px}
+  .chiffre-ex .c .k{font-size:13px;color:var(--texte-doux);font-weight:600}
+  .chiffre-ex .c .v{font-size:28px;font-weight:800;color:var(--marine-texte)}
+
+  /* double peine */
+  .leg-dp{display:flex;flex-direction:column;gap:9px;margin-top:6px}
+  .leg-dp .l{display:flex;align-items:flex-start;gap:10px;font-size:15.5px}
+  .leg-dp .sw{width:16px;height:16px;border-radius:5px;flex-shrink:0;margin-top:2px}
+  .score-bloc{margin:10px 0}
+  .score-bloc .t{display:flex;justify-content:space-between;font-size:14px;margin-bottom:5px;font-weight:600}
+  .score-bloc .t span:last-child{color:var(--texte-doux)}
+  .jauge-s{height:12px;background:var(--fond);border-radius:6px;overflow:hidden}
+  .jauge-s i{display:block;height:100%;border-radius:6px}
+
+  /* jumeaux */
+  .ss-onglets{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap}
+  .ss-onglet{border:1.5px solid var(--trait);background:var(--carte);border-radius:10px;padding:11px 20px;font-size:16px;cursor:pointer;color:var(--texte);font-family:var(--corps);font-weight:700}
+  .ss-onglet.actif{background:var(--pervenche);border-color:var(--pervenche);color:#fff}
+  .ss-vue{display:none}
+  .ss-vue.actif{display:block}
+  .curseur-bloc{margin-bottom:18px}
+  .curseur-bloc label{display:flex;justify-content:space-between;font-size:16px;margin-bottom:7px;gap:12px}
+  .curseur-bloc output{color:var(--pervenche-fonce);font-weight:800;white-space:nowrap}
+  input[type=range]{width:100%;accent-color:var(--pervenche)}
+  .kpi{padding:15px 17px;border-radius:14px;background:var(--carte);box-shadow:0 6px 20px rgba(35,45,79,.07)}
+  .kpi .k{font-size:14px;color:var(--texte-doux);margin-bottom:5px;font-weight:600}
+  .kpi .v{font-size:27px;font-weight:800;color:var(--marine-texte);letter-spacing:-.02em}
+  .kpi .d{font-size:13px;margin-top:2px;font-weight:700}
+  .d.moins{color:var(--ok)}.d.plus{color:var(--alerte)}
+  .barres-heures{display:flex;align-items:flex-end;gap:3px;height:120px;margin-top:12px}
+  .barres-heures .b{flex:1;background:var(--pervenche);border-radius:4px 4px 0 0;min-height:4px}
+  .barres-heures .b.pic{background:var(--corail)}
+  .axe-h{display:flex;justify-content:space-between;font-size:12px;color:var(--texte-doux);margin-top:6px;font-weight:600}
+  .groupe-sang{margin-bottom:12px}
+  .groupe-sang .tete{display:flex;justify-content:space-between;font-size:16px;margin-bottom:5px}
+  .groupe-sang .tete b{color:var(--marine-texte)}
+  .groupe-sang .tete .jv{color:var(--texte-doux);font-weight:700}
+  .jauge{height:16px;background:var(--fond);border-radius:8px;overflow:hidden}
+  .jauge i{display:block;height:100%;border-radius:8px;background:var(--pervenche)}
+  .jauge i.bas{background:var(--corail)}
+  .jauge i.moyen{background:var(--orange)}
+  .seuils{display:flex;justify-content:space-between;font-size:12px;color:var(--texte-doux);margin-top:5px;font-weight:600}
+
+  /* téléphones */
+  .tels{display:flex;gap:22px;justify-content:center;align-items:flex-start;flex-wrap:wrap}
+  .tel{width:262px;border:1px solid var(--trait);border-radius:26px;background:var(--carte);padding:13px;box-shadow:0 10px 28px rgba(35,45,79,.10)}
+  .tel-ecran{background:var(--fond);border-radius:16px;padding:15px;min-height:340px;display:flex;flex-direction:column;gap:12px}
+  .tel .heure{font-size:11px;color:var(--texte-doux);text-align:center;font-weight:600}
+  .etape-tel{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--pervenche-fonce);text-align:center;margin-top:9px;font-weight:800}
+  .notif{background:var(--carte);border-radius:14px;padding:13px;box-shadow:0 3px 10px rgba(35,45,79,.06)}
+  .notif .app{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--texte-doux);margin-bottom:6px;font-weight:800}
+  .notif p{font-size:14px}
+  .btn-id{display:block;width:100%;margin-top:9px;padding:11px;border-radius:10px;border:1.5px solid var(--trait);background:var(--carte);font-size:14px;cursor:pointer;font-family:var(--corps);font-weight:700;color:var(--texte)}
+  .btn-id.principal{background:var(--pervenche);border-color:var(--pervenche);color:#fff}
+  .echelle-stress{display:flex;gap:6px;margin-top:12px}
+  .echelle-stress button{flex:1;aspect-ratio:1;border-radius:10px;border:1.5px solid var(--trait);background:var(--carte);font-size:14px;cursor:pointer;color:var(--texte);font-weight:700}
+  .echelle-stress button.sel{background:var(--pervenche);color:#fff;border-color:var(--pervenche)}
+  .note-tel{font-size:11px;color:var(--texte-doux);text-align:center}
+  .courbe-svg{width:100%;height:auto}
+  .encart{background:var(--peche-chip-fond);border-radius:12px;padding:14px 16px;font-size:16px}
+  .encart b{color:var(--marine-texte)}
+  a.lien{color:var(--pervenche-fonce);font-weight:700;text-decoration:underline}
+  .btn-signal{display:inline-block;background:var(--corail);color:#fff;border-radius:10px;padding:11px 18px;font-size:14px;font-weight:800;text-decoration:none;margin-top:10px}
+  .btn-signal:hover{background:var(--corail-fonce)}
+
+  /* à propos */
+  table.def3{width:100%;border-collapse:collapse;font-size:15.5px;margin-top:6px}
+  table.def3 th,table.def3 td{text-align:left;padding:11px 12px;border-bottom:1px solid var(--trait);vertical-align:top}
+  table.def3 th{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--texte-doux)}
+  table.methode{width:100%;border-collapse:collapse;font-size:16px}
+  table.methode td{text-align:left;padding:10px 10px;border-bottom:1px solid var(--trait);vertical-align:top}
+
+  footer.pied{background:var(--marine);color:#D8DBEA;margin-top:30px}
+  .pied-int{padding:30px 32px;display:grid;grid-template-columns:1.1fr 1fr 1.4fr;gap:26px;max-width:1220px}
+  @media (max-width:900px){.pied-int{grid-template-columns:1fr}}
+  .pied-int h4{font-family:var(--titres);color:#fff;font-size:16px;margin-bottom:12px;font-weight:600}
+  .pied-int a{color:#D8DBEA;text-decoration:none;display:block;font-size:14px;padding:4px 0}
+  .pied-int a:hover{color:#fff}
+  button:focus-visible,a:focus-visible,select:focus-visible,summary:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--pervenche-fonce);outline-offset:2px}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+  /* composant Voir plus : details/summary natif, clavier et lecteur d'ecran inclus */
+  .voirplus{margin-top:10px}
+  .voirplus summary{list-style:none;cursor:pointer;display:inline-flex;align-items:center;gap:9px;border:2px solid var(--pervenche);color:var(--pervenche-fonce);border-radius:10px;padding:10px 18px;font-weight:800;font-size:14px;letter-spacing:.07em;text-transform:uppercase;background:var(--carte)}
+  .voirplus summary:hover{background:#EFF1FB}
+  .voirplus summary::-webkit-details-marker{display:none}
+  .voirplus .lib-moins{display:none}
+  .voirplus[open] .lib-plus{display:none}
+  .voirplus[open] .lib-moins{display:inline}
+  .voirplus .chev{transition:transform .15s}
+  .voirplus[open] .chev{transform:rotate(180deg)}
+  .voirplus .contenu{margin-top:14px;font-size:16px;color:var(--texte)}
+  .pied-bas{border-top:1px solid rgba(255,255,255,.15);padding:14px 32px;font-size:12px;color:#AEB4CB;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+</style>
+</head>
+<body>
+
+<div class="proto">Prototype d'intégration au portail SaGe · valeurs fictives d'illustration</div>
+
+<div class="coquille">
+
+  <!-- ===== barre latérale SaGe ===== -->
+  <aside class="laterale">
+    <div class="marque">
+      <svg class="coeur" viewBox="0 0 24 24" fill="none" stroke="#C9A35C" stroke-width="1.8"><path d="M12 20s-7-4.6-9.2-8.8C1.2 8 3 4.6 6.4 4.6c2 0 3.6 1.2 4.4 2.6.8-1.4 2.4-2.6 4.4-2.6 3.4 0 5.2 3.4 3.6 6.6C16.9 15.4 12 20 12 20z"/></svg>
+      <div class="wordmark">saGe<small>santé genève</small></div>
+    </div>
+    <nav class="menu">
+      <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>Accueil</a>
+      <a href="https://www.ge.ch/organisation/ocs-smc-prevention-promotion-sante" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>Votre santé à Genève</a>
+      <a href="https://www.ge.ch/dossier/prendre-soin-sa-sante-geneve" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 1 4 10.5c-.8.7-1 1.5-1 2.5h-6c0-1-.2-1.8-1-2.5A6 6 0 0 1 12 3z"/></svg>Infos et prévention</a>
+      <a href="#" class="actif"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/></svg>Observatoire des inégalités</a>
+    </nav>
+    <div class="dep"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 12a4 4 0 0 1 4-4h4a4 4 0 0 1 0 8h-2M15 12a4 4 0 0 1-4 4H7a4 4 0 0 1 0-8h2"/></svg>Dossier Électronique du Patient</div>
+  </aside>
+
+  <!-- ===== colonne principale ===== -->
+  <div class="colonne">
+
+    <div class="haut">
+      <div class="miettes"><span class="maison"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#2A3563" stroke-width="2"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg></span>Accueil <span style="opacity:.5">&rsaquo;</span> Observatoire des inégalités</div>
+      <div class="droite">
+        <button class="loupe" aria-label="Rechercher"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2A3563" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.5-4.5"/></svg></button>
+        <a class="btn-urgences" href="https://www.hug.ch/application-mobile/infomed" target="_blank" rel="noopener" style="text-decoration:none;display:inline-flex;align-items:center">Urgences &amp; symptômes</a>
+      </div>
+    </div>
+
+    <div class="heros">
+      <h1>Comprendre et réduire les écarts de santé, commune par commune</h1>
+      <div class="souligne"></div>
+      <p>La santé se distribue selon un gradient social. L'observatoire mesurerait ces écarts, en distinguerait la part évitable et injuste, les iniquités, et suivrait les ressources qui protègent la santé.</p>
+    </div>
+    <svg class="vague" viewBox="0 0 1200 26" preserveAspectRatio="none"><path d="M0 0h1200v6c-200 22-400 22-600 10S200 4 0 18z" fill="#F9DCCB" opacity=".55"/></svg>
+
+    <div class="porte-onglets">
+      <button class="btn-menu" id="btn-menu" aria-expanded="false" aria-controls="barre-onglets">
+        <span id="btn-menu-lib">Cartes et indicateurs</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="onglets" id="barre-onglets">
+        <button class="onglet actif" data-ecran="e1">Cartes et indicateurs</button>
+        <button class="onglet" data-ecran="e8">Étude Specchio</button>
+        <button class="onglet" data-ecran="e2">Comprendre un indicateur</button>
+        <button class="onglet" data-ecran="e3">Double peine</button>
+        <button class="onglet" data-ecran="e4">Jumeaux numériques</button>
+        <button class="onglet" data-ecran="e5">Stress urbain</button>
+        <button class="onglet" data-ecran="e7">Mesures correctives</button>
+        <button class="onglet" data-ecran="e6">À propos et méthode</button>
+      </div>
+    </div>
+
+    <main>
+
+    <!-- ================= ÉCRAN 1 ================= -->
+    <section class="ecran actif" id="e1">
+      <h2 class="section">Cartes et indicateurs</h2>
+      <div class="souligne"></div>
+      <p class="chapeau">Huit domaines couvriraient la chaîne complète, depuis la position sociale jusqu'aux résultats de santé, en passant par les expositions, les ressources protectrices et les violences. La carte affiche l'échelle communale, la version produit descendrait au micro-secteur statistique.</p>
+
+      <div class="carte-ui" style="margin-bottom:18px">
+        <span class="etiquette">Choisir un domaine</span>
+        <div class="rang-puces masque-mobile" id="puces-domaines"></div>
+        <select class="champ sel-mobile" id="sel-domaine" aria-label="Choisir un domaine"></select>
+        <div style="margin-top:16px">
+          <span class="etiquette">Choisir un indicateur</span>
+          <select class="champ" id="sel-indic" aria-label="Choisir un indicateur"></select>
+        </div>
+        <div style="margin-top:16px">
+          <span class="etiquette">Choisir une population</span>
+          <div class="rang-puces masque-mobile" id="puces-pop"></div>
+          <select class="champ sel-mobile" id="sel-pop" aria-label="Choisir une population"></select>
+          <div style="margin-top:12px;display:flex;gap:12px;flex-wrap:wrap;align-items:center">
+            <span class="maj" id="maj-indic"><span class="pt"></span></span>
+            <span style="font-size:14px;color:var(--texte-doux);font-weight:600" id="src-indic"></span>
+          </div>
+          <p style="font-size:15px;color:var(--texte-doux);margin-top:10px;display:none" id="note-pop"></p>
+        </div>
+      </div>
+
+      <div class="carte-ui" id="carte-signal" style="display:none;margin-bottom:18px;border-left:5px solid var(--corail);background:linear-gradient(90deg,#FDF0EE,var(--carte))">
+        <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;justify-content:space-between">
+          <div style="flex:1;min-width:260px">
+            <h3 style="font-family:var(--titres);font-size:18px;color:var(--marine-texte);margin-bottom:4px">Vous avez vécu une discrimination dans l'accès aux soins ?</h3>
+            <p style="font-size:15.5px">Votre signalement alimente cet indicateur et vous oriente, si vous le souhaitez, vers une aide adaptée. Le recueil est confidentiel, sur la plateforme CareWatch.</p>
+          </div>
+          <a class="btn-signal" href="https://www.carewat.ch" target="_blank" rel="noopener" style="margin-top:0;white-space:nowrap">Faire un signalement</a>
+        </div>
+      </div>
+
+      <div class="grille g-carte">
+        <div class="carte-ui carte-map">
+          <span class="etiquette">Canton de Genève · 45 communes · fond de carte swisstopo, données ouvertes</span>
+          <svg class="carte-geo" id="svg-carte" viewBox="0 0 590 560" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Carte du canton de Genève par commune"></svg>
+          <div class="legende-echelle" id="legende"></div>
+          <div class="legende-lib"><span id="leg-min"></span><span id="leg-max"></span></div>
+          <p style="font-size:13px;color:var(--texte-doux);margin-top:8px;display:none" id="note-gris">Les communes en gris comptent moins de cinq personnes concernées, le chiffre reste masqué, protection de l'anonymat. La lecture cantonale prime pour les populations rares.</p>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:18px">
+          <div class="carte-ui" style="border-top:4px solid var(--orange)">
+            <span class="etiquette">Commune sélectionnée</span>
+            <h3 style="font-family:var(--titres);font-size:20px;color:var(--marine-texte);margin-bottom:10px" id="nom-commune">Vernier</h3>
+            <div class="val-grande" id="val-commune"></div>
+            <div style="margin:5px 0 6px;font-size:14px;color:var(--texte-doux);font-weight:600" id="comp-commune"></div>
+            <div style="margin:0 0 14px;display:none" id="ecart-pop"><span class="chip peche" id="ecart-pop-val"></span></div>
+            <span class="etiquette">Écarts selon le niveau socioéconomique du secteur</span>
+            <div id="strates"></div>
+            <div class="def-indic" id="def-indic"></div>
+          </div>
+          <div class="carte-ui">
+            <span class="etiquette">Communes où la situation est la plus défavorable</span>
+            <ul class="liste-simple" id="classement"></ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= ÉCRAN 2 ================= -->
+    <section class="ecran" id="e2">
+      <h2 class="section">Comprendre un indicateur</h2>
+      <div class="souligne"></div>
+      <p class="chapeau">Chaque indicateur serait accompagné d'une fiche en langage courant. Exemple avec la santé dentaire des élèves, du domaine Enfance et jeunesse.</p>
+
+      <div class="grille g-2">
+        <div class="carte-ui">
+          <div style="display:flex;gap:8px;margin-bottom:12px"><span class="chip peche">Enfance et jeunesse</span><span class="chip vert">Mis à jour chaque année scolaire</span></div>
+          <h3 style="font-family:var(--titres);font-size:22px;color:var(--marine-texte);margin-bottom:16px">Élèves avec un besoin de soins dentaires constaté</h3>
+          <div class="q-bloc">
+            <h3>Que mesure ce chiffre ?</h3>
+            <p>La part des élèves chez qui le dépistage dentaire à l'école constate au moins une carie ou un autre problème à traiter. Le dépistage concerne tous les élèves d'un même degré, quel que soit le milieu familial.</p>
+          </div>
+          <div class="q-bloc">
+            <h3>Pourquoi est-ce important ?</h3>
+            <p>Ce chiffre révèle les inégalités de santé dès l'enfance, à un âge où elles restent réversibles.</p>
+          </div>
+          <details class="voirplus"><summary><span class="lib-plus">Voir plus</span><span class="lib-moins">Voir moins</span><svg class="chev" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></summary><div class="contenu"><div class="q-bloc"><h3>Le mécanisme</h3><p>Une carie sans soins provoque des douleurs qui perturbent l'alimentation, le sommeil et la concentration en classe. Ce chiffre suit de près le revenu du quartier.</p></div><div class="q-bloc"><h3>D'où viennent les données ?</h3><p>Des dépistages réalisés chaque année scolaire, à l'école, par le service de santé de l'enfance et de la jeunesse. Le passage de tous les élèves donne une mesure fidèle, indépendante du fait que la famille consulte un dentiste.</p></div></div></details>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:18px">
+          <div class="carte-ui">
+            <span class="etiquette">Comment le lire · exemple fictif</span>
+            <div class="chiffre-ex">
+              <div class="c"><div class="k">Commune A</div><div class="v">34 %</div></div>
+              <div class="c"><div class="k">Moyenne cantonale</div><div class="v">22 %</div></div>
+              <div class="c"><div class="k">Commune B</div><div class="v">11 %</div></div>
+            </div>
+            <p style="font-size:16px">Dans la commune A, environ un élève sur trois aurait besoin de soins dentaires, contre un sur neuf dans la commune B. Un tel écart guide l'action, renforcement des dépistages, information des familles sur les subsides dentaires, prévention en classe.</p>
+          </div>
+          <div class="carte-ui">
+            <span class="etiquette">Portée et limites de lecture</span>
+            <p style="font-size:16px">Le chiffre décrit un territoire, jamais une personne.</p>
+            <details class="voirplus"><summary><span class="lib-plus">Voir plus</span><span class="lib-moins">Voir moins</span><svg class="chev" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></summary><div class="contenu"><p>Le dépistage constate un besoin de soins, le suivi du traitement relève d'un indicateur complémentaire, recours effectif aux soins dentaires et aux subsides. Un élève d'un quartier défavorisé peut avoir une excellente santé dentaire, la lecture reste territoriale.</p></div></details>
+          </div>
+          <div class="encart"><b>Principe.</b> Chaque indicateur répondrait aux mêmes six questions en langage courant.
+            <details class="voirplus"><summary><span class="lib-plus">Voir plus</span><span class="lib-moins">Voir moins</span><svg class="chev" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></summary><div class="contenu"><p>Que mesure ce chiffre, pourquoi est-ce important, d'où viennent les données, quand est-il mis à jour, comment le lire, que ne dit-il pas. Les définitions techniques resteraient disponibles dans l'onglet À propos et méthode.</p></div></details>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= ÉCRAN 3 : double peine cartographiée ================= -->
+    <section class="ecran" id="e3">
+      <h2 class="section">Double peine et ressources</h2>
+      <div class="souligne"></div>
+      <p class="chapeau">La double peine désigne le cumul, sur un même territoire, d'une forte exposition aux nuisances environnementales et d'une population socialement vulnérable. Ce concept de justice environnementale s'appuie sur un constat robuste, les populations défavorisées résident plus souvent près des axes routiers et dans les îlots de chaleur, et respirent un air plus chargé en particules fines dont l'OMS fixe la valeur guide à 5 µg/m³ (OMS, 2021). La carte classe chaque commune en quatre situations, en pondérant l'exposition et la vulnérabilité par les ressources qui protègent la santé, soutien social, espaces verts de proximité et tissu associatif.</p>
+
+      <div class="grille g-carte">
+        <div class="carte-ui carte-map">
+          <span class="etiquette">Classification des communes · cliquer sur une commune pour le détail</span>
+          <svg class="carte-geo" id="svg-dp" viewBox="0 0 590 560" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Carte de la double peine par commune"></svg>
+          <div class="leg-dp">
+            <div class="l"><span class="sw" style="background:var(--q5)"></span><span><b>Double peine</b> · exposition élevée, population vulnérable, ressources faibles. Priorité d'action.</span></div>
+            <div class="l"><span class="sw" style="background:var(--q4)"></span><span><b>Vigilance</b> · exposition élevée et population vulnérable, ressources qui amortissent encore.</span></div>
+            <div class="l"><span class="sw" style="background:var(--q1)"></span><span><b>Situation neutre</b> · aucun cumul défavorable marqué.</span></div>
+            <div class="l"><span class="sw" style="background:var(--q2)"></span><span><b>Secteur ressource</b> · actifs de santé abondants, sources d'enseignements transférables.</span></div>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:18px">
+          <div class="carte-ui" style="border-top:4px solid var(--orange)">
+            <span class="etiquette">Commune sélectionnée</span>
+            <h3 style="font-family:var(--titres);font-size:20px;color:var(--marine-texte);margin-bottom:6px" id="dp-nom">Vernier</h3>
+            <div style="margin-bottom:12px"><span class="chip rouge" id="dp-classe">Double peine</span></div>
+            <div class="score-bloc"><div class="t"><span>Exposition aux nuisances</span><span id="dp-v1"></span></div><div class="jauge-s"><i id="dp-b1" style="background:var(--corail)"></i></div></div>
+            <div class="score-bloc"><div class="t"><span>Vulnérabilité sociale</span><span id="dp-v2"></span></div><div class="jauge-s"><i id="dp-b2" style="background:var(--orange)"></i></div></div>
+            <div class="score-bloc"><div class="t"><span>Ressources protectrices</span><span id="dp-v3"></span></div><div class="jauge-s"><i id="dp-b3" style="background:var(--ok)"></i></div></div>
+            <p style="font-size:16px;color:var(--texte);margin-top:10px" id="dp-lecture"></p>
+          </div>
+          <div class="carte-ui">
+            <span class="etiquette">Comment se calcule la classification</span>
+            <p style="font-size:16px">Trois notes de 0 à 100 résument chaque commune, exposition, vulnérabilité, ressources.</p>
+            <details class="voirplus"><summary><span class="lib-plus">Voir plus</span><span class="lib-moins">Voir moins</span><svg class="chev" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></summary><div class="contenu"><p>L'exposition combine air, bruit, chaleur et précarité énergétique. La vulnérabilité résume revenu, formation, emploi et logement. Les ressources additionnent soutien social, espaces ressourçants et tissu associatif. Le cumul des deux premières notes au-dessus du seuil place la commune en vigilance, des ressources faibles la font basculer en double peine.</p></div></details>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= ÉCRAN 4 : jumeaux ================= -->
+    <section class="ecran" id="e4">
+      <h2 class="section">Jumeaux numériques</h2>
+      <div class="souligne"></div>
+      <p class="chapeau">Un jumeau numérique reproduit un système réel dans un modèle de simulation, ce qui permet de tester une décision avant de la prendre. Deux jumeaux alimenteraient l'observatoire, le réseau des urgences et l'approvisionnement en sang, ce dernier dérivé de BeeMyBlood, projet en logiciel libre dont le code est public et réutilisable.</p>
+
+      <div class="ss-onglets">
+        <button class="ss-onglet actif" data-vue="ju">Urgences et orientation</button>
+        <button class="ss-onglet" data-vue="js">Approvisionnement en sang</button>
+      </div>
+
+      <div class="ss-vue actif" id="ju">
+        <div class="grille g-carte">
+          <div class="carte-ui">
+            <span class="etiquette">Paramètres de simulation</span>
+            <div class="curseur-bloc">
+              <label>Consultations sans urgence vitale orientées vers le premier recours <output id="out-redir">20 %</output></label>
+              <input type="range" id="cur-redir" min="0" max="60" value="20" step="5" aria-label="Part des consultations sans urgence vitale orientées vers le premier recours">
+            </div>
+            <div class="curseur-bloc">
+              <label>Lissage des arrivées hors des heures de pointe <output id="out-decal">1 h</output></label>
+              <input type="range" id="cur-decal" min="0" max="4" value="1" step="1" aria-label="Lissage des arrivées hors des heures de pointe, en heures">
+            </div>
+            <div class="curseur-bloc">
+              <label>Saison <output id="out-saison">Hiver, épidémie grippale</output></label>
+              <input type="range" id="cur-saison" min="0" max="2" value="2" step="1" aria-label="Saison simulée">
+            </div>
+            <span class="etiquette" style="margin-top:18px">Arrivées projetées par heure</span>
+            <div class="barres-heures" id="barres"></div>
+            <div class="axe-h"><span>00h</span><span>06h</span><span>12h</span><span>18h</span><span>23h</span></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:16px">
+            <div class="grille g-2" style="gap:14px">
+              <div class="kpi"><div class="k">Attente médiane projetée</div><div class="v" id="kpi-attente"></div><div class="d moins" id="kpi-attente-d"></div></div>
+              <div class="kpi"><div class="k">Occupation au pic du soir</div><div class="v" id="kpi-pic"></div><div class="d moins" id="kpi-pic-d"></div></div>
+              <div class="kpi"><div class="k">Consultations réorientées par jour</div><div class="v" id="kpi-redir"></div><div class="d moins">vers le premier recours</div></div>
+              <div class="kpi"><div class="k">Personnes venues de loin réorientées</div><div class="v" id="kpi-loin"></div><div class="d moins">vers des structures proches</div></div>
+            </div>
+            <div class="carte-ui">
+              <span class="etiquette">Lien avec l'observatoire</span>
+              <p style="font-size:16px">La mesure identifie le problème, la simulation compare les remèdes avant leur mise en œuvre.</p>
+              <details class="voirplus"><summary><span class="lib-plus">Voir plus</span><span class="lib-moins">Voir moins</span><svg class="chev" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></summary><div class="contenu"><p>Le recours aux urgences pour des motifs relevant du premier recours signale une barrière d'accès. L'observatoire le mesure dans le domaine Santé et accès aux soins, le jumeau teste les leviers qui le réduisent, redirection, lissage des arrivées, adaptation saisonnière.</p></div></details>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ss-vue" id="js">
+        <div class="grille g-carte">
+          <div class="carte-ui">
+            <span class="etiquette">Réserves par groupe sanguin · jours de couverture des besoins</span>
+            <div id="jauges-sang"></div>
+            <div class="seuils"><span>0 j</span><span>seuil d'alerte 4 j</span><span>cible 7 j</span><span>14 j</span></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:16px">
+            <div class="carte-ui">
+              <span class="etiquette">Paramètres de simulation</span>
+              <div class="curseur-bloc">
+                <label>Collectes mobiles supplémentaires par semaine <output id="out-coll">1</output></label>
+                <input type="range" id="cur-coll" min="0" max="6" value="1" step="1" aria-label="Collectes mobiles supplémentaires par semaine">
+              </div>
+              <div class="curseur-bloc">
+                <label>Scénario <output id="out-scen">Vacances d'été</output></label>
+                <input type="range" id="cur-scen" min="0" max="2" value="1" step="1" aria-label="Scénario d'approvisionnement">
+              </div>
+              <div class="grille g-2" style="gap:14px;margin-top:8px">
+                <div class="kpi" style="box-shadow:none;border:1.5px solid var(--trait)"><div class="k">Groupes sous le seuil d'alerte</div><div class="v" id="kpi-sous"></div><div class="d" id="kpi-sous-d"></div></div>
+                <div class="kpi" style="box-shadow:none;border:1.5px solid var(--trait)"><div class="k">Couverture O négatif, donneur universel</div><div class="v" id="kpi-oneg"></div><div class="d">jours de réserve</div></div>
+              </div>
+            </div>
+            <div class="carte-ui">
+              <span class="etiquette">Équité transfusionnelle</span>
+              <p style="font-size:16px">Le jumeau suivrait la couverture des profils sanguins étendus rares. Illustration issue de BeeMyBlood, projet en logiciel libre dont le code est public sous licence AGPL-3.0, <a class="lien" href="https://www.beemyblood.ch" target="_blank" rel="noopener">beemyblood.ch</a>.</p>
+              <details class="voirplus"><summary><span class="lib-plus">Voir plus</span><span class="lib-moins">Voir moins</span><svg class="chev" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></summary><div class="contenu"><p>Les personnes atteintes de drépanocytose reçoivent des transfusions régulières et développent des anticorps lorsque les groupes étendus du donneur diffèrent des leurs. La compatibilité fine dépend de la diversité des origines parmi les donneurs, des collectes ciblées la renforcent, le jumeau en simule l'effet.</p></div></details>
+              <div style="margin-top:12px"><span class="maj orange" id="kpi-pheno"><span class="pt"></span></span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= ÉCRAN 5 : stress ressenti ================= -->
+    <section class="ecran" id="e5">
+      <h2 class="section">Stress urbain ressenti</h2>
+      <div class="souligne"></div>
+      <p class="chapeau">Le stress vécu se mesure au moment où il survient, par de très courts questionnaires géolocalisés sur le téléphone, la méthode dite d'évaluation écologique momentanée. Chaque réponse se met en regard des expositions mesurées du secteur, bruit, air, chaleur, et de ses ressources protectrices. La restitution révèle les écarts entre la nuisance mesurée par les cadastres et la charge réellement ressentie par les habitantes et habitants.</p>
+
+      <div class="grille g-carte" style="margin-bottom:18px">
+        <div class="carte-ui carte-map">
+          <span class="etiquette">Stress ressenti par commune · médiane de la semaine</span>
+          <svg class="carte-geo" id="svg-stress" viewBox="0 0 590 560" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Carte du stress urbain ressenti par commune"></svg>
+          <div class="legende-echelle" id="legende-stress"></div>
+          <div class="legende-lib"><span>Stress ressenti faible</span><span>Stress ressenti élevé</span></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div class="carte-ui" style="border-top:4px solid var(--orange)">
+            <span class="etiquette">Commune sélectionnée</span>
+            <h3 style="font-family:var(--titres);font-size:20px;color:var(--marine-texte);margin-bottom:6px" id="stress-nom">Genève</h3>
+            <div class="score-bloc"><div class="t"><span>Stress ressenti, médiane</span><span id="stress-v1"></span></div><div class="jauge-s"><i id="stress-b1" style="background:var(--pervenche)"></i></div></div>
+            <div class="score-bloc"><div class="t"><span>Bruit mesuré, cadastre</span><span id="stress-v2"></span></div><div class="jauge-s"><i id="stress-b2" style="background:var(--corail)"></i></div></div>
+            <div class="score-bloc"><div class="t"><span>Chaleur estivale, cadastre</span><span id="stress-v3"></span></div><div class="jauge-s"><i id="stress-b3" style="background:var(--orange)"></i></div></div>
+            <p style="font-size:15px;color:var(--texte);margin-top:8px" id="stress-lecture"></p>
+          </div>
+          <div class="carte-ui" style="border-top:4px solid var(--pervenche)">
+            <span class="etiquette">Participation cette semaine</span>
+            <p style="font-size:16px" id="stress-n"></p>
+            <p style="font-size:15px;color:var(--texte-doux);margin-top:8px">Les réponses proviennent du recueil participatif décrit plus bas. Une commune apparaît sur la carte dès trente réponses agrégées, en deçà elle reste masquée pour protéger l'anonymat.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="grille g-carte">
+        <div class="carte-ui" style="display:flex;flex-direction:column;gap:16px">
+          <span class="etiquette">Ressenti et exposition mesurée au fil de la journée, commune sélectionnée</span>
+          <svg class="courbe-svg" viewBox="0 0 600 268" role="img" aria-label="Stress ressenti, bruit et chaleur mesurés au fil de la journée">
+            <line x1="46" y1="16" x2="46" y2="224" stroke="#E7E4DE" stroke-width="1.5"/>
+            <line x1="46" y1="224" x2="584" y2="224" stroke="#E7E4DE" stroke-width="1.5"/>
+            <polyline points="46,176 106,184 166,158 226,126 286,134 346,116 406,92 466,74 526,96 584,128" fill="none" stroke="#6D7FD9" stroke-width="3"/>
+            <polyline points="46,188 106,192 166,168 226,140 286,150 346,134 406,112 466,88 526,118 584,148" fill="none" stroke="#EE5D6C" stroke-width="3" stroke-dasharray="7 5"/>
+            <polyline points="46,196 106,190 166,178 226,160 286,132 346,110 406,104 466,118 526,150 584,176" fill="none" stroke="#EFA35C" stroke-width="3" stroke-dasharray="2 5"/>
+            <text x="60" y="30" font-size="13" fill="#5A6CC4" font-family="Nunito, Segoe UI, sans-serif" font-weight="700">Stress ressenti, médiane du secteur</text>
+            <text x="60" y="47" font-size="13" fill="#D94856" font-family="Nunito, Segoe UI, sans-serif" font-weight="700">Bruit mesuré, cadastre</text>
+            <text x="60" y="64" font-size="13" fill="#C96A3B" font-family="Nunito, Segoe UI, sans-serif" font-weight="700">Chaleur estivale, cadastre</text>
+            <text x="46" y="246" font-size="12" fill="#6A7291" font-family="Nunito, Segoe UI, sans-serif">06h</text>
+            <text x="315" y="246" font-size="12" fill="#6A7291" text-anchor="middle" font-family="Nunito, Segoe UI, sans-serif">14h</text>
+            <text x="584" y="246" font-size="12" fill="#6A7291" text-anchor="end" font-family="Nunito, Segoe UI, sans-serif">22h</text>
+          </svg>
+          <div class="encart"><b>Pourquoi exiger un compte ?</b> L'identité vérifiée garantit une réponse par personne et par sollicitation, fondement de la qualité des données.
+            <details class="voirplus"><summary><span class="lib-plus">Voir plus</span><span class="lib-moins">Voir moins</span><svg class="chev" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></summary><div class="contenu"><p>Un seul compte par personne bloque les envois en masse et les doublons. Les sollicitations partent à des moments choisis par le système, chaque réponse se rattache à un instant et à un lieu précis, comparables aux mesures des cadastres. Les profils de réponse aberrants se détectent et s'écartent. La restitution affiche une cellule à partir de trente réponses, protection de l'anonymat.</p></div></details>
+          </div>
+        </div>
+
+        <div class="carte-ui">
+          <span class="etiquette">Comment participe une habitante ou un habitant</span>
+          <div class="tels">
+            <div class="tel">
+              <div class="tel-ecran">
+                <div class="notif">
+                  <div class="app">Une seule fois · à l'inscription</div>
+                  <p>Pour participer, connectez-vous avec une identité vérifiée. Aucune donnée de santé n'est demandée.</p>
+                  <button class="btn-id principal">Continuer avec GenèveID</button>
+                  <button class="btn-id">Continuer avec SwissID</button>
+                  <button class="btn-id">Continuer avec TrustID</button>
+                </div>
+                <div class="note-tel">L'identité vérifiée limite chaque personne à une réponse par sollicitation</div>
+              </div>
+              <div class="etape-tel">Connexion</div>
+            </div>
+            <div class="tel">
+              <div class="tel-ecran">
+                <div class="notif">
+                  <div class="app">Notification reçue · position au secteur près</div>
+                  <p>Là, maintenant, quel est votre niveau de stress ?</p>
+                  <div class="echelle-stress" id="echelle-ema">
+                    <button>1</button><button>2</button><button class="sel">3</button><button>4</button><button>5</button>
+                  </div>
+                </div>
+                <div class="notif" id="ema-q2">
+                  <div class="app">Question suivante</div>
+                  <p>Qu'est-ce qui pèse le plus ici ?</p>
+                  <div class="echelle-stress" id="causes-ema">
+                    <button>Bruit</button><button>Chaleur</button><button class="sel">Foule</button><button>Trafic</button><button>Rien</button>
+                  </div>
+                  <button class="btn-id principal" id="btn-envoi-ema" style="margin-top:12px">Envoyer ma réponse</button>
+                </div>
+                <div class="notif" id="ema-ok" style="display:none;border:1.5px solid var(--ok);background:var(--ok-fond)">
+                  <div class="app" style="color:var(--ok)">Réponse enregistrée</div>
+                  <p>Votre ressenti rejoint les réponses agrégées du secteur.</p>
+                  <button class="btn-id" id="ema-encore" style="margin-top:10px">Répondre à nouveau</button>
+                </div>
+                <div class="note-tel">Réponses agrégées, aucune trace individuelle publiée, restitution dès trente réponses</div>
+              </div>
+              <div class="etape-tel">Réponse sur sollicitation</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= ÉCRAN 7 : mesures correctives ================= -->
+    <section class="ecran" id="e7">
+      <h2 class="section">Mesures correctives</h2>
+      <div class="souligne"></div>
+      <p class="chapeau">Mesurer une iniquité prépare sa correction. Cet onglet relierait chaque écart mesuré aux leviers d'action disponibles et simulerait leur effet avant décision. Choisir une mesure, régler son déploiement, lire l'effet projeté sur les indicateurs.</p>
+
+      <div class="ss-onglets" id="mesures"></div>
+
+      <div class="grille g-carte">
+        <div class="carte-ui">
+          <span class="etiquette">Déploiement de la mesure</span>
+          <div class="curseur-bloc">
+            <label>Part de la population cible couverte <output id="out-mes">50 %</output></label>
+            <input type="range" id="cur-mes" min="0" max="100" value="50" step="10" aria-label="Part de la population cible couverte par la mesure">
+          </div>
+          <span class="etiquette" style="margin-top:14px">Mécanisme d'action</span>
+          <p style="font-size:16px" id="mes-mecanisme"></p>
+          <div class="encart" style="margin-top:14px"><b>Base d'inventaire.</b> Les leviers proviendraient de CareWatch Policy, <a class="lien" href="https://carewat.ch/policy" target="_blank" rel="noopener">carewat.ch/policy</a>.
+            <details class="voirplus"><summary><span class="lib-plus">Voir plus</span><span class="lib-moins">Voir moins</span><svg class="chev" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></summary><div class="contenu"><p>CareWatch Policy inventorie de manière participative les lois et politiques de santé du canton. Chaque mesure simulée y renverrait vers sa base légale et son état de mise en œuvre, ce qui relie la projection chiffrée au levier juridique qui la porte.</p></div></details>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div class="kpi"><div class="k" id="mes-k1"></div><div class="v" id="mes-v1"></div><div class="d moins" id="mes-d1"></div></div>
+          <div class="kpi"><div class="k">Écart d'équité cantonal projeté</div><div class="v" id="mes-v2"></div><div class="d moins" id="mes-d2"></div></div>
+          <div class="kpi"><div class="k">Communes en double peine après mesure</div><div class="v" id="mes-v3"></div><div class="d" id="mes-d3"></div></div>
+          <div class="carte-ui">
+            <span class="etiquette">Lecture</span>
+            <p style="font-size:16px">La simulation compare un état projeté à l'état mesuré, à structure de population constante.</p>
+            <details class="voirplus"><summary><span class="lib-plus">Voir plus</span><span class="lib-moins">Voir moins</span><svg class="chev" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></summary><div class="contenu"><p>Les valeurs relèvent de l'illustration. La version produit calibrerait chaque effet sur la littérature d'évaluation et sur les données cantonales, avec un intervalle d'incertitude affiché à côté de chaque projection.</p></div></details>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= ÉCRAN 8 : étude Specchio ================= -->
+    <section class="ecran" id="e8">
+      <h2 class="section">Étude Specchio, l'épidémiologie de la population genevoise</h2>
+      <div class="souligne"></div>
+      <p class="chapeau">Specchio suit l'état de santé de la population genevoise dans le temps. Cette source alimente l'observatoire, elle en constitue le socle épidémiologique. Le tableau de bord ci-dessous est publié par l'Unité d'épidémiologie populationnelle des HUG, il s'affiche ici tel quel, avec attribution, sans reproduction ni modification.</p>
+
+      <div class="carte-ui" style="margin-bottom:18px">
+        <div class="tableau-cadre">
+          <iframe
+            title="Tableau de bord Specchio, étude populationnelle, Unité d'épidémiologie populationnelle des HUG"
+            src="https://public.tableau.com/views/20260413_SpecchioDashboardPublicCURRENTLYLIVE-FR/tudepopulationnelleSpecchio?:language=fr-FR&:display_download_button=no&:embed=y&:toolbar=n&:showVizHome=no&:embed_code_version=3&:display_count=y"
+            loading="lazy"
+            allowfullscreen></iframe>
+        </div>
+        <p style="font-size:14px;color:var(--texte-doux);margin-top:12px">Tableau de bord hébergé sur Tableau Public et publié par l'Unité d'épidémiologie populationnelle des HUG. En cas d'affichage indisponible, il reste consultable sur <a class="lien" href="https://www.specchio-hub.ch" target="_blank" rel="noopener">specchio-hub.ch</a>.</p>
+      </div>
+
+      <div class="grille g-2">
+        <div class="carte-ui">
+          <span class="etiquette">Ce qu'est Specchio</span>
+          <p style="font-size:16px">Specchio, miroir en italien, est une étude participative menée par l'Unité d'épidémiologie populationnelle du Service de médecine de premier recours des HUG, sur mandat de l'Office cantonal de la santé, sous la responsabilité du Pr Idris Guessous et de la Dre Mayssam Nehme (HUG, 2025). Elle prolonge trois décennies d'épidémiologie populationnelle genevoise, l'étude Bus Santé depuis 1992 et la plateforme Specchio-COVID19 depuis 2020, aujourd'hui réunies sur Specchio-Hub, qui rassemble plus de douze mille participantes et participants (HUG, 2025).</p>
+          <details class="voirplus"><summary><span class="lib-plus">Voir plus</span><span class="lib-moins">Voir moins</span><svg class="chev" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></summary><div class="contenu"><p>Les personnes volontaires répondent à des questionnaires en ligne deux à quatre fois par an, sur la santé générale, la santé mentale, le sommeil, la santé au travail, l'accès aux soins et l'alimentation. La répétition des mesures dans le temps permet de décrire l'évolution des maladies et de leurs facteurs de risque, leur répartition géographique dans le canton, et de mettre en évidence les inégalités sociales, démographiques et géographiques de santé (HUG, 2025).</p></div></details>
+        </div>
+        <div class="carte-ui">
+          <span class="etiquette">Comment Specchio et l'observatoire se complètent</span>
+          <p style="font-size:16px">Specchio mesure l'état de santé de la population, prévalences, facteurs de risque, ressenti. L'observatoire mesure l'équité du système, non-recours, accès effectif, discriminations, puis verse ses indicateurs dans les outils de pilotage cantonaux. Les deux instruments partagent une même finalité, réduire les inégalités de santé.</p>
+          <details class="voirplus"><summary><span class="lib-plus">Voir plus</span><span class="lib-moins">Voir moins</span><svg class="chev" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></summary><div class="contenu"><p>La complémentarité suit une règle simple, tout indicateur déjà produit par l'Unité d'épidémiologie populationnelle est repris tel quel, avec attribution, plutôt que recalculé. L'observatoire se concentre sur la couche d'équité, stratification systématique, indices composites et intégration continue au portail SaGe et à l'observatoire cantonal des inégalités. Cet onglet incarne ce principe, il affiche le travail de l'UEP à sa source.</p></div></details>
+        </div>
+      </div>
+
+      <h3 style="font-family:var(--titres);font-size:20px;color:var(--marine-texte);margin:26px 0 6px">Fédérer les études du hub Specchio</h3>
+      <div class="souligne" style="margin-bottom:14px"></div>
+      <p style="font-size:16px;color:var(--texte-doux);max-width:840px;margin-bottom:18px">Le hub Specchio réunit six études et plus de dix thématiques de recherche. L'observatoire les fédère, il rattache chaque source et chaque résultat au domaine d'indicateurs qu'il éclaire, pour donner une porte d'entrée unique par territoire et par population.</p>
+
+      <div class="carte-ui" style="margin-bottom:18px">
+        <span class="etiquette">Les six études du hub, sources fédérées</span>
+        <div id="specchio-etudes" class="grille" style="grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin-top:4px"></div>
+      </div>
+
+      <div class="carte-ui" style="margin-bottom:18px">
+        <span class="etiquette">Thématiques Specchio rattachées aux domaines de l'observatoire</span>
+        <div id="specchio-themes" style="margin-top:6px"></div>
+      </div>
+
+      <div class="carte-ui">
+        <span class="etiquette">Résultats récents, rattachés à un indicateur</span>
+        <p style="font-size:15px;color:var(--texte-doux);margin-bottom:6px">Flux des publications de l'Unité d'épidémiologie populationnelle, chaque résultat pointe vers l'indicateur qu'il documente. Filtrer par domaine.</p>
+        <div class="rang-puces" id="specchio-filtres" style="margin:10px 0 16px"></div>
+        <div id="specchio-flux"></div>
+        <p style="font-size:14px;color:var(--texte-doux);margin-top:14px">Publications et résumés de l'Unité d'épidémiologie populationnelle des HUG, catalogue complet sur <a class="lien" href="https://www.specchio-hub.ch/recherches" target="_blank" rel="noopener">specchio-hub.ch/recherches</a>.</p>
+      </div>
+    </section>
+
+    <!-- ================= ÉCRAN 6 : à propos et méthode ================= -->
+    <section class="ecran" id="e6">
+      <h2 class="section">À propos de l'observatoire</h2>
+      <div class="souligne"></div>
+      <p class="chapeau">Volet santé de l'observatoire cantonal des inégalités, conçu en extension du projet CATI-GE, appuyé sur CareWatch, <a class="lien" href="https://www.carewat.ch" target="_blank" rel="noopener">carewat.ch</a>, et intégré au portail SaGe. Chiffres, méthode et limites se publieraient ensemble.</p>
+
+      <div class="carte-ui" style="margin-bottom:18px">
+        <span class="etiquette">Inégalités et iniquités, quelle différence ?</span>
+        <p style="font-size:16.5px;margin-bottom:8px">Une <b style="color:var(--marine-texte)">inégalité de santé</b> est une différence de santé mesurée entre groupes de population, quelle qu'en soit la cause. Une <b style="color:var(--marine-texte)">iniquité de santé</b> est la part de cette différence qui est à la fois évitable et injuste, et qui appelle donc une action publique corrective (Whitehead, 1991, définition reprise par l'OMS). Distinguer les deux demande deux étapes, la mesure établit l'écart, l'analyse détermine la part attribuable à des causes évitables. Le tableau ci-dessous illustre ces trois cas.</p>
+        <table class="def3">
+          <tr><th>Écart observé</th><th>Nature</th><th>Pourquoi</th></tr>
+          <tr><td>Les personnes de 80 ans sont plus souvent malades que celles de 20 ans</td><td><span class="chip teal">Inégalité, sans injustice</span></td><td>L'écart tient au vieillissement biologique, aucune politique ne le supprime.</td></tr>
+          <tr><td>Six ans d'espérance de vie séparent deux quartiers de la même ville</td><td><span class="chip peche">Inégalité contenant une part inique</span></td><td>L'écart mêle des causes multiples, dont une part évitable liée au revenu, au logement et aux expositions. L'analyse isole cette part.</td></tr>
+          <tr><td>Des habitantes et habitants renoncent à des soins nécessaires à cause de leur coût</td><td><span class="chip rouge">Iniquité</span></td><td>L'écart est évitable, les subsides existent, le non-recours se corrige par l'information et la simplification.</td></tr>
+        </table>
+        <details class="voirplus"><summary><span class="lib-plus">Voir plus</span><span class="lib-moins">Voir moins</span><svg class="chev" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></summary><div class="contenu"><p style="color:var(--texte-doux)">L'observatoire mesure les inégalités, isole les iniquités en comparant le besoin de santé et l'accès effectif, puis suit l'effet des mesures correctrices dans le temps. Les discriminations dans l'accès aux soins constituent une iniquité directe, le domaine Violences et discriminations les mesure et chaque personne peut signaler un vécu de discrimination sur <a class="lien" href="https://www.carewat.ch" target="_blank" rel="noopener">carewat.ch</a>.</p></div></details>
+      </div>
+
+      <div class="carte-ui" style="margin-bottom:18px">
+        <span class="etiquette">La salutogenèse, mesurer aussi ce qui protège</span>
+        <p style="font-size:16.5px;margin-bottom:8px">La plupart des observatoires ne comptent que les maladies et les risques. L'approche salutogénique, formulée par le sociologue Aaron Antonovsky dans les années 1970, déplace la question, plutôt que demander seulement ce qui rend malade, elle demande ce qui maintient en bonne santé (Antonovsky, 1979). Elle part d'un constat, à exposition égale au stress et à l'adversité, certaines personnes et certains quartiers restent en meilleure santé que d'autres.</p>
+        <p style="font-size:16.5px">Ces facteurs protecteurs, ressources de santé ou actifs de santé, s'observent et se renforcent. L'observatoire les mesure dans un domaine dédié, Ressources protectrices, soutien social et cohésion de voisinage, aisance avec l'information de santé, lieux communautaires, espaces ressourçants, tissu d'entraide. Leur poids est établi, un soutien social fort s'associe à 50 % de survie en plus, effet comparable à l'arrêt du tabac (Holt-Lunstad, PLoS Medicine, 2010). Cette lecture change l'action publique, aux secteurs en double peine, elle ajoute aux mesures de réduction des risques le renforcement des actifs de santé, souvent moins coûteux et mieux accepté.</p>
+      </div>
+
+      <div class="grille g-2">
+        <div class="carte-ui">
+          <span class="etiquette">Échelle, croisements et mise à jour</span>
+          <p style="font-size:16px">Le calcul descendrait au micro-secteur statistique, l'échelle la plus fine publiable. Chaque indicateur se croiserait avec le niveau socioéconomique du secteur, l'origine, l'âge, le sexe, le type de ménage et la situation de handicap, quand la source le permet. La lecture par population, personnes vivant avec une maladie rare comme la drépanocytose, personnes racisées, neurodivergentes, avec handicap, allophones, se croiserait elle-même avec le niveau socioéconomique, lecture intersectionnelle qui isole la part de l'écart attribuable à chaque barrière à position sociale égale. Aucun chiffre ne s'afficherait sous cinq observations, les populations rares se liraient à l'échelle cantonale ou par regroupement de communes.</p>
+          <table class="methode" style="margin-top:12px">
+            <tr><td>Registres, OFS, OCSTAT, statistique médicale, données fiscales</td><td><b>Chaque année</b></td></tr>
+            <tr><td>Dépistages scolaires</td><td><b>Chaque année scolaire</b></td></tr>
+            <tr><td>Enquête suisse sur la santé</td><td><b>Tous les cinq ans</b></td></tr>
+            <tr><td>Cadastres et couches SITG, bruit, air, chaleur, espaces verts</td><td><b>À chaque édition</b></td></tr>
+            <tr><td>Stress ressenti et équité perçue, recueil participatif</td><td><b>En continu</b></td></tr>
+          </table>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:18px">
+          <div class="carte-ui">
+            <span class="etiquette">Limites, énoncées avec les chiffres</span>
+            <p style="font-size:16px">Un chiffre de secteur décrit un territoire, jamais une personne.</p>
+            <details class="voirplus"><summary><span class="lib-plus">Voir plus</span><span class="lib-moins">Voir moins</span><svg class="chev" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></summary><div class="contenu"><p>La finesse des sources varie d'un domaine à l'autre, la comparabilité aussi. La plupart des sources photographient un moment, l'établissement des trajectoires demanderait un suivi dans la durée. Le recueil participatif attire des profils volontaires, la pondération corrigerait une part de ce biais et la limite resterait affichée.</p></div></details>
+          </div>
+          <div class="carte-ui">
+            <span class="etiquette">Données ouvertes et code ouvert</span>
+            <p style="font-size:16px">Chaque chiffre serait reproductible, sources publiques ouvertes et scripts publiés.</p>
+            <details class="voirplus"><summary><span class="lib-plus">Voir plus</span><span class="lib-moins">Voir moins</span><svg class="chev" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></summary><div class="contenu"><p>Sources mobilisées, OFS, OCSTAT, SITG, cadastres cantonaux. Fond de carte swisstopo, données ouvertes. Les scripts de calcul se publieraient avec un journal d'exécution, l'hébergement resterait souverain, en Suisse, le code sous licence AGPL-3.0.</p></div></details>
+          </div>
+          <div class="carte-ui">
+            <span class="etiquette">Ancrage et crédits</span>
+            <p style="font-size:16px"><a class="lien" href="https://www.convivens.ch" target="_blank" rel="noopener">Convivens Lab</a> et <a class="lien" href="https://www.ireg.ch" target="_blank" rel="noopener">Ireg</a>, <a class="lien" href="https://www.hesge.ch/heg" target="_blank" rel="noopener">HEG-Genève</a>.</p>
+            <details class="voirplus"><summary><span class="lib-plus">Voir plus</span><span class="lib-moins">Voir moins</span><svg class="chev" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></summary><div class="contenu"><p>Conception scientifique et technique, Convivens Lab. Volet inégalités, Ireg, porteur du projet <a class="lien" href="https://ise.unige.ch/cati-ge/" target="_blank" rel="noopener">CATI-GE</a> dont l'observatoire cantonal des inégalités constitue l'extension. Plateformes associées, <a class="lien" href="https://www.carewat.ch" target="_blank" rel="noopener">carewat.ch</a> pour l'équité des soins et <a class="lien" href="https://www.beemyblood.ch" target="_blank" rel="noopener">beemyblood.ch</a> pour le système du sang. L'observatoire s'inscrirait dans les échanges du <a class="lien" href="https://www.health-equity-network.ch" target="_blank" rel="noopener">Swiss Health Network for Equity</a>, réseau national des acteurs de l'équité en santé. Code source sous licence AGPL-3.0.</p></div></details>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    </main>
+
+    <!-- ===== pied de page SaGe ===== -->
+    <footer class="pied">
+      <div class="pied-int">
+        <div>
+          <div class="wordmark" style="font-size:26px">saGe<small>santé genève</small></div>
+        </div>
+        <div>
+          <h4>Accès rapide</h4>
+          <a href="#">Votre santé à Genève</a>
+          <a href="#">Infos et prévention</a>
+          <a href="#">Urgences et symptômes</a>
+          <a href="#">Observatoire des inégalités</a>
+          <a href="#">Dossier Électronique du Patient</a>
+        </div>
+        <div>
+          <h4>Une initiative du canton de Genève</h4>
+          <p style="font-size:14px;color:#D8DBEA">Portail soutenu par ses partenaires imad et HUG. L'observatoire des inégalités et iniquités de santé en constituerait le volet d'observation de l'équité.</p>
+        </div>
+      </div>
+      <div class="pied-bas">
+        <span>Prototype · valeurs fictives d'illustration</span>
+        <span>Code source sous licence <a href="https://www.gnu.org/licenses/agpl-3.0.html" target="_blank" rel="noopener" style="color:#AEB4CB">AGPL-3.0</a></span>
+        <span>Fond de carte swisstopo swissBOUNDARIES3D, millésime 2026, données ouvertes</span>
+      </div>
+    </footer>
+
+  </div>
+</div>
+
+<script>
+const GEO={"communes":[{"id":6601,"n":"Aire-la-Ville","d":"M173.0,402.6 171.0,409.9 162.5,417.5 164.2,425.8 158.0,426.5 149.4,420.8 140.5,427.5 123.4,418.0 127.6,412.3 123.4,399.5 128.4,388.2 137.3,389.5 157.6,402.3 173.0,402.6Z"},{"id":6602,"n":"Anières","d":"M465.1,190.9 458.9,197.5 456.2,212.2 463.5,219.1 474.2,242.5 471.4,245.2 459.8,243.2 451.6,234.2 437.6,236.1 420.7,220.9 440.7,189.4 453.2,179.5 465.1,190.9Z"},{"id":6603,"n":"Avully","d":"M40.1,477.3 46.7,463.3 48.9,449.1 53.7,447.2 59.2,453.6 61.7,443.9 65.5,439.6 85.1,442.9 93.2,439.4 93.9,439.6 110.5,469.0 109.6,469.5 86.7,483.5 79.6,471.4 68.2,468.0 53.0,483.0 40.1,477.3Z"},{"id":6604,"n":"Avusy","d":"M116.4,522.6 102.1,517.6 83.7,519.8 68.2,514.1 50.3,519.3 55.3,497.9 86.7,483.5 109.6,469.5 109.4,481.3 104.8,493.0 125.7,499.8 133.9,506.3 116.4,522.6Z"},{"id":6605,"n":"Bardonnex","d":"M312.8,505.1 308.0,513.3 301.9,511.9 293.2,521.6 279.1,523.1 270.3,518.1 250.5,516.9 243.4,514.1 235.3,515.2 223.7,497.5 232.6,488.7 235.0,483.5 241.4,489.7 247.5,481.6 274.8,497.2 292.1,488.4 299.1,490.3 298.5,498.9 310.3,507.9 312.8,505.1Z"},{"id":6606,"n":"Bellevue","d":"M275.3,268.9 270.5,262.0 272.6,256.8 268.7,245.9 302.5,220.3 302.3,228.0 306.4,236.8 305.9,246.6 326.2,258.7 318.7,268.6 321.9,281.7 303.0,269.3 281.9,282.4 274.2,270.1 275.3,268.9Z"},{"id":6607,"n":"Bernex","d":"M158.0,426.5 164.2,425.8 162.5,417.5 171.0,409.9 173.0,402.6 182.1,399.0 190.5,383.6 195.5,380.6 203.7,379.8 215.5,363.9 224.2,361.1 226.9,366.8 221.0,389.3 216.4,395.2 218.5,400.9 215.7,404.2 210.9,409.9 217.8,423.2 218.5,435.1 202.3,438.4 196.9,455.3 208.7,463.1 215.7,464.0 205.9,474.2 199.8,475.9 196.4,502.5 175.5,479.5 162.3,487.2 156.6,497.0 155.9,484.2 148.4,475.9 149.8,468.3 138.7,453.6 156.2,441.3 160.0,434.2 158.0,426.5Z"},{"id":6608,"n":"Carouge","d":"M322.3,432.7 313.0,441.0 309.8,438.6 298.9,449.8 300.9,459.0 289.4,440.6 283.9,444.1 280.9,415.6 291.9,407.8 306.7,416.4 320.9,417.5 322.3,432.7Z"},{"id":6609,"n":"Cartigny","d":"M123.4,418.0 140.5,427.5 149.4,420.8 158.0,426.5 160.0,434.2 156.2,441.3 138.7,453.6 110.5,469.0 93.9,439.6 123.4,418.0Z"},{"id":6610,"n":"Céligny","d":"M355.0,49.0 351.6,61.8 345.7,59.4 347.1,49.0 356.9,39.0 370.9,50.9 366.4,55.7 355.0,49.0ZM350.3,23.2 356.9,18.9 355.0,13.2 364.4,8.0 375.5,17.3 391.9,17.7 398.7,30.5 415.9,34.3 407.1,47.8 406.6,67.1 384.6,55.9 386.6,44.5 373.0,42.2 352.5,30.7 350.3,23.2Z"},{"id":6611,"n":"Chancy","d":"M50.3,519.3 49.4,530.9 40.1,541.3 30.3,542.8 22.6,548.2 15.7,546.6 10.0,552.0 8.0,542.5 23.7,530.7 21.6,513.4 28.7,497.0 40.1,477.3 53.0,483.0 68.2,468.0 79.6,471.4 86.7,483.5 55.3,497.9 50.3,519.3Z"},{"id":6612,"n":"Chêne-Bougeries","d":"M344.4,415.6 343.9,411.1 352.3,400.9 350.1,398.6 357.1,383.4 363.2,372.7 372.6,375.6 388.2,370.3 397.5,369.7 398.0,378.6 385.9,386.9 382.3,397.4 373.7,399.5 374.4,409.3 368.0,422.3 370.1,429.7 366.2,433.6 347.6,441.7 350.3,428.0 344.4,415.6Z"},{"id":6613,"n":"Chêne-Bourg","d":"M374.4,409.3 373.7,399.5 382.3,397.4 385.9,386.9 398.0,378.6 397.5,369.7 401.4,365.2 403.9,388.2 395.7,396.2 392.6,407.3 374.4,409.3Z"},{"id":6614,"n":"Choulex","d":"M464.1,326.2 463.0,332.2 451.4,340.7 449.8,344.0 446.6,350.4 437.1,346.4 423.0,362.5 422.5,362.7 427.5,344.8 422.3,336.4 424.4,329.3 412.5,325.1 398.5,311.3 403.0,305.8 416.9,302.1 421.4,304.9 418.4,313.9 428.7,313.5 431.6,316.5 445.1,303.3 454.2,307.7 453.2,321.8 464.1,326.2Z"},{"id":6615,"n":"Collex-Bossy","d":"M268.7,245.9 262.3,235.6 253.2,225.0 258.2,219.8 242.5,206.3 243.9,193.4 240.5,191.5 254.2,176.6 257.8,170.0 266.7,169.7 270.1,163.1 289.2,176.2 290.3,183.3 285.1,192.0 287.5,199.6 298.2,199.4 302.5,220.3 268.7,245.9Z"},{"id":6616,"n":"Collonge-Bellerive","d":"M383.9,299.5 386.2,289.5 382.3,281.6 386.6,253.9 393.9,239.5 411.0,235.9 427.6,248.0 435.5,262.2 440.5,262.9 435.7,272.0 430.5,268.9 417.5,290.0 416.9,302.1 403.0,305.8 398.5,311.3 383.9,299.5Z"},{"id":6617,"n":"Cologny","d":"M351.6,359.2 380.5,310.8 383.9,299.5 398.5,311.3 377.1,338.3 376.7,346.4 388.2,370.3 372.6,375.6 363.2,372.7 357.1,383.4 353.5,379.8 356.6,372.0 351.6,359.2Z"},{"id":6618,"n":"Confignon","d":"M215.7,464.0 208.7,463.1 196.9,455.3 202.3,438.4 218.5,435.1 217.8,423.2 210.9,409.9 215.7,404.2 221.0,412.6 223.5,428.7 230.1,441.3 236.0,445.5 236.7,450.0 243.5,455.7 232.3,464.7 227.8,462.8 218.0,469.7 215.7,464.0Z"},{"id":6619,"n":"Corsier","d":"M474.2,242.5 474.6,242.8 467.1,257.5 451.4,255.4 443.9,257.5 440.5,262.9 435.5,262.2 427.6,248.0 411.0,235.9 420.7,220.9 437.6,236.1 451.6,234.2 459.8,243.2 471.4,245.2 474.2,242.5Z"},{"id":6620,"n":"Dardagny","d":"M65.5,439.6 64.4,433.9 70.1,425.8 64.1,415.2 54.4,412.5 49.6,407.3 20.1,393.4 23.2,387.7 34.8,380.6 28.9,371.1 37.1,352.5 43.4,347.6 53.4,347.6 66.9,350.7 68.0,345.0 63.0,336.2 71.9,335.0 78.2,340.0 69.1,357.5 69.1,364.7 65.7,366.8 69.6,376.8 83.5,391.7 81.2,398.8 93.5,422.3 93.2,439.4 85.1,442.9 65.5,439.6Z"},{"id":6621,"n":"Genève","d":"M315.3,322.0 321.9,337.8 319.4,350.6 321.2,360.9 313.2,370.6 316.0,374.6 323.4,376.0 327.6,372.9 325.5,367.8 328.7,372.2 335.9,364.7 339.6,366.5 351.6,359.2 356.6,372.0 353.5,379.8 357.1,383.4 350.1,398.6 352.3,400.9 343.9,411.1 344.4,415.6 336.7,415.0 329.4,436.8 322.3,432.7 320.9,417.5 306.7,416.4 291.9,407.8 280.9,415.6 280.0,393.1 273.9,395.7 270.3,392.1 256.0,393.4 253.5,379.9 253.2,373.2 266.7,349.5 259.2,340.2 264.6,335.9 281.2,322.9 288.5,313.7 298.2,316.8 305.7,316.8 315.3,322.0Z"},{"id":6622,"n":"Genthod","d":"M346.9,224.8 342.1,239.4 335.5,241.6 326.2,258.7 305.9,246.6 306.4,236.8 302.3,228.0 302.5,220.3 312.1,213.1 318.7,218.8 330.0,217.6 346.9,224.8Z"},{"id":6623,"n":"Le Grand-Saconnex","d":"M239.2,299.7 246.7,293.0 251.0,295.2 274.2,270.1 281.9,282.4 293.4,301.1 283.9,308.5 288.5,313.7 281.2,322.9 264.6,335.9 255.7,328.9 239.2,299.7Z"},{"id":6624,"n":"Gy","d":"M474.6,242.8 492.3,260.3 491.2,267.5 501.4,276.7 521.0,268.2 521.0,264.8 530.1,261.2 541.7,241.8 549.1,240.1 545.1,252.5 547.8,258.0 541.9,259.1 523.4,283.1 507.3,288.5 496.9,281.4 495.7,287.4 486.2,285.7 480.5,277.4 474.1,274.3 480.9,265.6 467.1,257.5 474.6,242.8Z"},{"id":6625,"n":"Hermance","d":"M462.5,146.9 473.2,153.1 472.6,169.3 479.6,179.2 477.1,184.4 465.1,190.9 453.2,179.5 463.2,160.5 462.5,146.9Z"},{"id":6626,"n":"Jussy","d":"M547.8,258.0 556.0,260.3 565.0,257.3 568.2,259.9 564.2,268.6 569.4,271.5 570.9,285.2 547.1,326.9 540.5,331.5 537.1,328.1 521.7,327.0 512.5,328.6 505.5,332.7 484.2,332.7 478.4,337.4 470.0,324.6 471.0,318.7 463.5,316.5 461.4,309.6 463.5,302.3 469.6,302.8 473.0,296.4 480.1,298.7 486.2,285.7 495.7,287.4 496.9,281.4 507.3,288.5 523.4,283.1 541.9,259.1 547.8,258.0Z"},{"id":6627,"n":"Laconnex","d":"M109.6,469.5 110.5,469.0 138.7,453.6 149.8,468.3 148.4,475.9 155.9,484.2 156.6,497.0 154.4,501.7 145.5,494.4 136.0,501.5 133.9,506.3 125.7,499.8 104.8,493.0 109.4,481.3 109.6,469.5Z"},{"id":6628,"n":"Lancy","d":"M280.9,415.6 283.9,444.1 289.4,440.6 300.9,459.0 301.6,459.1 301.2,461.6 289.4,457.1 278.0,450.2 274.4,452.2 268.0,446.0 260.3,447.6 253.4,441.5 256.6,437.4 252.3,428.9 254.4,423.2 241.2,393.4 253.5,379.9 256.0,393.4 270.3,392.1 273.9,395.7 280.0,393.1 280.9,415.6Z"},{"id":6629,"n":"Meinier","d":"M464.1,326.2 453.2,321.8 454.2,307.7 445.1,303.3 431.6,316.5 428.7,313.5 418.4,313.9 421.4,304.9 416.9,302.1 417.5,290.0 430.5,268.9 435.7,272.0 440.5,262.9 443.9,257.5 451.4,255.4 467.1,257.5 480.9,265.6 474.1,274.3 480.5,277.4 486.2,285.7 480.1,298.7 473.0,296.4 469.6,302.8 463.5,302.3 461.4,309.6 463.5,316.5 471.0,318.7 470.0,324.6 464.1,326.2Z"},{"id":6630,"n":"Meyrin","d":"M151.2,314.1 158.5,305.1 162.5,295.7 173.2,283.6 178.7,281.6 188.4,291.9 194.6,286.9 211.4,279.3 218.0,280.3 239.2,299.7 255.7,328.9 242.6,339.5 216.4,330.1 212.6,340.2 199.2,338.8 188.2,346.4 163.2,319.6 151.0,314.4 151.2,314.1Z"},{"id":6631,"n":"Onex","d":"M215.7,404.2 218.5,400.9 231.6,403.6 241.2,393.4 254.4,423.2 252.3,428.9 256.6,437.4 253.4,441.5 236.0,445.5 230.1,441.3 223.5,428.7 221.0,412.6 215.7,404.2Z"},{"id":6632,"n":"Perly-Certoux","d":"M223.7,497.5 198.0,503.6 196.2,502.9 199.8,475.9 205.9,474.2 215.7,464.0 218.0,469.7 227.8,462.8 232.3,464.7 239.8,473.7 235.0,483.5 232.6,488.7 223.7,497.5Z"},{"id":6633,"n":"Plan-les-Ouates","d":"M299.1,490.3 292.1,488.4 274.8,497.2 247.5,481.6 241.4,489.7 235.0,483.5 239.8,473.7 232.3,464.7 243.5,455.7 236.7,450.0 236.0,445.5 253.4,441.5 260.3,447.6 268.0,446.0 274.4,452.2 278.0,450.2 289.4,457.1 301.2,461.6 299.1,490.3Z"},{"id":6634,"n":"Pregny-Chambésy","d":"M321.9,281.7 315.3,322.0 305.7,316.8 298.2,316.8 288.5,313.7 283.9,308.5 293.4,301.1 281.9,282.4 303.0,269.3 321.9,281.7Z"},{"id":6635,"n":"Presinge","d":"M547.1,326.9 545.7,329.1 516.9,351.4 499.8,355.6 482.1,365.6 473.2,374.9 468.5,371.3 460.9,364.2 471.2,350.0 465.0,345.0 449.8,344.0 451.4,340.7 463.0,332.2 464.1,326.2 470.0,324.6 478.4,337.4 484.2,332.7 505.5,332.7 512.5,328.6 521.7,327.0 537.1,328.1 540.5,331.5 547.1,326.9Z"},{"id":6636,"n":"Puplinge","d":"M468.5,371.3 466.6,375.1 449.8,371.8 434.1,382.9 423.0,362.5 437.1,346.4 446.6,350.4 449.8,344.0 465.0,345.0 471.2,350.0 460.9,364.2 468.5,371.3Z"},{"id":6637,"n":"Russin","d":"M128.4,388.2 123.4,399.5 127.6,412.3 123.4,418.0 93.9,439.6 93.2,439.4 93.5,422.3 81.2,398.8 83.5,391.7 69.6,376.8 65.7,366.8 69.1,364.7 78.4,369.6 90.7,364.7 91.7,379.3 97.1,377.5 104.8,386.0 128.4,388.2Z"},{"id":6638,"n":"Satigny","d":"M78.2,340.0 88.7,332.4 88.9,325.3 99.2,319.8 104.2,313.2 117.8,310.1 131.4,298.2 148.5,312.3 151.2,314.1 163.2,319.6 188.2,346.4 196.2,354.5 188.0,361.3 194.1,367.8 191.7,376.5 195.5,380.6 190.5,383.6 182.1,399.0 173.0,402.6 157.6,402.3 137.3,389.5 128.4,388.2 104.8,386.0 97.1,377.5 91.7,379.3 90.7,364.7 78.4,369.6 69.1,364.7 69.1,357.5 78.2,340.0Z"},{"id":6639,"n":"Soral","d":"M196.2,502.9 192.6,501.3 160.3,498.4 155.1,507.2 150.3,524.3 146.0,521.7 134.8,532.3 128.5,525.7 116.4,522.6 133.9,506.3 136.0,501.5 145.5,494.4 154.4,501.7 156.6,497.0 162.3,487.2 175.5,479.5 196.4,502.5 196.2,502.9Z"},{"id":6640,"n":"Thônex","d":"M434.1,382.9 429.8,389.5 423.5,391.2 418.2,400.7 406.4,404.3 398.5,416.8 378.2,429.1 373.5,436.5 366.2,433.6 370.1,429.7 368.0,422.3 374.4,409.3 392.6,407.3 395.7,396.2 403.9,388.2 401.4,365.2 414.6,359.4 422.5,362.7 423.0,362.5 434.1,382.9Z"},{"id":6641,"n":"Troinex","d":"M356.6,482.7 345.0,485.6 319.8,497.9 312.8,505.1 310.3,507.9 298.5,498.9 299.1,490.3 301.2,461.6 301.6,459.1 314.6,458.1 328.9,465.7 328.5,470.2 337.5,478.9 352.3,477.5 356.6,482.7Z"},{"id":6642,"n":"Vandœuvres","d":"M397.5,369.7 388.2,370.3 376.7,346.4 377.1,338.3 398.5,311.3 412.5,325.1 424.4,329.3 422.3,336.4 427.5,344.8 422.5,362.7 414.6,359.4 401.4,365.2 397.5,369.7Z"},{"id":6643,"n":"Vernier","d":"M218.5,400.9 216.4,395.2 221.0,389.3 226.9,366.8 224.2,361.1 215.5,363.9 203.7,379.8 195.5,380.6 191.7,376.5 194.1,367.8 188.0,361.3 196.2,354.5 188.2,346.4 199.2,338.8 212.6,340.2 216.4,330.1 242.6,339.5 255.7,328.9 264.6,335.9 259.2,340.2 266.7,349.5 253.2,373.2 253.5,379.9 241.2,393.4 231.6,403.6 218.5,400.9Z"},{"id":6644,"n":"Versoix","d":"M270.1,163.1 271.6,156.9 266.6,151.2 269.4,141.5 267.1,138.9 268.2,128.2 275.5,116.9 277.6,116.4 301.2,145.3 322.8,159.0 348.5,168.6 349.8,175.0 351.0,182.0 348.2,182.6 343.4,198.4 350.1,214.6 346.9,224.8 330.0,217.6 318.7,218.8 312.1,213.1 302.5,220.3 298.2,199.4 287.5,199.6 285.1,192.0 290.3,183.3 289.2,176.2 270.1,163.1Z"},{"id":6645,"n":"Veyrier","d":"M373.7,437.5 377.8,464.2 356.6,482.7 352.3,477.5 337.5,478.9 328.5,470.2 328.9,465.7 314.6,458.1 301.6,459.1 300.9,459.0 298.9,449.8 309.8,438.6 313.0,441.0 322.3,432.7 329.4,436.8 336.7,415.0 344.4,415.6 350.3,428.0 347.6,441.7 366.2,433.6 373.5,436.5 373.7,437.5Z"}],"lac":"M1443.3,-59.8 1439.6,-58.2 1444.2,-48.5 1441.6,-40.8 1439.4,-44.0 1438.9,-43.4 1440.5,-40.9 1437.5,-39.6 1425.8,-46.1 1397.1,-40.4 1365.5,-52.2 1357.6,-59.6 1332.3,-57.7 1285.1,-74.7 1279.2,-79.5 1246.7,-84.2 1228.7,-91.4 1155.7,-90.0 1130.3,-83.8 1089.1,-87.3 1038.7,-78.5 1012.1,-78.6 943.4,-61.3 903.7,-83.5 890.7,-84.0 859.4,-69.5 848.9,-60.1 844.4,-53.9 844.2,-31.4 836.4,-17.2 762.1,18.4 734.6,18.9 720.3,39.6 709.4,44.0 697.8,63.5 682.3,61.1 649.2,45.5 645.1,31.0 634.6,13.5 635.3,2.5 625.9,-4.1 603.2,-3.1 592.3,-7.6 589.1,-1.9 557.8,5.4 558.5,8.5 542.6,18.4 517.3,42.6 517.8,52.8 508.9,70.9 485.0,100.9 487.8,110.0 479.4,132.3 474.4,141.0 462.5,146.9 463.2,160.5 453.2,179.5 440.7,189.4 420.7,220.9 411.0,235.9 393.9,239.5 386.6,253.9 382.3,281.6 386.2,289.5 383.9,299.5 380.5,310.8 351.6,359.2 339.6,366.5 335.9,364.7 328.7,372.2 325.5,367.8 327.6,372.9 323.4,376.0 316.0,374.6 313.2,370.6 321.2,360.9 319.4,350.6 321.9,337.8 315.3,322.0 321.9,281.7 318.7,268.6 326.2,258.7 335.5,241.6 342.1,239.4 346.9,224.8 350.1,214.6 343.4,198.4 348.2,182.6 351.0,182.0 349.8,175.0 348.5,168.6 366.2,145.8 374.2,131.8 386.2,120.2 395.9,97.9 400.0,88.1 400.1,76.5 406.6,67.1 407.1,47.8 415.9,34.3 428.5,11.6 438.2,3.7 448.5,-7.9 452.5,-19.7 466.7,-34.9 471.2,-43.4 488.9,-57.2 513.4,-51.0 519.2,-62.4 526.2,-66.5 525.5,-85.9 538.9,-105.8 540.0,-125.3 549.6,-129.1 550.3,-133.1 564.1,-140.4 569.4,-147.1 586.9,-173.9 605.0,-186.2 615.9,-203.7 627.6,-213.9 636.6,-213.3 671.4,-223.7 681.2,-221.6 687.8,-221.6 699.8,-212.1 719.1,-209.4 746.9,-230.8 770.3,-235.6 791.9,-243.8 800.5,-254.1 812.3,-253.8 810.3,-260.9 815.1,-273.5 823.9,-282.0 840.1,-283.2 843.9,-285.3 844.8,-297.0 851.0,-306.9 851.6,-306.4 854.8,-305.3 862.6,-312.6 864.6,-312.4 867.6,-315.2 873.2,-324.3 880.7,-337.1 886.6,-339.9 893.5,-337.7 903.0,-339.2 930.1,-321.2 935.3,-321.8 935.9,-319.3 967.3,-321.1 976.0,-330.7 988.0,-333.5 996.6,-343.2 1010.0,-343.4 1018.7,-344.4 1034.1,-331.6 1036.6,-329.5 1043.7,-331.8 1053.5,-327.3 1060.0,-320.5 1060.8,-323.7 1072.6,-316.7 1073.2,-316.2 1075.3,-314.3 1076.2,-318.0 1079.6,-318.8 1082.3,-319.3 1086.6,-318.5 1088.7,-317.4 1093.7,-315.5 1097.8,-314.1 1098.0,-315.2 1132.8,-316.7 1139.6,-313.3 1152.1,-312.6 1196.0,-295.3 1224.2,-272.3 1238.7,-272.5 1245.0,-278.0 1258.5,-278.5 1271.0,-272.0 1287.3,-257.1 1313.9,-243.9 1326.7,-243.6 1347.3,-238.9 1363.5,-235.5 1363.2,-232.0 1370.3,-234.1 1400.8,-227.9 1405.7,-212.3 1432.1,-203.8 1444.6,-181.3 1452.8,-184.8 1465.5,-183.6 1472.5,-178.4 1479.8,-167.7 1484.4,-170.3 1492.3,-162.8 1511.0,-165.8 1522.6,-154.2 1522.1,-144.2 1527.5,-139.3 1533.3,-142.1 1538.9,-139.8 1545.5,-129.0 1545.1,-121.9 1551.2,-115.1 1551.0,-106.0 1557.1,-92.3 1548.0,-78.6 1545.5,-67.2 1538.2,-66.7 1537.6,-61.9 1508.7,-65.0 1501.0,-60.5 1490.1,-62.9 1485.3,-72.6 1488.0,-64.5 1465.8,-60.3 1469.4,-54.4 1469.8,-50.8 1477.3,-47.2 1470.7,-48.2 1470.8,-44.9 1469.4,-50.1 1465.1,-61.0 1455.3,-57.0 1444.8,-61.9 1443.3,-59.8Z"};
+</script>
+<script>
+/* SPDX-License-Identifier: AGPL-3.0-or-later
+   Copyright (C) 2026 Convivens Lab, HEG-Geneve (HES-SO) */
+(function(){
+  "use strict";
+
+  /* ---------- navigation onglets, avec menu repliable sur mobile ---------- */
+  var onglets=document.querySelectorAll('.onglet');
+  var barreOnglets=document.getElementById('barre-onglets');
+  var btnMenu=document.getElementById('btn-menu');
+  var libMenu=document.getElementById('btn-menu-lib');
+  var i;
+  function fermerMenu(){
+    barreOnglets.classList.remove('ouvert');
+    btnMenu.classList.remove('ouvert');
+    btnMenu.setAttribute('aria-expanded','false');
+  }
+  btnMenu.addEventListener('click',function(){
+    var ouvert=barreOnglets.classList.toggle('ouvert');
+    btnMenu.classList.toggle('ouvert',ouvert);
+    btnMenu.setAttribute('aria-expanded',ouvert?'true':'false');
+  });
+  function activer(id,libelle){
+    var j;
+    for(j=0;j<onglets.length;j++){onglets[j].classList.toggle('actif',onglets[j].getAttribute('data-ecran')===id);}
+    var ecrans=document.querySelectorAll('.ecran');
+    for(j=0;j<ecrans.length;j++){ecrans[j].classList.toggle('actif',ecrans[j].id===id);}
+    if(libelle){libMenu.textContent=libelle;}
+    fermerMenu();
+    window.scrollTo(0,0);
+  }
+  for(i=0;i<onglets.length;i++){
+    (function(o){o.addEventListener('click',function(){activer(o.getAttribute('data-ecran'),o.textContent);});})(onglets[i]);
+  }
+
+  /* ---------- catalogue : 8 domaines ---------- */
+  var CATALOGUE=[
+   {id:'acces',nom:'Santé et accès aux soins',ind:[
+    {n:"Espérance de vie",u:"ans",b:83,a:5,s:"OFS, OCSTAT",m:"mai 2026",p:"mai 2027",inv:true,d:"Nombre moyen d'années de vie selon le secteur de résidence, résultat intégratif de l'ensemble des déterminants."},
+    {n:"Espérance de vie en bonne santé",u:"ans",b:71,a:7,s:"OFS, Enquête suisse sur la santé",m:"mai 2026",p:"mai 2027",inv:true,d:"Nombre moyen d'années vécues sans limitation durable dans les activités quotidiennes. La différence avec l'espérance de vie totale correspond aux années vécues avec incapacité. Cette différence n'est pas la même pour tous, les personnes des quartiers les moins favorisés vivent à la fois moins longtemps et davantage d'années en mauvaise santé, double désavantage que cet indicateur rend visible."},
+    {n:"Mortalité prématurée avant 75 ans",u:"pour 100'000 hab.",b:210,a:120,s:"OFS, statistique des décès",m:"mai 2026",p:"mai 2027",d:"Nombre de décès survenus avant 75 ans rapporté à la population, standardisé par âge. Cet indicateur résume les pertes de vie prématurées d'un secteur, dont une part importante relève de causes évitables, un écart marqué entre communes signale une inégalité sur laquelle la prévention et l'accès aux soins peuvent agir."},
+    {n:"Mortalité évitable, préventive et curable",u:"pour 100'000 hab.",b:95,a:70,s:"OFS, définition OCDE",m:"mai 2026",p:"mai 2027",d:"Décès que la prévention primaire, vaccination, lutte contre le tabac, ou des soins délivrés à temps auraient pu empêcher, selon la définition partagée OCDE et Eurostat. La cible est la réduction de ce taux, en priorité dans les secteurs où il dépasse la moyenne cantonale."},
+    {n:"Diabète",u:"% des adultes",b:6,a:4,s:"Enquête suisse sur la santé, registres hospitaliers",m:"nov. 2023",p:"2028",d:"Part des adultes vivant avec un diabète, une maladie qui suit de près le gradient social par l'alimentation, l'activité physique et le stress chronique."},
+    {n:"Maladies cardiovasculaires, hypertension comprise",u:"% des adultes",b:16,a:8,s:"Enquête suisse sur la santé, registres hospitaliers",m:"nov. 2023",p:"2028",d:"Part des adultes traités pour une hypertension, une maladie du cœur ou les suites d'un accident vasculaire cérébral. Ces maladies suivent le gradient social par l'alimentation, l'activité physique, le stress et l'accès au suivi, un taux élevé appelle prévention et dépistage renforcés dans le secteur."},
+    {n:"Maladies respiratoires chroniques, asthme et bronchite",u:"% des adultes",b:7,a:4,s:"Enquête suisse sur la santé, registres hospitaliers",m:"nov. 2023",p:"2028",d:"Part des adultes vivant avec un asthme ou une bronchite chronique, la qualité de l'air et du logement pèse directement sur ce chiffre."},
+    {n:"Détresse psychologique",u:"% des adultes",b:12,a:9,s:"Enquête suisse sur la santé",m:"nov. 2023",p:"2028",d:"Part des adultes déclarant une souffrance psychique importante."},
+    {n:"Santé perçue moyenne ou mauvaise",u:"% des adultes",b:13,a:8,s:"Enquête suisse sur la santé",m:"nov. 2023",p:"2028",d:"Part des adultes qui jugent leur propre santé moyenne ou mauvaise. Cette appréciation subjective prédit de façon robuste la maladie et la mortalité futures, indépendamment des diagnostics posés, ce qui en fait un signal d'alerte précoce à l'échelle d'un secteur."},
+    {n:"Renoncement aux soins pour raisons financières",u:"% des adultes",b:8,a:7,s:"Enquêtes cantonales de santé",m:"mars 2026",p:"mars 2027",d:"Part des adultes ayant renoncé au cours de l'année à un soin jugé nécessaire à cause de son coût, franchise, quote-part ou soins non couverts comme le dentaire. Genève figure parmi les cantons les plus touchés en Suisse. Ce renoncement est une iniquité par définition, il est évitable, les subsides et la simplification administrative le corrigent, la cible est sa réduction continue."},
+    {n:"Hospitalisations évitables",u:"pour 1'000 hab.",b:9,a:6,s:"Statistique médicale des hôpitaux",m:"mai 2026",p:"début 2027",d:"Séjours hospitaliers pour des affections qu'un suivi ambulatoire à temps aurait permis d'éviter, diabète déséquilibré, asthme, insuffisance cardiaque, selon la liste des affections sensibles aux soins ambulatoires de l'OCDE. Un taux élevé signale un défaut d'accès aux soins primaires en amont, plus qu'un problème hospitalier, la cible est sa réduction par le renforcement du premier recours."},
+    {n:"Recours aux urgences pour des motifs de premier recours",u:"% des passages",b:22,a:14,s:"Hôpitaux, données d'activité",m:"juin 2026",p:"déc. 2026",d:"Passages aux urgences pour des problèmes qu'un médecin de famille aurait pu traiter."},
+    {n:"Dépistage des cancers et vaccination",u:"% de couverture",b:62,a:18,s:"Programmes cantonaux",m:"avr. 2026",p:"avr. 2027",inv:true,d:"Part de la population à jour dans les dépistages et vaccins recommandés."},
+    {n:"Recours aux subsides d'assurance-maladie rapporté au droit",u:"% des ayants droit",b:71,a:16,s:"Service de l'assurance-maladie",m:"févr. 2026",p:"févr. 2027",inv:true,d:"Part des personnes éligibles qui perçoivent effectivement le subside d'assurance-maladie auquel elles ont droit. L'écart avec 100 % mesure le non-recours, souvent lié à la complexité des démarches. Le versement automatique, simulé dans l'onglet Mesures correctives, vise à porter ce taux au plus près de la totalité des ayants droit."},
+    {n:"Délai d'accès à un médecin de premier recours",u:"jours",b:12,a:9,s:"Enquête cantonale d'accès",m:"janv. 2026",p:"janv. 2027",d:"Nombre médian de jours d'attente pour obtenir un premier rendez-vous chez un médecin de premier recours acceptant de nouveaux patients. Un délai qui s'allonge traduit une pénurie locale de médecins, elle repousse le soin et pousse vers les urgences, la cible est un accès sous une à deux semaines."}
+   ]},
+   {id:'enfance',nom:'Enfance et jeunesse',ind:[
+    {n:"Élèves avec un besoin de soins dentaires constaté",u:"% des élèves dépistés",b:22,a:14,s:"Dépistage dentaire scolaire",m:"août 2026",p:"août 2027",d:"Part des élèves chez qui le dépistage à l'école constate une carie ou un autre problème à traiter."},
+    {n:"Surpoids et obésité à l'âge scolaire",u:"% des élèves",b:17,a:9,s:"Visites de santé scolaire",m:"août 2026",p:"août 2027",d:"Part des élèves en surpoids lors des visites de santé à l'école."},
+    {n:"Couverture vaccinale scolaire",u:"% des élèves",b:88,a:8,s:"Service de santé scolaire",m:"août 2026",p:"août 2027",inv:true,d:"Part des élèves à jour des vaccins recommandés."},
+    {n:"Caries non traitées chez l'enfant",u:"% des élèves dépistés",b:11,a:9,s:"Dépistage dentaire scolaire",m:"août 2026",p:"août 2027",d:"Part des élèves dont un besoin de soins constaté l'année précédente reste sans traitement."},
+    {n:"Détresse psychique des 13 à 17 ans",u:"% des jeunes",b:14,a:8,s:"Enquêtes en milieu scolaire",m:"sept. 2025",p:"sept. 2027",d:"Part des adolescentes et adolescents signalant une souffrance psychique importante."},
+    {n:"Places d'accueil de la petite enfance",u:"pour 100 enfants",b:34,a:20,s:"OCSTAT, offices communaux",m:"janv. 2026",p:"janv. 2027",inv:true,d:"Nombre de places en crèche et accueil familial pour cent enfants d'âge préscolaire."}
+   ]},
+   {id:'social',nom:'Déterminants sociaux',ind:[
+    {n:"Revenu médian et inégalité de revenu",u:"indice",b:78,a:40,s:"Administration fiscale, OCSTAT",m:"avr. 2026",p:"avr. 2027",inv:true,d:"Revenu du ménage au milieu de la distribution et ampleur des écarts de revenu."},
+    {n:"Population sans formation postobligatoire",u:"% des 25 à 64 ans",b:18,a:14,s:"OFS, relevé structurel",m:"mars 2026",p:"mars 2027",d:"Part des adultes dont la scolarité s'est arrêtée à l'école obligatoire."},
+    {n:"Chômage et emploi précaire",u:"% des actifs",b:9,a:7,s:"OCSTAT, SECO",m:"juin 2026",p:"sept. 2026",d:"Part des personnes sans emploi ou en emploi instable."},
+    {n:"Logements suroccupés et charge du loyer",u:"% des ménages",b:14,a:11,s:"OCSTAT, enquêtes logement",m:"mars 2026",p:"mars 2027",d:"Ménages vivant à l'étroit ou consacrant une part excessive du revenu au loyer."},
+    {n:"Insécurité alimentaire",u:"% des ménages",b:7,a:6,s:"Enquêtes cantonales",m:"févr. 2026",p:"févr. 2027",d:"Ménages qui réduisent ou sautent des repas pour des raisons financières."},
+    {n:"Isolement social",u:"% des adultes",b:11,a:6,s:"Enquête suisse sur la santé",m:"nov. 2023",p:"2028",d:"Part des adultes déclarant n'avoir personne sur qui compter en cas de difficulté. L'isolement social pèse sur la mortalité autant que des facteurs de risque établis comme le tabac, selon la méta-analyse de Holt-Lunstad (PLoS Medicine, 2010). Un taux élevé signale un secteur où renforcer les lieux de lien, maisons de quartier, associations, réseaux de proches aidants."},
+    {n:"Bénéficiaires de l'aide sociale",u:"% de la population",b:5,a:5,s:"OCSTAT, statistique de l'aide sociale",m:"mai 2026",p:"mai 2027",d:"Part des habitantes et habitants soutenus par l'aide sociale."},
+    {n:"Poursuites et endettement",u:"% des adultes",b:12,a:9,s:"Office des poursuites, OCSTAT",m:"avr. 2026",p:"avr. 2027",d:"Part des adultes faisant l'objet d'au moins une poursuite, marqueur de précarité durable."}
+   ]},
+   {id:'env',nom:'Environnement et stress urbain',ind:[
+    {n:"Particules fines PM2.5",u:"µg/m³, moyenne annuelle",b:11,a:5,s:"Cadastre des émissions, OCEV",m:"juin 2026",p:"juin 2027",d:"Concentration moyenne de poussières fines dans l'air, particules assez petites pour pénétrer profondément dans les poumons et le sang. L'OMS fixe la valeur guide annuelle à 5 µg/m³ (OMS, 2021), seuil rarement atteint en milieu urbain. Chaque augmentation durable de l'exposition élève le risque de maladies cardiovasculaires et respiratoires, ce qui fait de cet indicateur un marqueur direct de justice environnementale."},
+    {n:"Dioxyde d'azote NO2",u:"µg/m³, moyenne annuelle",b:22,a:14,s:"Cadastre des émissions",m:"juin 2026",p:"juin 2027",d:"Gaz émis surtout par le trafic routier, irritant pour les voies respiratoires."},
+    {n:"Bruit routier de jour et de nuit",u:"% exposé au-delà des seuils",b:24,a:20,s:"Cadastre du bruit",m:"éd. 2025",p:"prochaine édition",d:"Part des habitantes et habitants exposés à un bruit dépassant les valeurs de protection."},
+    {n:"Îlot de chaleur urbain",u:"°C d'écart estival",b:2.5,a:2.5,s:"Cartes climatiques cantonales",m:"éd. 2025",p:"prochaine édition",d:"Surchauffe du secteur les nuits d'été par rapport à la campagne environnante."},
+    {n:"Accès à un espace vert à moins de 300 mètres",u:"% de la population",b:72,a:22,s:"SITG, cadastre des espaces verts",m:"éd. 2026",p:"prochaine édition",inv:true,d:"Part des personnes vivant à moins de trois cents mètres, environ cinq minutes à pied, d'un espace vert accessible. L'OMS recommande cet accès de proximité pour tous, associé à une meilleure santé mentale, plus d'activité physique et une moindre surchauffe estivale. La cible est une couverture proche de 100 %, un déficit désigne un secteur prioritaire pour la végétalisation."},
+    {n:"Précarité énergétique",u:"% des ménages",b:9,a:7,s:"Enquêtes logement, SIG",m:"mars 2026",p:"mars 2027",d:"Ménages qui peinent à chauffer, ou à rafraîchir, leur logement."},
+    {n:"Ombrage des espaces publics en été",u:"% de surface ombragée",b:38,a:20,s:"SITG, couches de canopée",m:"éd. 2026",p:"prochaine édition",inv:true,d:"Part des rues et places protégées du soleil aux heures chaudes."},
+    {n:"Charge de stress cumulée, indice exploratoire",u:"indice 0 à 100",b:48,a:26,s:"Construit, à valider",m:"juil. 2026",p:"trimestriel",d:"Usure que le corps accumule sous un stress répété, bruit, chaleur, insécurité, estimée à partir des marqueurs disponibles. Indice en cours de validation."}
+   ]},
+   {id:'mob',nom:'Mobilité et accessibilité',ind:[
+    {n:"Temps d'accès aux soins en transports publics",u:"minutes",b:16,a:14,s:"SITG, horaires TPG",m:"déc. 2025",p:"déc. 2026",d:"Durée du trajet en bus ou tram jusqu'à la structure de soins de premier recours la plus proche, aux heures de desserte courante. La cible retenue est un accès en quinze minutes ou moins, seuil au-delà duquel le renoncement aux soins augmente, en particulier pour les personnes âgées et sans voiture. Un temps supérieur signale un secteur à renforcer, par la desserte ou par une offre de proximité."},
+    {n:"Marchabilité du secteur",u:"indice 0 à 100",b:62,a:26,s:"SITG, plans de mobilité",m:"éd. 2026",p:"prochaine édition",inv:true,d:"Facilité à se déplacer à pied dans le secteur, mesurée par la continuité des trottoirs, la douceur des pentes, la sécurité des traversées et la présence de bancs pour se reposer. Une bonne marchabilité soutient l'activité physique quotidienne et l'autonomie des personnes âgées, elle protège directement la santé."},
+    {n:"Précarité de mobilité",u:"% des ménages",b:10,a:8,s:"Microrecensement mobilité, OFS",m:"2023",p:"2028",d:"Ménages contraints dans leurs déplacements, sans voiture ni desserte suffisante."},
+    {n:"Part des déplacements à pied et à vélo",u:"% des trajets",b:42,a:20,s:"Microrecensement mobilité",m:"2023",p:"2028",inv:true,d:"Part des trajets quotidiens effectués en mobilité active, favorable à la santé."},
+    {n:"Accidents impliquant piétons et cyclistes",u:"pour 10'000 hab.",b:8,a:6,s:"Statistique des accidents",m:"mars 2026",p:"mars 2027",d:"Blessés parmi les usagers vulnérables de la route, un risque lié à l'aménagement."},
+    {n:"Accessibilité des espaces publics en fauteuil et poussette",u:"% d'itinéraires conformes",b:58,a:24,s:"SITG, relevés d'accessibilité",m:"éd. 2026",p:"prochaine édition",inv:true,d:"Part des itinéraires praticables sans obstacle avec un fauteuil roulant ou une poussette."}
+   ]},
+   {id:'viol',nom:'Violences et discriminations',ind:[
+    {n:"Violences domestiques, consultations d'aide aux victimes",u:"pour 1'000 hab.",b:4,a:3,s:"Centre d'aide aux victimes, statistique policière",m:"avr. 2026",p:"avr. 2027",d:"Personnes ayant sollicité une aide après des violences dans le couple ou la famille."},
+    {n:"Discriminations déclarées dans l'accès aux soins",u:"% des patients",b:6,a:6,s:"Recueil participatif, enquêtes",m:"juil. 2026",p:"trimestriel",d:"Part des personnes déclarant un traitement défavorable lié à l'origine, à la langue ou au statut."},
+    {n:"Sentiment de sécurité dans son quartier",u:"% se sentant en sécurité",b:78,a:20,s:"Enquêtes cantonales",m:"oct. 2025",p:"oct. 2027",inv:true,d:"Part des habitantes et habitants se sentant en sécurité, de jour comme de nuit."},
+    {n:"Incivilités et dégradations déclarées",u:"signalements pour 1'000 hab.",b:26,a:18,s:"Statistiques communales",m:"janv. 2026",p:"janv. 2027",d:"Signalements de nuisances répétées, un facteur de stress chronique du quartier."}
+   ]},
+   {id:'salu',nom:'Ressources protectrices',ind:[
+    {n:"Soutien social et cohésion de voisinage",u:"indice 0 à 100",b:64,a:22,s:"Enquête suisse sur la santé, indice construit",m:"nov. 2023",p:"2028",inv:true,d:"Force des liens d'entraide dans le secteur, mesurée par la présence de personnes sur qui compter en cas de difficulté et par la participation à la vie du quartier, garde d'enfants entre voisins, associations, réseaux d'entraide. La méta-analyse de Holt-Lunstad et collègues, portant sur 148 études et plus de 300'000 personnes, établit qu'un soutien social fort s'associe à 50 % de survie en plus, effet comparable à l'arrêt du tabac (PLoS Medicine, 2010). Un indice élevé protège donc la santé à exposition comparable."},
+    {n:"Aisance avec l'information de santé",u:"% avec un niveau suffisant",b:56,a:22,s:"Enquête cantonale",m:"sept. 2025",p:"sept. 2027",inv:true,d:"Part des personnes qui comprennent et utilisent sans difficulté l'information de santé."},
+    {n:"Lieux communautaires et associatifs",u:"pour 10'000 hab.",b:14,a:10,s:"SITG, registre des associations",m:"févr. 2026",p:"févr. 2027",inv:true,d:"Maisons de quartier, clubs, associations, autant de portes d'entrée vers le lien social."},
+    {n:"Participation sociale et sentiment de maîtrise de sa vie",u:"indice 0 à 100",b:60,a:24,s:"Enquêtes cantonales",m:"oct. 2025",p:"oct. 2027",inv:true,d:"Sentiment de compter et de pouvoir agir sur sa situation, associé à une meilleure santé."},
+    {n:"Espaces ressourçants à proximité",u:"% de la population desservie",b:66,a:26,s:"SITG, cadastre des espaces verts",m:"éd. 2026",p:"prochaine édition",inv:true,d:"Accès à pied à un lieu calme, parc, rive, cour arborée, où le stress redescend."},
+    {n:"Tissu d'entraide en santé",u:"groupes pour 10'000 hab.",b:5,a:4,s:"Registre des associations",m:"févr. 2026",p:"févr. 2027",inv:true,d:"Groupes d'entraide entre patients et proches aidants actifs dans le secteur."}
+   ]},
+   {id:'comp',nom:'Indices croisés',ind:[
+    {n:"Niveau socioéconomique du secteur",u:"quintile 1 à 5",b:3,a:2,s:"Indice Swiss-SEP, ISPM Berne",m:"éd. 2023",p:"prochaine édition",inv:true,d:"Indice validé qui résume revenu, formation, profession et logement du voisinage."},
+    {n:"Justice environnementale",u:"indice 0 à 100",b:52,a:30,s:"Construit, domaines environnement et social",m:"juil. 2026",p:"semestriel",d:"Croise l'exposition aux nuisances et la vulnérabilité sociale, repère les cumuls injustes."},
+    {n:"Ressources protectrices du secteur",u:"indice 0 à 100",b:56,a:26,s:"Construit, domaine ressources",m:"juil. 2026",p:"semestriel",inv:true,d:"Indice qui résume les actifs de santé du secteur, soutien social, lieux ressourçants, tissu d'entraide, aisance avec l'information de santé. Fondé sur l'approche salutogénique d'Antonovsky, il mesure ce qui protège la santé plutôt que ce qui la menace, et oriente l'action vers le renforcement de ces ressources dans les secteurs qui en manquent."},
+    {n:"Écart d'équité en santé",u:"indice 0 à 1",b:0.5,a:0.34,s:"Construit, ensemble des domaines",m:"juil. 2026",p:"semestriel",d:"Mesure la part injuste de l'écart entre besoin de santé et accès effectif, ajustée des ressources."},
+    {n:"Classification double peine",u:"catégorie",b:2,a:2,s:"Construit, justice environnementale",m:"juil. 2026",p:"semestriel",d:"Classe chaque commune selon le cumul d'exposition et de vulnérabilité, voir l'onglet Double peine."}
+   ]}
+  ];
+
+  /* défaveur par commune, motif spatial plausible, valeurs fictives */
+  var DEFAVEUR={6643:.92,6631:.88,6630:.80,6628:.74,6621:.70,6608:.62,6613:.60,6640:.55,6623:.52,6607:.50,6606:.46,6644:.44,6633:.42,6636:.44,6603:.48,6604:.46,6611:.50,6601:.44,6639:.42,6627:.40,6609:.40,6620:.42,6637:.40,6638:.45,6618:.44,6632:.42,6641:.36,6645:.38,6612:.28,6626:.34,6624:.34,6625:.32,6629:.34,6614:.32,6635:.34,6615:.36,6622:.28,6634:.30,6610:.26,6619:.30,6616:.24,6617:.16,6642:.18,6602:.26,6605:.40};
+  /* exposition urbaine par commune, valeurs fictives */
+  var EXPO={6621:.90,6643:.85,6628:.82,6608:.80,6631:.78,6630:.74,6613:.76,6640:.66,6623:.64,6612:.58,6633:.54,6607:.50,6644:.50,6617:.52,6641:.42,6645:.44,6634:.48,6606:.46,6622:.40,6616:.38,6642:.36,6636:.40,6618:.44,6632:.42,6602:.30,6614:.30,6629:.28,6626:.24,6624:.22,6625:.26,6635:.26,6615:.32,6638:.40,6637:.28,6620:.26,6609:.24,6601:.30,6604:.24,6603:.28,6611:.26,6639:.22,6627:.22,6605:.34,6619:.30,6610:.28};
+
+  function hache(s){var h=0,j;for(j=0;j<s.length;j++){h=(h*31+s.charCodeAt(j))>>>0;}return (h%1000)/1000;}
+
+  /* ---------- populations : lecture stratifiee ----------
+     mult agit sur la direction defavorable de l'indicateur, la penalite
+     d'acces se cumule au gradient territorial. rare=true declenche la
+     suppression des petits effectifs a l'echelle communale (k<5). */
+  var POPS=[
+    {id:'gen',  nom:'Population générale', mult:1.0,  rare:false, note:''},
+    {id:'drep', nom:'Personnes vivant avec une drépanocytose', mult:1.6, rare:true,
+     note:"La drépanocytose est une maladie génétique du sang qui déforme les globules rouges en faucille et provoque des crises douloureuses intenses. Elle est l'archétype de la maladie rare négligée. Première maladie génétique dépistée à la naissance en Europe, plus de quatre fois plus fréquente que la mucoviscidose selon le dépistage néonatal (Revue du Praticien, 2023), elle reste peu enseignée à la faculté et mal reconnue dans les parcours de soins. Trois barrières se cumulent. La méconnaissance médicale conduit à une errance diagnostique, l'errance thérapeutique et la sous-évaluation de la douleur lors des crises, alors que les crises vaso-occlusives motivent plus de neuf passages aux urgences sur dix (Revue du Praticien, 2023). Les biais liés à l'origine s'ajoutent, la maladie touchant surtout des personnes d'origine africaine, méditerranéenne, moyen-orientale et indienne (OMS, 2024), ce qui expose à des stéréotypes sur la douleur et à la suspicion de recherche d'antalgiques. Le gradient social amplifie enfin chaque obstacle. À Genève, la prise en charge s'organise autour des HUG et des associations de patients, qui portent la reconnaissance de la maladie."},
+    {id:'rac',  nom:'Personnes racisées', mult:1.35, rare:false,
+     note:"Une personne racisée subit des traitements défavorables liés à son origine réelle ou supposée, à sa couleur de peau ou à sa langue. Dans les soins, ces discriminations prennent des formes documentées, sous-évaluation de la douleur, retard de diagnostic, présomptions sur le mode de vie, moindre orientation vers les examens spécialisés. Ces biais se cumulent aux déterminants sociaux. La lecture par population isole la part de l'écart qui subsiste à position sociale égale, c'est-à-dire l'effet propre de la discrimination une fois le revenu et la formation pris en compte. Les vécus se signalent sur carewat.ch et alimentent le domaine Violences et discriminations."},
+    {id:'neuro',nom:'Personnes neurodivergentes', mult:1.3, rare:false,
+     note:"La neurodivergence regroupe des fonctionnements comme l'autisme, le trouble de l'attention ou les troubles dys, qui s'écartent du fonctionnement attendu par défaut dans les lieux de soins. Trois barrières concrètes retardent le recours, l'environnement sensoriel des salles d'attente, bruit et lumière, la complexité des démarches et de la prise de rendez-vous, et une communication médicale conçue pour un patient neurotypique. S'y ajoute un biais de reconnaissance, les symptômes physiques sont plus souvent attribués au trouble psychique préexistant, ce que la littérature nomme éclipse diagnostique, source d'errance et de retard de prise en charge, à besoin médical égal."},
+    {id:'hand', nom:'Personnes en situation de handicap', mult:1.4, rare:false,
+     note:"Le handicap devient un obstacle de santé lorsque l'environnement n'est pas accessible, cabinet sans ascenseur, table d'examen non réglable, site de rendez-vous illisible pour un lecteur d'écran. L'accessibilité physique et numérique conditionne alors le recours effectif, un examen reporté faute d'équipement adapté devient un examen non réalisé. S'y ajoutent des biais de communication, la parole est souvent adressée à l'accompagnant plutôt qu'à la personne, et la sous-estimation des besoins de dépistage. La lecture par population mesure l'écart qui subsiste une fois neutralisée la position sociale, part attribuable aux seules barrières d'accessibilité et de considération."},
+    {id:'allo', nom:'Personnes allophones', mult:1.45, rare:false,
+     note:"Une personne allophone ne maîtrise pas la langue locale des soins, ici le français. La langue conditionne trois étapes, comprendre l'information de santé, s'orienter dans le système et accomplir les démarches administratives comme la demande de subside. Sans interprète, le consentement éclairé et l'observance se dégradent, et le recours à un proche pour traduire expose à des erreurs et à une perte de confidentialité. À Genève, un service d'interprétariat communautaire existe pour les structures de soins, son usage réduit une part mesurable de cet écart. La lecture par population estime l'obstacle linguistique résiduel à position sociale égale."}
+  ];
+  var popActive='gen';
+  /* communes affichables pour les populations rares : effectif communal >= 5 */
+  var GRANDES=[6621,6643,6628,6630,6608,6631,6640,6644,6623,6612,6633,6607];
+  function pop(){var j;for(j=0;j<POPS.length;j++){if(POPS[j].id===popActive)return POPS[j];}return POPS[0];}
+  function effectifOK(cid){return pop().rare===false || GRANDES.indexOf(cid)>=0;}
+  function valeurPop(ind,cid){
+    var v=valeur(ind,cid), m=pop().mult;
+    if(m===1.0) return v;
+    if(ind.inv) return v/(1+(m-1)*0.6);   /* indicateur favorable : la penalite reduit la valeur */
+    return v*m;                            /* indicateur defavorable : la penalite l'augmente */
+  }
+  function ressources(cid){return Math.max(.08,Math.min(.95, 1-(DEFAVEUR[cid]||.4)*.75 + (hache('rs'+cid)-.5)*.2 ));}
+  function valeur(ind,cid){
+    var d=DEFAVEUR[cid]||.4;
+    var g=hache(String(cid)+ind.n);
+    var pos=ind.inv? (1-d) : d;
+    return ind.b + ind.a*((pos-0.5)*1.6 + (g-0.5)*0.5);
+  }
+  function fmt(v,u){
+    if(u.indexOf('quintile')===0) return String(Math.max(1,Math.min(5,Math.round(v))));
+    if(u.indexOf('indice 0 à 1')===0) return v.toFixed(2);
+    if(u==='catégorie'){var c=['ressource','neutre','vigilance','double peine'];return c[Math.max(0,Math.min(3,Math.round(v)))];}
+    if(u==='ans'||u==='jours'||u==='minutes') return v.toFixed(1).replace('.',',');
+    if(u.indexOf('°C')>=0) return v.toFixed(1).replace('.',',')+' °C';
+    return v.toFixed(1).replace('.',',');
+  }
+  function nomCommune(id){var j;for(j=0;j<GEO.communes.length;j++){if(GEO.communes[j].id===id)return GEO.communes[j].n;}return '';}
+
+  /* ---------- fabrique de cartes réutilisable ---------- */
+  var NS='http://www.w3.org/2000/svg';
+  function construireCarte(svgId,auClic){
+    var svg=document.getElementById(svgId);
+    if(GEO.lac){
+      var lac=document.createElementNS(NS,'path');
+      lac.setAttribute('d',GEO.lac);lac.setAttribute('fill','#DCE9F5');
+      svg.appendChild(lac);
+    }
+    var formes={};
+    var j;
+    for(j=0;j<GEO.communes.length;j++){
+      (function(c){
+        var p=document.createElementNS(NS,'path');
+        p.setAttribute('d',c.d);p.classList.add('commune');p.setAttribute('tabindex','0');
+        var t=document.createElementNS(NS,'title');t.textContent=c.n;p.appendChild(t);
+        p.addEventListener('click',function(){auClic(c.id);});
+        p.addEventListener('keydown',function(e){if(e.key==='Enter'){auClic(c.id);}});
+        svg.appendChild(p);formes[c.id]=p;
+      })(GEO.communes[j]);
+    }
+    return formes;
+  }
+
+  /* ---------- écran 1 ---------- */
+  var COULEURS=['#DCEDEA','#A9D2CB','#F3CE8C','#E89A66','#D95563'];
+  var domaineActif='acces', indicActif=0, selId=6643;
+  var formes1=construireCarte('svg-carte',function(id){selId=id;majPanneau();majSelection();});
+
+  var leg=document.getElementById('legende');
+  for(i=0;i<COULEURS.length;i++){var cr=document.createElement('span');cr.className='cran';cr.style.background=COULEURS[i];leg.appendChild(cr);}
+
+  /* etat central du domaine : puces (large ecran) et menu deroulant (mobile)
+     pointent vers le meme setter, l'affichage reste coherent quel que soit
+     le controle utilise */
+  var conteneurPuces=document.getElementById('puces-domaines');
+  var selDomaine=document.getElementById('sel-domaine');
+  var btnsDomaines={};
+  function choisirDomaine(id){
+    domaineActif=id;indicActif=0;
+    var k;
+    for(k in btnsDomaines){if(btnsDomaines.hasOwnProperty(k)){btnsDomaines[k].classList.toggle('active',k===id);}}
+    selDomaine.value=id;
+    majSelect();majTout();
+  }
+  for(i=0;i<CATALOGUE.length;i++){
+    (function(dm,idx){
+      var b=document.createElement('button');
+      b.className='puce'+(idx===0?' active':'');b.textContent=dm.nom;
+      b.addEventListener('click',function(){choisirDomaine(dm.id);});
+      conteneurPuces.appendChild(b);
+      btnsDomaines[dm.id]=b;
+      var o=document.createElement('option');o.value=dm.id;o.textContent=dm.nom;
+      selDomaine.appendChild(o);
+    })(CATALOGUE[i],i);
+  }
+  selDomaine.addEventListener('change',function(){choisirDomaine(selDomaine.value);});
+  function domaine(){var j;for(j=0;j<CATALOGUE.length;j++){if(CATALOGUE[j].id===domaineActif)return CATALOGUE[j];}return CATALOGUE[0];}
+  var sel=document.getElementById('sel-indic');
+  function majSelect(){
+    sel.innerHTML='';
+    var ins=domaine().ind,j;
+    for(j=0;j<ins.length;j++){
+      var o=document.createElement('option');o.value=j;o.textContent=ins[j].n;sel.appendChild(o);
+    }
+    sel.value='0';
+  }
+  sel.addEventListener('change',function(){indicActif=parseInt(sel.value,10)||0;majTout();});
+  function indic(){return domaine().ind[indicActif];}
+
+  function majCarte(){
+    var ind=indic();
+    var vals=[],j;
+    for(j=0;j<GEO.communes.length;j++){
+      var cid=GEO.communes[j].id;
+      if(effectifOK(cid)){vals.push({id:cid,v:valeurPop(ind,cid)});}
+    }
+    vals.sort(function(a,b){return a.v-b.v;});
+    var rang={};
+    var taille=Math.max(1,Math.ceil(vals.length/5));
+    for(j=0;j<vals.length;j++){rang[vals[j].id]=Math.min(4,Math.floor(j/taille));}
+    for(j=0;j<GEO.communes.length;j++){
+      var id=GEO.communes[j].id;
+      if(effectifOK(id)){
+        var q=ind.inv? 4-rang[id] : rang[id];
+        formes1[id].setAttribute('fill',COULEURS[q]);
+      } else {
+        formes1[id].setAttribute('fill','#E9E7E2');   /* effectifs insuffisants, k<5 */
+      }
+    }
+    document.getElementById('leg-min').textContent='Favorable';
+    document.getElementById('leg-max').textContent='Défavorable';
+    document.getElementById('note-gris').style.display=pop().rare?'block':'none';
+    var pires=ind.inv? vals.slice(0,5) : vals.slice(-5).reverse();
+    var ul=document.getElementById('classement');ul.innerHTML='';
+    for(j=0;j<pires.length;j++){
+      var li=document.createElement('li');
+      li.innerHTML='<span>'+nomCommune(pires[j].id)+'</span><span class="chip rouge">'+fmt(pires[j].v,ind.u)+'</span>';
+      ul.appendChild(li);
+    }
+  }
+  function majPanneau(){
+    var ind=indic();
+    var p=pop();
+    document.getElementById('nom-commune').textContent=nomCommune(selId)+(p.id==='gen'?'':' · '+p.nom.toLowerCase());
+    var ep=document.getElementById('ecart-pop');
+    var s=document.getElementById('strates');
+    if(effectifOK(selId)===false){
+      /* suppression des petits effectifs : aucune valeur communale publiee */
+      document.getElementById('val-commune').innerHTML='<span style="font-size:19px;font-weight:700;color:var(--texte-doux)">Effectifs insuffisants, moins de cinq personnes concernées</span>';
+      document.getElementById('comp-commune').textContent='Le chiffre communal reste masqué, protection de l\'anonymat. La lecture cantonale et les regroupements de communes restent disponibles.';
+      ep.style.display='none';
+      s.innerHTML='';
+      document.getElementById('def-indic').textContent=ind.d;
+      document.getElementById('maj-indic').innerHTML='<span class="pt"></span>Mis à jour '+ind.m+' · prochaine mise à jour '+ind.p;
+      document.getElementById('src-indic').textContent='Source '+ind.s;
+      return;
+    }
+    var v=valeurPop(ind,selId);
+    var moy=0,nb=0,j;
+    for(j=0;j<GEO.communes.length;j++){
+      if(effectifOK(GEO.communes[j].id)){moy+=valeurPop(ind,GEO.communes[j].id);nb++;}
+    }
+    moy/=nb;
+    document.getElementById('val-commune').innerHTML=fmt(v,ind.u)+' <span class="val-unite">'+ind.u+'</span>';
+    var rap=(moy!==0)? (v/moy) : 1;
+    document.getElementById('comp-commune').textContent='Moyenne cantonale '+fmt(moy,ind.u)+' · rapport '+rap.toFixed(1).replace('.',',')+'×';
+    if(p.id==='gen'){ep.style.display='none';}
+    else{
+      var vg=valeur(ind,selId);
+      /* facteur de desavantage : toujours >= 1, quel que soit le sens de l'indicateur */
+      var rp=ind.inv? ((v!==0)? vg/v : 1) : ((vg!==0)? v/vg : 1);
+      document.getElementById('ecart-pop-val').textContent='Désavantage ×'+rp.toFixed(1).replace('.',',')+' vs population générale';
+      ep.style.display='block';
+    }
+    s.innerHTML='';
+    var noms=['Quintile 1, défavorisé','Quintile 2','Quintile 3','Quintile 4','Quintile 5, favorisé'];
+    for(j=0;j<5;j++){
+      var f=ind.inv? (0.7+j*0.15) : (1.5-j*0.22);
+      var sv=v*f;
+      var larg=Math.round(Math.min(100,Math.max(6, ind.inv? sv/(v*1.4)*100 : sv/(v*1.6)*100 )));
+      var div=document.createElement('div');div.className='ligne-strate';
+      div.innerHTML='<span class="n">'+noms[j]+'</span><span class="barre-strate"><i style="width:'+larg+'%"></i></span><span class="v">'+fmt(sv,ind.u)+'</span>';
+      s.appendChild(div);
+    }
+    document.getElementById('def-indic').textContent=ind.d;
+    document.getElementById('maj-indic').innerHTML='<span class="pt"></span>Mis à jour '+ind.m+' · prochaine mise à jour '+ind.p+(p.rare?' · lecture cantonale privilégiée':'');
+    document.getElementById('src-indic').textContent='Source '+ind.s;
+  }
+  function majSelection(){
+    var j;
+    for(j=0;j<GEO.communes.length;j++){formes1[GEO.communes[j].id].classList.toggle('sel',GEO.communes[j].id===selId);}
+  }
+  function majTout(){majCarte();majPanneau();majSelection();document.getElementById('carte-signal').style.display=(domaineActif==='viol')?'block':'none';}
+
+  /* etat central de la population : puces et menu deroulant synchronises,
+     la selection reponderise carte, classement et panneau */
+  var contPop=document.getElementById('puces-pop');
+  var selPop=document.getElementById('sel-pop');
+  var btnsPops={};
+  function choisirPop(id){
+    popActive=id;
+    var k;
+    for(k in btnsPops){if(btnsPops.hasOwnProperty(k)){btnsPops[k].classList.toggle('active',k===id);}}
+    selPop.value=id;
+    var p=pop();
+    var np=document.getElementById('note-pop');
+    if(p.note){np.textContent=p.note;np.style.display='block';}
+    else{np.style.display='none';}
+    majTout();
+  }
+  for(i=0;i<POPS.length;i++){
+    (function(pp,idx){
+      var b=document.createElement('button');
+      b.className='puce'+(idx===0?' active':'');b.textContent=pp.nom;
+      b.addEventListener('click',function(){choisirPop(pp.id);});
+      contPop.appendChild(b);
+      btnsPops[pp.id]=b;
+      var o=document.createElement('option');o.value=pp.id;o.textContent=pp.nom;
+      selPop.appendChild(o);
+    })(POPS[i],i);
+  }
+  selPop.addEventListener('change',function(){choisirPop(selPop.value);});
+
+  /* exclusivite stricte puces / menus deroulants : sous 721 px les menus
+     remplacent les puces, au-dela les puces remplacent les menus. Les styles
+     en ligne poses ici priment sur toute regle de feuille de style, le
+     comportement reste identique quel que soit le moteur de rendu. */
+  function majAffichageSelecteurs(){
+    var mobile=(window.innerWidth||1200)<=720;
+    conteneurPuces.style.display = mobile?'none':'flex';
+    contPop.style.display       = mobile?'none':'flex';
+    selDomaine.style.display    = mobile?'block':'none';
+    selPop.style.display        = mobile?'block':'none';
+  }
+  if(window.addEventListener){window.addEventListener('resize',majAffichageSelecteurs);}
+  majAffichageSelecteurs();
+  majSelect();majTout();
+
+  /* ---------- écran 3 : double peine cartographiée ---------- */
+  var dpSel=6643;
+  var formes3=construireCarte('svg-dp',function(id){dpSel=id;majDP();});
+  function classeDP(cid){
+    var e=EXPO[cid]||.35, v=DEFAVEUR[cid]||.4, r=ressources(cid);
+    if(e>=.6&&v>=.6&&r<.5) return 3;   /* double peine */
+    if(e>=.6&&v>=.55) return 2;        /* vigilance */
+    if(r>=.68) return 0;               /* ressource */
+    return 1;                          /* neutre */
+  }
+  var CDP=['#A9D2CB','#DCEDEA','#E89A66','#D95563']; /* ressource, neutre, vigilance, double peine */
+  var LDP=['Secteur ressource','Situation neutre','Vigilance','Double peine'];
+  var CHDP=['vert','teal','peche','rouge'];
+  var LECT=[
+    "Les actifs de santé abondent, soutien social, espaces ressourçants, tissu associatif. Le secteur montre ce qui protège à exposition comparable, source d'enseignements transférables.",
+    "Aucun cumul défavorable marqué. Le suivi ordinaire des indicateurs suffit.",
+    "L'exposition et la vulnérabilité se cumulent, les ressources du secteur amortissent encore. Le renforcement des actifs de santé prévient la bascule.",
+    "L'exposition élevée, la vulnérabilité sociale et des ressources faibles se cumulent. Priorité d'action, réduction des expositions et renforcement des actifs de santé."
+  ];
+  function peindreDP(){
+    var j;
+    for(j=0;j<GEO.communes.length;j++){
+      var id=GEO.communes[j].id;
+      formes3[id].setAttribute('fill',CDP[classeDP(id)]);
+      formes3[id].classList.toggle('sel',id===dpSel);
+    }
+  }
+  function majDP(){
+    peindreDP();
+    var e=Math.round((EXPO[dpSel]||.35)*100), v=Math.round((DEFAVEUR[dpSel]||.4)*100), r=Math.round(ressources(dpSel)*100);
+    var cl=classeDP(dpSel);
+    document.getElementById('dp-nom').textContent=nomCommune(dpSel);
+    var chip=document.getElementById('dp-classe');
+    chip.textContent=LDP[cl];chip.className='chip '+CHDP[cl];
+    document.getElementById('dp-v1').textContent=e+' / 100';
+    document.getElementById('dp-v2').textContent=v+' / 100';
+    document.getElementById('dp-v3').textContent=r+' / 100';
+    document.getElementById('dp-b1').style.width=e+'%';
+    document.getElementById('dp-b2').style.width=v+'%';
+    document.getElementById('dp-b3').style.width=r+'%';
+    document.getElementById('dp-lecture').textContent=LECT[cl];
+  }
+  majDP();
+
+  /* ---------- écran 4 : sous-onglets ---------- */
+  var ssBtns=document.querySelectorAll('.ss-onglet');
+  for(i=0;i<ssBtns.length;i++){
+    (function(b){
+      b.addEventListener('click',function(){
+        var j,vs=document.querySelectorAll('.ss-vue');
+        for(j=0;j<ssBtns.length;j++){ssBtns[j].classList.remove('actif');}
+        for(j=0;j<vs.length;j++){vs[j].classList.remove('actif');}
+        b.classList.add('actif');
+        document.getElementById(b.getAttribute('data-vue')).classList.add('actif');
+      });
+    })(ssBtns[i]);
+  }
+
+  /* jumeau urgences */
+  var base=[6,4,3,3,4,6,10,15,19,22,24,25,26,27,26,25,26,28,31,33,30,24,16,10];
+  var saisons=[0.85,1.0,1.18], nomsSaison=['Été','Intersaison','Hiver, épidémie grippale'];
+  var curR=document.getElementById('cur-redir'),curD=document.getElementById('cur-decal'),curS=document.getElementById('cur-saison');
+  var barres=document.getElementById('barres');
+  for(i=0;i<24;i++){var bb=document.createElement('div');bb.className='b';barres.appendChild(bb);}
+  function deuxCh(n){n=String(n);return n.length<2?'0'+n:n;}
+  function majUrg(){
+    var red=parseInt(curR.value,10)/100, dec=parseInt(curD.value,10), sai=saisons[parseInt(curS.value,10)];
+    document.getElementById('out-redir').textContent=curR.value+' %';
+    document.getElementById('out-decal').textContent=dec+' h';
+    document.getElementById('out-saison').textContent=nomsSaison[parseInt(curS.value,10)];
+    var evitables=0.30, serie=[],j;
+    for(j=0;j<24;j++){serie.push(base[j]*sai*(1-evitables*red));}
+    if(dec>0){
+      var lisse=serie.slice();
+      for(j=0;j<24;j++){
+        var mo=(serie[(j+23)%24]+serie[j]+serie[(j+1)%24])/3;
+        lisse[j]=serie[j]+(mo-serie[j])*(dec/4);
+      }
+      serie=lisse;
+    }
+    var mx=0;for(j=0;j<24;j++){if(serie[j]>mx)mx=serie[j];}
+    var bs=barres.children;
+    for(j=0;j<24;j++){
+      bs[j].style.height=Math.max(4,serie[j]/mx*120)+'px';
+      bs[j].classList.toggle('pic',serie[j]>mx*0.88);
+    }
+    var refPic=0;for(j=0;j<24;j++){var rv=base[j]*sai;if(rv>refPic)refPic=rv;}
+    var occ=Math.min(118,Math.round(107*(mx/refPic)));
+    var attMin=Math.round(197*(mx/refPic)*(1-red*0.35));
+    var som=0;for(j=0;j<24;j++){som+=base[j];}
+    var redJ=Math.round(som*sai*evitables*red/2);
+    document.getElementById('kpi-pic').textContent=occ+' %';
+    document.getElementById('kpi-attente').textContent=Math.floor(attMin/60)+' h '+deuxCh(attMin%60);
+    document.getElementById('kpi-redir').textContent=redJ;
+    document.getElementById('kpi-loin').textContent=Math.round(redJ*0.37);
+    var dPic=occ-107;
+    var e1=document.getElementById('kpi-pic-d');
+    e1.textContent=(dPic<=0?'−':'+')+Math.abs(dPic)+' pts vs référence';
+    e1.className='d '+(dPic<=0?'moins':'plus');
+    var dAtt=Math.round((attMin-197)/197*100);
+    var e2=document.getElementById('kpi-attente-d');
+    e2.textContent=(dAtt<=0?'−':'+')+Math.abs(dAtt)+' % vs référence';
+    e2.className='d '+(dAtt<=0?'moins':'plus');
+  }
+  curR.addEventListener('input',majUrg);curD.addEventListener('input',majUrg);curS.addEventListener('input',majUrg);
+  majUrg();
+
+  /* jumeau sang */
+  var GROUPES=[
+    {g:'O −',part:.06,base:3.2},{g:'O +',part:.36,base:5.4},
+    {g:'A −',part:.07,base:4.6},{g:'A +',part:.30,base:6.8},
+    {g:'B −',part:.02,base:4.2},{g:'B +',part:.12,base:5.8},
+    {g:'AB −',part:.01,base:6.5},{g:'AB +',part:.06,base:8.2}
+  ];
+  var scenSang=[1.0,0.78,0.88], nomsScen=['Situation normale','Vacances d\u2019été','Épidémie grippale'];
+  var curC=document.getElementById('cur-coll'),curSc=document.getElementById('cur-scen');
+  var contJ=document.getElementById('jauges-sang');
+  var jauges=[];
+  for(i=0;i<GROUPES.length;i++){
+    var bloc=document.createElement('div');bloc.className='groupe-sang';
+    bloc.innerHTML='<div class="tete"><b>'+GROUPES[i].g+'</b><span class="jv"></span></div><div class="jauge"><i></i></div>';
+    contJ.appendChild(bloc);jauges.push(bloc);
+  }
+  function majSang(){
+    var coll=parseInt(curC.value,10), sc=scenSang[parseInt(curSc.value,10)];
+    document.getElementById('out-coll').textContent=String(coll);
+    document.getElementById('out-scen').textContent=nomsScen[parseInt(curSc.value,10)];
+    var sous=0,oneg=0,j;
+    for(j=0;j<GROUPES.length;j++){
+      var gj=GROUPES[j];
+      var jours=gj.base*sc + coll*0.55*(0.5+gj.part);
+      if(gj.g==='O −'){jours=gj.base*sc + coll*0.5;oneg=jours;}
+      var pc=Math.min(100,jours/14*100);
+      var barre=jauges[j].querySelector('i');
+      barre.style.width=pc+'%';
+      barre.className=jours<4?'bas':(jours<7?'moyen':'');
+      jauges[j].querySelector('.jv').textContent=jours.toFixed(1).replace('.',',')+' j';
+      if(jours<4)sous++;
+    }
+    document.getElementById('kpi-sous').textContent=String(sous);
+    var ks=document.getElementById('kpi-sous-d');
+    ks.textContent=sous>0?'action de collecte requise':'réserves suffisantes';
+    ks.className='d '+(sous>0?'plus':'moins');
+    document.getElementById('kpi-oneg').textContent=oneg.toFixed(1).replace('.',',');
+    var couvPheno=Math.min(92,54+coll*6);
+    document.getElementById('kpi-pheno').innerHTML='<span class="pt"></span>Profils étendus rares couverts à '+couvPheno+' % · cible 90 %';
+  }
+  curC.addEventListener('input',majSang);curSc.addEventListener('input',majSang);
+  majSang();
+
+  /* ---------- écran 5 : carte du stress ressenti par commune ---------- */
+  var stressSel=6621;
+  var formesStress=construireCarte('svg-stress',function(id){stressSel=id;majStress();});
+  var legS=document.getElementById('legende-stress');
+  for(i=0;i<COULEURS.length;i++){var crs=document.createElement('span');crs.className='cran';crs.style.background=COULEURS[i];legS.appendChild(crs);}
+  function stressRessenti(cid){return Math.max(.1,Math.min(.95, 0.35*(DEFAVEUR[cid]||.4)+0.5*(EXPO[cid]||.35)+0.15*hache('st'+cid) ));}
+  function bruitMesure(cid){return Math.max(.1,Math.min(.95, (EXPO[cid]||.35)*0.9+0.1*hache('br'+cid) ));}
+  function chaleurMesure(cid){return Math.max(.1,Math.min(.95, (EXPO[cid]||.35)*0.7+0.3*hache('ch'+cid) ));}
+  function reponsesSem(cid){return 30+Math.round(hache('rep'+cid)*220);}
+  function peindreStress(){
+    var vals=[],j;
+    for(j=0;j<GEO.communes.length;j++){vals.push({id:GEO.communes[j].id,v:stressRessenti(GEO.communes[j].id)});}
+    vals.sort(function(a,b){return a.v-b.v;});
+    var rang={};
+    for(j=0;j<vals.length;j++){rang[vals[j].id]=Math.min(4,Math.floor(j/9));}
+    for(j=0;j<GEO.communes.length;j++){
+      var id=GEO.communes[j].id;
+      formesStress[id].setAttribute('fill',COULEURS[rang[id]]);
+      formesStress[id].classList.toggle('sel',id===stressSel);
+    }
+  }
+  function majStress(){
+    peindreStress();
+    var sr=Math.round(stressRessenti(stressSel)*100), br=Math.round(bruitMesure(stressSel)*100), ch=Math.round(chaleurMesure(stressSel)*100);
+    document.getElementById('stress-nom').textContent=nomCommune(stressSel);
+    document.getElementById('stress-v1').textContent=sr+' / 100';
+    document.getElementById('stress-v2').textContent=br+' / 100';
+    document.getElementById('stress-v3').textContent=ch+' / 100';
+    document.getElementById('stress-b1').style.width=sr+'%';
+    document.getElementById('stress-b2').style.width=br+'%';
+    document.getElementById('stress-b3').style.width=ch+'%';
+    var expoMax=Math.max(br,ch), ecart=sr-expoMax, lect;
+    if(ecart>=12){lect="Le stress ressenti dépasse les expositions mesurées, bruit et chaleur. Une charge que les cadastres sous-estiment pèse ici, densité, insécurité ou manque d'espaces ressourçants, à documenter sur le terrain.";}
+    else if(ecart<=-12){lect="Le stress ressenti reste inférieur aux expositions mesurées. Des ressources protectrices amortissent la nuisance, espaces verts de proximité et cohésion de voisinage.";}
+    else{lect="Le stress ressenti et les expositions mesurées concordent. Le bruit et la chaleur expliquent l'essentiel de la charge perçue dans ce secteur.";}
+    document.getElementById('stress-lecture').textContent=lect;
+    document.getElementById('stress-n').textContent=reponsesSem(stressSel)+" réponses agrégées cette semaine, au-dessus du seuil de trente requis pour publier une commune.";
+  }
+  majStress();
+
+  /* ---------- écran 8 : fédération du hub Specchio ---------- */
+  var SP_ETUDES=[
+    {n:"Specchio",an:"depuis 2023",d:"Cohorte de suivi de l'état de santé de la population genevoise par questionnaires en ligne, sur mandat de l'Office cantonal de la santé."},
+    {n:"Bus Santé",an:"depuis 1992",d:"Examens de santé et questionnaires sur un échantillon aléatoire annuel, référence des prévalences et facteurs de risque du canton."},
+    {n:"SEROCoV-KIDS",an:"depuis 2021",d:"Suivi longitudinal de la santé physique et mentale des enfants et adolescentes et adolescents depuis la pandémie."},
+    {n:"SEROCoV-Schools",an:"2021 à 2023",d:"Dynamiques de transmission du SARS-CoV-2 dans les crèches et écoles du canton."},
+    {n:"Specchio-COVID19",an:"depuis 2020",d:"Séroprévalence, immunité, vaccination et effets à long terme du COVID-19, socle de la plateforme Specchio-Hub."},
+    {n:"URBASAN",an:"en cours",d:"Étude des liens entre environnement urbain et santé, exposition, mobilité et cadre de vie."}
+  ];
+  var SP_THEMES=[
+    {t:"Santé physique et mentale",dom:"Santé et accès aux soins"},
+    {t:"Comportements individuels de santé",dom:"Déterminants sociaux"},
+    {t:"Environnement et santé",dom:"Environnement et stress urbain"},
+    {t:"Sommeil",dom:"Environnement et stress urbain"},
+    {t:"Vieillissement",dom:"Santé et accès aux soins"},
+    {t:"Santé au travail",dom:"Violences et discriminations"},
+    {t:"Prévalence et facteurs de risque des maladies",dom:"Santé et accès aux soins"},
+    {t:"Impact de la pandémie sur les enfants",dom:"Enfance et jeunesse"}
+  ];
+  /* résultats réels, sourcés et datés, rattachés à un domaine de l'observatoire */
+  var SP_PUBS=[
+    {dom:"acces",rev:"International Journal of Public Health · Nov. 2025",et:"Bus Santé",
+     t:"Renoncement aux soins et hausse des primes, quinze ans à Genève",
+     r:"Le renoncement aux soins pour raisons financières atteint 25,8 % en 2025, une personne sur quatre, en hausse marquée avec les primes d'assurance, surtout chez les jeunes et les femmes.",
+     ind:"Renoncement aux soins pour raisons financières"},
+    {dom:"env",rev:"Journal of Affective Disorders · Juil. 2026",et:"Specchio",
+     t:"Distribution spatiale de l'anxiété et de la dépression",
+     r:"L'anxiété et la dépression se concentrent au centre de Genève, là où se cumulent désavantages sociaux et nuisances environnementales, un profil de double peine.",
+     ind:"Justice environnementale"},
+    {dom:"env",rev:"Sleep Health · Janv. 2026",et:"Specchio",
+     t:"Sommeil perturbé et bruit nocturne, à l'échelle fine",
+     r:"La qualité du sommeil varie selon le quartier, le bruit nocturne et l'environnement résidentiel pèsent au-delà des seules expositions mesurées.",
+     ind:"Bruit routier de jour et de nuit"},
+    {dom:"env",rev:"npj Climate Action · Avril 2026",et:"Specchio",
+     t:"Enjeux climatiques et santé mentale",
+     r:"Sur plus de 3'000 personnes, les préoccupations climatiques s'associent à l'anxiété et aux symptômes dépressifs, avec des concentrations urbaines marquées.",
+     ind:"Charge de stress cumulée, indice exploratoire"},
+    {dom:"social",rev:"Clinical Nutrition ESPEN · Juin 2026",et:"Specchio",
+     t:"Aliments ultra-transformés, distribution spatiale",
+     r:"La consommation d'aliments hautement transformés suit un gradient socioéconomique et spatial dans le canton, avec un risque accru de maladies chroniques.",
+     ind:"Insécurité alimentaire"},
+    {dom:"acces",rev:"Journal of General Internal Medicine · Avril 2026",et:"Specchio",
+     t:"Comportements addictifs chez les adultes",
+     r:"Les comportements addictifs, avec ou sans substance, concernent une part importante de la population et se cumulent, éclairant le dépistage et la prévention.",
+     ind:"Détresse psychologique"},
+    {dom:"acces",rev:"International Journal of Obesity · Avril 2026",et:"Bus Santé",
+     t:"Obésité, au-delà de l'IMC seul",
+     r:"Combiner l'IMC au tour de taille identifie beaucoup plus de personnes à risque cardiométabolique, surtout chez les personnes âgées ou défavorisées.",
+     ind:"Maladies cardiovasculaires, hypertension comprise"},
+    {dom:"acces",rev:"European Journal of Public Health · Avril 2026",et:"Bus Santé",
+     t:"Cognition et risque de démence, tendances sur vingt ans",
+     r:"L'évolution de la performance cognitive sur vingt ans est suivie via les facteurs de risque modifiables de démence, indice LIBRA2.",
+     ind:"Espérance de vie en bonne santé"},
+    {dom:"enfance",rev:"Public Health · Nov. 2025",et:"SEROCoV-KIDS",
+     t:"Environnements social et familial et santé des adolescents",
+     r:"Les jeunes de familles défavorisées cumulent tabagisme, sodas, moindre activité physique et moindre adhésion vaccinale, disparités précoces à corriger tôt.",
+     ind:"Détresse psychique des 13 à 17 ans"},
+    {dom:"enfance",rev:"Child and Adolescent Psychiatry and Mental Health · Juin 2026",et:"SEROCoV-KIDS",
+     t:"Santé mentale des enfants, cinq ans après la pandémie",
+     r:"Cinq ans après le début de la pandémie, les difficultés de santé mentale des enfants les plus affectés se sont atténuées, après plusieurs années de persistance.",
+     ind:"Détresse psychique des 13 à 17 ans"}
+  ];
+  var NOM_DOM={acces:"Santé et accès aux soins",enfance:"Enfance et jeunesse",social:"Déterminants sociaux",env:"Environnement et stress urbain",mob:"Mobilité et accessibilité",viol:"Violences et discriminations",salu:"Ressources protectrices",comp:"Indices croisés"};
+
+  var contEt=document.getElementById('specchio-etudes');
+  if(contEt){
+    var ei;
+    for(ei=0;ei<SP_ETUDES.length;ei++){
+      var e=SP_ETUDES[ei];
+      var d=document.createElement('div');d.className='etude';
+      d.innerHTML='<div class="an">'+e.an+'</div><h4>'+e.n+'</h4><p>'+e.d+'</p>';
+      contEt.appendChild(d);
+    }
+  }
+  var contTh=document.getElementById('specchio-themes');
+  if(contTh){
+    var ti;
+    for(ti=0;ti<SP_THEMES.length;ti++){
+      var th=SP_THEMES[ti];
+      var l=document.createElement('div');l.className='theme-lig';
+      l.innerHTML='<span class="th">'+th.t+'</span><span class="fl">alimente le domaine</span><span class="dom"><span class="chip bleu">'+th.dom+'</span></span>';
+      contTh.appendChild(l);
+    }
+  }
+  var contFlux=document.getElementById('specchio-flux');
+  var contFiltres=document.getElementById('specchio-filtres');
+  var filtreDom='tous';
+  function rendreFlux(){
+    contFlux.innerHTML='';
+    var k,n=0;
+    for(k=0;k<SP_PUBS.length;k++){
+      var pb=SP_PUBS[k];
+      if(filtreDom!=='tous' && pb.dom!==filtreDom) continue;
+      n++;
+      var el=document.createElement('div');el.className='pub';
+      el.innerHTML='<div class="haut"><span class="chip bleu">'+NOM_DOM[pb.dom]+'</span><span class="rev">'+pb.rev+' · étude '+pb.et+'</span></div>'
+        +'<h4>'+pb.t+'</h4><p>'+pb.r+'</p>'
+        +'<span class="lien-ind">Indicateur rattaché · '+pb.ind+'</span>';
+      contFlux.appendChild(el);
+    }
+    if(n===0){var v=document.createElement('p');v.style.cssText='font-size:15px;color:var(--texte-doux)';v.textContent='Aucun résultat publié pour ce domaine dans le flux actuel.';contFlux.appendChild(v);}
+  }
+  if(contFiltres){
+    var doms=['tous'];
+    var seen={};
+    var pi;
+    for(pi=0;pi<SP_PUBS.length;pi++){if(!seen[SP_PUBS[pi].dom]){seen[SP_PUBS[pi].dom]=1;doms.push(SP_PUBS[pi].dom);}}
+    for(pi=0;pi<doms.length;pi++){
+      (function(dm,idx){
+        var b=document.createElement('button');
+        b.className='puce'+(idx===0?' active':'');
+        b.textContent=(dm==='tous')?'Tous les domaines':NOM_DOM[dm];
+        b.addEventListener('click',function(){
+          var bs=contFiltres.querySelectorAll('.puce'),j;
+          for(j=0;j<bs.length;j++){bs[j].classList.remove('active');}
+          b.classList.add('active');filtreDom=dm;rendreFlux();
+        });
+        contFiltres.appendChild(b);
+      })(doms[pi],pi);
+    }
+    rendreFlux();
+  }
+
+  /* ---------- module participant interactif ---------- */
+  function grpSelect(selecteur){
+    var bts=document.querySelectorAll(selecteur),k;
+    for(k=0;k<bts.length;k++){
+      (function(b){
+        b.addEventListener('click',function(){
+          var j;for(j=0;j<bts.length;j++){bts[j].classList.remove('sel');}
+          b.classList.add('sel');
+        });
+      })(bts[k]);
+    }
+  }
+  grpSelect('#echelle-ema button');
+  grpSelect('#causes-ema button');
+  var btnEnvoi=document.getElementById('btn-envoi-ema');
+  if(btnEnvoi){
+    btnEnvoi.addEventListener('click',function(){
+      document.getElementById('ema-q2').style.display='none';
+      document.getElementById('ema-ok').style.display='block';
+    });
+    document.getElementById('ema-encore').addEventListener('click',function(){
+      document.getElementById('ema-ok').style.display='none';
+      document.getElementById('ema-q2').style.display='block';
+    });
+  }
+
+  /* ---------- simulateur de mesures correctives ---------- */
+  /* chaque mesure : indicateur cible, valeur mesurée, fraction corrigible au déploiement complet,
+     effet sur l'écart d'équité, communes sorties de double peine par palier de déploiement */
+  var MESURES=[
+    {n:"Versement automatique des subsides",
+     k:"Ayants droit sans subside versé",u:"%",avant:29,frac:.9,eq:.07,dp:[],
+     m:"À Genève, le subside d'assurance-maladie est déjà versé automatiquement à la plupart des ayants droit, calculé depuis le revenu déterminant unifié transmis par l'administration fiscale (SAM, 2026). Le non-recours se concentre sur les personnes qui doivent déposer une demande, imposées à la source, taxées d'office, non encore taxées ou nouvellement arrivées. La mesure étend le calcul automatique à ces catégories et relance systématiquement les ayants droit non versés, ce qui referme la barrière administrative résiduelle et fait baisser le non-recours à proportion des personnes atteintes."},
+    {n:"Dépistage et soins dentaires scolaires renforcés",
+     k:"Caries d'élèves restées sans traitement",u:"%",avant:11,frac:.7,eq:.04,dp:[],
+     m:"Le dépistage dentaire scolaire genevois constate déjà chaque année les besoins de soins, sur l'ensemble des élèves d'un degré. La mesure ajoute un suivi actif, la famille est recontactée après un dépistage positif, orientée vers un cabinet et informée des aides au paiement des soins dentaires. Le besoin constaté se transforme alors en soin réalisé, la douleur, l'absentéisme et les inégalités précoces reculent avec la part d'élèves effectivement suivis."},
+    {n:"Ombrage et végétalisation des secteurs en double peine",
+     k:"Surchauffe estivale des secteurs traités",u:"°C",avant:3.4,frac:.35,eq:.05,dp:[[50,'Meyrin'],[80,'Lancy']],
+     m:"La plantation d'arbres et la pose d'ombrages abaissent la température ressentie de plusieurs degrés aux heures chaudes, effet mesuré des îlots de fraîcheur urbains. Ciblée sur les secteurs classés en double peine, où la surchauffe estivale et la vulnérabilité sociale se cumulent, la mesure réduit la charge thermique là où elle pèse le plus et crée des espaces ressourçants de proximité, ce qui renforce en même temps les ressources protectrices du secteur."}
+  ];
+  var mesActive=0;
+  var contMes=document.getElementById('mesures');
+  var curM=document.getElementById('cur-mes');
+  function majMes(){
+    var m=MESURES[mesActive];
+    var t=parseInt(curM.value,10)/100;
+    document.getElementById('out-mes').textContent=curM.value+' %';
+    document.getElementById('mes-mecanisme').textContent=m.m;
+    var apres=m.avant*(1-m.frac*t);
+    document.getElementById('mes-k1').textContent=m.k;
+    document.getElementById('mes-v1').textContent=apres.toFixed(1).replace('.',',')+' '+m.u;
+    var d1=Math.round((apres-m.avant)/m.avant*100);
+    document.getElementById('mes-d1').textContent=(d1<=0?'\u2212':'+')+Math.abs(d1)+' % vs mesure actuelle, '+String(m.avant).replace('.',',')+' '+m.u;
+    var eq=Math.max(.05,.50-m.eq*t);
+    document.getElementById('mes-v2').textContent=eq.toFixed(2).replace('.',',');
+    document.getElementById('mes-d2').textContent='\u2212'+(m.eq*t).toFixed(2).replace('.',',')+' vs 0,50 mesuré';
+    var sorties=[],j;
+    for(j=0;j<m.dp.length;j++){if(parseInt(curM.value,10)>=m.dp[j][0])sorties.push(m.dp[j][1]);}
+    var reste=4-sorties.length;
+    document.getElementById('mes-v3').textContent=String(reste)+' / 4';
+    var d3=document.getElementById('mes-d3');
+    d3.textContent=sorties.length>0?('sorties de classification, '+sorties.join(', ')):'classification inchangée';
+    d3.className='d '+(sorties.length>0?'moins':'plus');
+  }
+  if(contMes){
+    for(i=0;i<MESURES.length;i++){
+      (function(m,idx){
+        var b=document.createElement('button');
+        b.className='ss-onglet'+(idx===0?' actif':'');b.textContent=m.n;
+        b.addEventListener('click',function(){
+          var bs=contMes.querySelectorAll('.ss-onglet'),j;
+          for(j=0;j<bs.length;j++){bs[j].classList.remove('actif');}
+          b.classList.add('actif');mesActive=idx;majMes();
+        });
+        contMes.appendChild(b);
+      })(MESURES[i],i);
+    }
+    curM.addEventListener('input',majMes);
+    majMes();
+  }
+})();
+</script>
+</body>
+</html>
