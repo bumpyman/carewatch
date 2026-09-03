@@ -1,6 +1,6 @@
 # CareWatch
 
-Observatoire participatif de l'équité des soins en Suisse romande. Version 0.4.0-alpha, alpha fermée sur invitation.
+Observatoire participatif de l'équité des soins en Suisse romande. Version 0.4.1-alpha, alpha fermée sur invitation.
 
 Site : https://carewat.ch
 

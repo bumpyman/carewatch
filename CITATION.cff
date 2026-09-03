@@ -2,7 +2,7 @@ cff-version: 1.2.0
 message: "Si vous utilisez ce logiciel ou ces données, merci de citer ce dépôt."
 title: "CareWatch : observatoire participatif de l'équité des soins en Suisse romande"
 type: software
-version: 0.4.0-alpha
+version: 0.4.1-alpha
 date-released: 2026-09-03
 authors:
   - family-names: Issom
