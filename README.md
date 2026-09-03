@@ -31,7 +31,7 @@ Site : https://carewat.ch
 
 ## Comptes de démonstration
 
-`admin@carewat.ch` ouvre une interface de démonstration alimentée par des données fictives. Tout autre compte administrateur passe par la connexion réelle.
+L'e-mail `admin@carewat.ch` avec le mot de passe `admin1234` ouvre une interface de démonstration alimentée par des données fictives. Tout autre compte administrateur passe par la connexion réelle.
 
 ## Licence et citation
 
