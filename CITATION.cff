@@ -7,9 +7,9 @@ date-released: 2026-09-03
 authors:
   - family-names: Issom
     given-names: David
-    email: david.issom@gmail.com
+    email: davidzac.issom@hes-so.ch
     affiliation: "Haute école de gestion de Genève (HES-SO)"
-repository-code: "https://github.com/A_COMPLETER/carewatch"
+repository-code: "https://github.com/github/carewatch"
 url: "https://carewat.ch"
 license: AGPL-3.0-or-later
 keywords:
