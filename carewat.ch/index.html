@@ -1653,7 +1653,7 @@ function CareWatch() {
   const [loginType, setLoginType] = useState('patient');
   // Liste « Mes témoignages » conservée sur l'appareil (sauf « Ne rien mémoriser »), sans pièces jointes
   const [reports, setReports] = useState(() => { try { return JSON.parse(cwStore.get('cw_reports') || '[]'); } catch (e) { return []; } });
-  useEffect(() => { try { cwStore.set('cw_reports', JSON.stringify(reports.map(({ attachments, _liveTranscript, ...r }) => r))); } catch (e) {} }, [reports]);
+  useEffect(() => { try { cwStore.set('cw_reports', JSON.stringify(reports.map(({ _liveTranscript, ...r }) => r))); } catch (e) {} }, [reports]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCanton, setSelectedCanton] = useState('');
   const [selectedInstitution, setSelectedInstitution] = useState(null);
@@ -3666,89 +3666,38 @@ function NewReport() {
     return { match, message: match ? `✓ Cohérence géographique OK (NPA ${npa} → ${cantonStr})` : `⚠ NPA ${npa} → canton ${cantonStr}, mais établissement en ${canton}` };
   };
 
-  // Envoi d'email via FormSubmit (identique à carewat.ch)
+  // Alerte de modération par courriel : sans le récit, sans les réponses DMS, sans fichier.
+  // L'adresse e-mail n'est transmise que si la personne a demandé un recontact ou la pair-aidance.
   const sendNotificationEmail = async (reportData) => {
     try {
       const institution = DB.institutions.find(i => i.id === reportData.institution);
       const instName = institution ? institution.fullName : reportData.institution || 'Non spécifié';
-      const instCity = institution ? `${institution.city} (${institution.canton})` : 'Non précisé';
-      
-      // DMS scoring map
-      const dmsScoreMap = { 'Jamais': 0, 'Rarement': 1, 'Parfois': 2, 'Souvent': 3, 'Toujours': 4 };
-      const dmsQs = [
-        "Traité·e avec moins de courtoisie",
-        "Traité·e avec moins de respect",
-        "Service de moins bonne qualité",
-        "Agit comme si vous n'étiez pas intelligent·e",
-        "Agit comme s'il/elle avait peur de vous",
-        "Agit comme s'il/elle était supérieur·e",
-        "N'écoute pas ce que vous dites",
-      ];
-      const dmsEntries = Object.entries(reportData.dms || {});
-      const dmsResponses = dmsEntries.map(([key, val]) => {
-        const answer = typeof val === 'string' ? val : (val?.answer || 'N/A');
-        const score = typeof val === 'string' ? (dmsScoreMap[val] ?? '?') : (val?.score ?? '?');
-        const qText = dmsQs[Number(key)] || `Q${Number(key)+1}`;
-        return `${Number(key)+1}. ${qText} → ${answer} (${score}/4)`;
-      }).join(' | ');
-      const dmsTotal = dmsEntries.reduce((sum, [, val]) => {
-        const score = typeof val === 'string' ? (dmsScoreMap[val] || 0) : (val?.score || 0);
-        return sum + score;
-      }, 0);
-      const dmsMax = dmsEntries.length * 4 || 1;
-      const dmsPercent = Math.round((dmsTotal / dmsMax) * 100);
       const modif = reportData.isModification ? ' ⟳ MODIFICATION' : '';
-
+      const numero = reportData.numero || 'sans numéro (base injoignable)';
+      const recontactDemande = reportData.acceptEmailContact === true || reportData.wantPeerSupport === true;
+      const corps = {
+        _subject: `[CareWatch™]${modif} Signalement ${numero}`,
+        _template: 'table',
+        _captcha: false,
+        type: reportData.isModification ? 'MODIFICATION_SIGNALEMENT' : 'NOUVEAU_SIGNALEMENT',
+        numero_base: numero,
+        statut: 'soumis, à relire dans l’espace de modération',
+        role: reportData.role || 'Non précisé',
+        canton: DB.cantonNames?.[reportData.canton] || reportData.canton || 'Non précisé',
+        etablissement: instName,
+        date_signalement: new Date().toLocaleString('fr-CH'),
+      };
+      if (recontactDemande) {
+        corps.recontact = reportData.acceptEmailContact ? 'Oui' : 'Non';
+        corps.pair_aidance = reportData.wantPeerSupport ? 'Oui' : 'Non';
+        corps.email_suivi = reportData.email || 'Non fourni';
+      }
       const response = await fetch(CW_NOTIFIER_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify({
-          _subject: `[CareWatch™]${modif} Signalement ${reportData.code}`,
-          _template: 'table',
-          _captcha: false,
-          type: reportData.isModification ? 'MODIFICATION_SIGNALEMENT' : 'NOUVEAU_SIGNALEMENT',
-          code: reportData.code,
-          role: reportData.role || 'Non précisé',
-          source_professionnel: reportData.source || 'N/A (patient)',
-          date_signalement: new Date().toLocaleString('fr-CH'),
-          date_incident: reportData.date || 'Non précisée',
-          heure_incident: reportData.time || 'Non précisée',
-          npa_coherence: (() => { const h = getNpaHint(reportData.postalCode, reportData.canton); return h ? (h.match ? '✓ Cohérent' : '⚠ Incohérent') : 'Non vérifiable'; })(),
-          justification_geo: reportData.npaJustification || '',
-          canton: DB.cantonNames?.[reportData.canton] || reportData.canton || 'Non précisé',
-          institution: instName,
-          ville_institution: instCity,
-          service: reportData.service || 'Non précisé',
-          precision_service: reportData.serviceDetail || '',
-          type_incident: reportData.incidentType || 'Non précisé',
-          motifs_percus: (reportData.grounds || []).map(gId => {
-            const g = discriminationGrounds.find(x => x.id === gId);
-            return g ? g.label : gId;
-          }).join(' | ') || 'Aucun motif sélectionné',
-          croisement_motifs: (reportData.grounds || []).length >= 2 ? `Oui — ${(reportData.grounds || []).length} motifs perçus croisés` : 'Non',
-          autre_motif: reportData.otherGround || '',
-          score_DMS: `${dmsTotal}/${dmsMax} (${dmsPercent}%)`,
-          reponses_DMS: dmsResponses || 'Aucune',
-          description: reportData.description || 'Aucune description',
-          pieces_jointes: (reportData.attachments || []).length > 0 ? reportData.attachments.map(a => a.name).join(', ') : 'Aucune',
-          impact: reportData.impact || 'Non renseigné',
-          pair_aidance: reportData.wantPeerSupport ? `Oui — ${reportData.email || 'e-mail non fourni'}` : 'Non',
-          recontact: reportData.acceptEmailContact ? `Oui — ${reportData.email || 'e-mail non fourni'}` : 'Non',
-          numero_base: reportData.numero || 'non enregistré en base',
-          tranche_age: reportData.ageRange || 'Non précisée',
-          situation_cherche_aide: reportData.soughtHelp ? 'Oui' : 'Non',
-          situation_en_parler: reportData.wantsToTalk ? 'Oui' : 'Non',
-          suivi_resultats: reportData.wantResults ? 'Oui' : 'Non',
-          suivi_recontact_echange: reportData.contactExchange ? 'Oui' : 'Non',
-          suivi_recontact_etude: reportData.contactStudy ? 'Oui' : 'Non',
-          suivi_publier_fiche: reportData.publishSummary ? 'Oui' : 'Non',
-          suivi_usage_recherche: reportData.researchUse ? 'Oui' : 'Non',
-          suivi_lecture_texte: reportData.allowFullRead ? 'Oui' : 'Non',
-          suivi_accord_email: reportData.acceptEmailContact ? 'Oui' : 'Non',
-          email_suivi: reportData.email || 'Non fourni',
-        })
+        body: JSON.stringify(corps)
       });
-      const result = await response.json();
+      await response.json();
       return true;
     } catch (error) {
       console.error('Erreur envoi email:', error);
@@ -3817,6 +3766,7 @@ function NewReport() {
 
   // Enregistrement vocal avec Web Speech API
   const recognitionRef = useRef(null);
+  const recognitionFinalRef = useRef(''); // segments définitifs de la session d'enregistrement en cours
   const toggleRecording = () => {
     if (isRecording) {
       setIsRecording(false);
@@ -3832,19 +3782,25 @@ function NewReport() {
       recognition.continuous = true;
       recognition.interimResults = true;
       recognitionRef.current = recognition;
+      recognitionFinalRef.current = '';
       recognition.onresult = (event) => {
-        let transcript = '';
-        for (let i = 0; i < event.results.length; i++) {
-          transcript += event.results[i][0].transcript;
+        // Seuls les résultats nouveaux sont lus ; les définitifs vont dans le tampon, les provisoires ne sont qu'affichés
+        let provisoire = '';
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const r = event.results[i];
+          if (r.isFinal) recognitionFinalRef.current = (recognitionFinalRef.current + ' ' + r[0].transcript).trim();
+          else provisoire += r[0].transcript;
         }
-        setData(prev => ({...prev, _liveTranscript: transcript}));
+        const live = (recognitionFinalRef.current + ' ' + provisoire).trim();
+        setData(prev => ({...prev, _liveTranscript: live}));
       };
       recognition.onend = () => {
         setIsRecording(false);
+        const definitif = recognitionFinalRef.current.trim();
+        recognitionFinalRef.current = '';
         setData(prev => {
-          const final = prev._liveTranscript || '';
-          if (!final) return prev;
-          return {...prev, description: ((prev.description || '') + '\n' + final).trim(), _liveTranscript: undefined};
+          if (!definitif) return {...prev, _liveTranscript: undefined};
+          return {...prev, description: ((prev.description || '') + '\n' + definitif).trim(), _liveTranscript: undefined};
         });
       };
       recognition.onerror = (e) => {
@@ -4365,61 +4321,11 @@ function NewReport() {
               </div>
             )}
 
-            {/* Upload photo/vidéo */}
-            <div className="border-2 border-dashed border-gray-200 rounded-xl p-4">
-              <p className="text-sm font-medium text-gray-700 mb-3">Ajouter des preuves (optionnel)</p>
-              <div className="flex flex-wrap gap-2 mb-3">
-                {(data.attachments || []).map((file, idx) => (
-                  <div key={idx} className="relative">
-                    <div className="w-20 h-20 rounded-lg bg-gray-100 flex items-center justify-center overflow-hidden">
-                      {file.type === 'image' ? (
-                        <img src={file.preview} alt="" className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="text-center">
-                          <FileText className="w-6 h-6 text-gray-400 mx-auto" />
-                          <p className="text-sm text-gray-700 mt-1">Vidéo</p>
-                        </div>
-                      )}
-                    </div>
-                    <button 
-                      onClick={() => setData({...data, attachments: data.attachments.filter((_, i) => i !== idx)})}
-                      className="absolute -top-2 -right-2 w-5 h-5 bg-rose-500 text-white rounded-full flex items-center justify-center"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </div>
-                ))}
-                {(data.attachments || []).length < 5 && (
-                  <label className="w-20 h-20 rounded-lg border-2 border-dashed border-gray-300 flex flex-col items-center justify-center cursor-pointer hover:border-teal-400 hover:bg-teal-50 transition-colors">
-                    <Plus className="w-6 h-6 text-gray-400" />
-                    <span className="text-sm text-gray-700 mt-1">Ajouter</span>
-                    <input 
-                      type="file" 
-                      accept="image/*,video/*" 
-                      className="hidden" 
-                      onChange={(e) => {
-                        const file = e.target.files[0];
-                        if (file) {
-                          const isImage = file.type.startsWith('image/');
-                          const preview = isImage ? URL.createObjectURL(file) : null;
-                          setData({
-                            ...data, 
-                            attachments: [...(data.attachments || []), { 
-                              name: file.name, 
-                              type: isImage ? 'image' : 'video',
-                              preview,
-                              size: file.size
-                            }]
-                          });
-                        }
-                        e.target.value = '';
-                      }}
-                    />
-                  </label>
-                )}
-              </div>
-              <p className="text-sm text-gray-600">Photos ou vidéos (max 5 fichiers, 10 Mo chacun). Ces fichiers seront traités de manière confidentielle.</p>
-            </div>
+            {/* Conseil : le dossier reste chez la personne, aucun fichier n'est collecté */}
+            <Card className="p-4 bg-teal-50 border-teal-100">
+              <p className="text-sm font-semibold text-teal-900 mb-1">Constituer votre dossier</p>
+              <p className="text-sm text-teal-800">La discrimination est difficile à prouver : l’enjeu est de réunir un faisceau d’indices concordants (dates, services, témoins, courriers, photos). CareWatch ne collecte aucun fichier ; conservez vos preuves par-devers vous.</p>
+            </Card>
 
             <div className="pt-2">
               <TextArea 
@@ -5071,31 +4977,17 @@ function PositiveReport() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
         body: JSON.stringify({
-          _subject: `[CareWatch™]${modif} Expérience positive ${c} — ${data.institutionName}`,
+          _subject: `[CareWatch™]${modif} Expérience positive ${(db && db.numero) || 'sans numéro (base injoignable)'}`,
           _template: 'table',
           _captcha: false,
           type: isModification ? 'MODIFICATION_POSITIVE' : 'EXPERIENCE_POSITIVE',
-          code: c,
+          numero_base: (db && db.numero) || 'sans numéro (base injoignable)',
+          statut: 'soumis, à relire dans l’espace de modération',
           role: data.role || 'Non précisé',
-          date_temoignage: new Date().toLocaleString('fr-CH'),
-          date_experience: data.date || 'Non précisée',
-          institution: data.institutionName,
-          ville_institution: data.institutionCity || 'Non précisée',
           canton: data.canton || 'Non précisé',
-          npa_coherence: npaCheck ? (npaCheck.match ? '✓ Cohérent' : '⚠ Incohérent') : 'Non vérifiable',
-          justification_geo: data.npaJustification || '',
-          categories: (data.categories || []).map((catId, i) => `${i+1}. ${categories.find(c => c.id === catId)?.label || catId}`).join(' | '),
-          description: data.description || 'Aucune description',
-          tranche_age: data.ageRange || 'Non précisée',
-          suivi_resultats: data.wantResults ? 'Oui' : 'Non',
-          suivi_recontact_echange: data.contactExchange ? 'Oui' : 'Non',
-          suivi_recontact_etude: data.contactStudy ? 'Oui' : 'Non',
-          suivi_publier_fiche: data.publishSummary ? 'Oui' : 'Non',
-          suivi_usage_recherche: data.researchUse ? 'Oui' : 'Non',
-          suivi_lecture_texte: data.allowFullRead ? 'Oui' : 'Non',
-          suivi_accord_email: data.acceptEmailContact ? 'Oui' : 'Non',
-          email_suivi: data.email || 'Non fourni',
-          timestamp: new Date().toISOString()
+          etablissement: data.institutionName,
+          date_temoignage: new Date().toLocaleString('fr-CH'),
+          ...(data.acceptEmailContact === true ? { recontact: 'Oui', email_suivi: data.email || 'Non fourni' } : {}),
         })
       });
       const result = await response.json();
@@ -5503,18 +5395,14 @@ function MyReports() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
         body: JSON.stringify({
-          _subject: `[CareWatch™] ⟳ MODIFICATION ${updated.code}`,
+          _subject: `[CareWatch™] ⟳ MODIFICATION ${updated.numero || 'sans numéro'}`,
           _template: 'table',
           _captcha: false,
           type: 'MODIFICATION_SIGNALEMENT',
-          code: updated.code,
+          numero_base: updated.numero || 'sans numéro',
+          statut: 'modifié, à relire dans l’espace de modération',
+          etablissement: getInstitutionName(updated.institution),
           date_modification: new Date().toLocaleString('fr-CH'),
-          institution: getInstitutionName(updated.institution),
-          service: updated.service || 'Non précisé',
-          description: updated.description || 'Aucune',
-          impact: updated.impact || 'Non renseigné',
-          precisions: updated.otherDetails || 'Aucune',
-          timestamp: new Date().toISOString()
         })
       });
     } catch(e) { console.log('Email modification non envoyé:', e); }
