@@ -55,6 +55,18 @@
         .text-gray-600 { color: #374151 !important; }
         .text-gray-700 { color: #1f2937 !important; }
         
+        /* Mobile : tableaux d'administration affichés en fiches, une ligne = une carte */
+        @media (max-width: 640px) {
+          .cw-tableau thead { display: none; }
+          .cw-tableau, .cw-tableau tbody, .cw-tableau tr, .cw-tableau td { display: block; width: 100%; }
+          .cw-tableau tr { padding: 0.6rem 0; border-bottom: 1px solid #e5e7eb; }
+          .cw-tableau tr:last-child { border-bottom: 0; }
+          .cw-tableau td { padding: 0.15rem 0 !important; text-align: left !important; white-space: normal !important; overflow-wrap: anywhere; }
+          .cw-tableau td[data-label]::before { content: attr(data-label) " : "; color: #6b7280; font-size: 0.8125rem; }
+          .cw-tableau td[colspan] { padding: 0.75rem 0 !important; }
+          .cw-legende { display: none; }
+        }
+
         /* Card padding boost — p-3 and p-4 are too tight */
         /* Only boost inside main content area, not nav/badges */
         main .p-3, [class*="max-w-"] .p-3 { padding: 1rem !important; }
@@ -290,12 +302,12 @@ const VUES_DEMO = {
   'formations': 'Le catalogue de formations est fictif. Une inscription envoie seulement un message à l’équipe, aucune place n’est réservée.',
   'directory': 'Les professionnel·le·s de cet annuaire sont fictif·ve·s, numéros de téléphone compris.',
   'plafa-doc': 'Version d’essai : vos notes sont conservées sur cet appareil uniquement et n’ont pas de valeur d’horodatage certifié.',
-  'dashboard': 'Interface d’administration en démonstration : données fictives, aucune action n’est enregistrée. La modération réelle se fait pour l’instant dans Supabase.',
-  'admin-reports': 'Interface d’administration en démonstration : données fictives, aucune action n’est enregistrée. La modération réelle se fait pour l’instant dans Supabase.',
-  'inspections': 'Interface d’administration en démonstration : les inspections affichées sont fictives.',
-  'admin-opendata': 'Interface d’administration en démonstration : les exports contiennent des données fictives. Les vraies données ouvertes sont sur la page publique « Données ouvertes ».',
-  'admin-config': 'Interface d’administration en démonstration : valeurs indicatives, non modifiables.',
-  'users': 'Interface d’administration en démonstration : la gestion des utilisateurs n’existe pas encore.',
+  'dashboard': 'Données fictives, rien n’est enregistré.',
+  'admin-reports': 'Données fictives, rien n’est enregistré.',
+  'inspections': 'Inspections fictives.',
+  'admin-opendata': 'Exports fictifs. Les vraies données sont sur la page publique « Données ouvertes ».',
+  'admin-config': 'Valeurs indicatives, non modifiables.',
+  'users': 'Gestion des utilisateurs pas encore disponible.',
 };
 const VUES_DEMO_SI_DEMO = {
   'institutions': 'Les évaluations, nombres de signalements et indices de fiabilité affichés sont des données de démonstration. Décochez « Afficher les données de démonstration » dans le bandeau pour voir l’état réel.',
@@ -1965,7 +1977,7 @@ function Landing() {
                 <Stethoscope className="w-7 h-7 text-amber-600" />
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-2">Professionnel·le de santé</h3>
-              <p className="text-gray-600 mb-4">Signalement anonymisé et protégé, pair-aidance, formations et ressources. Les détails trop précis sont automatiquement généralisés avant publication.</p>
+              <p className="text-gray-600 mb-4">Signalement anonymisé, pair-aidance, formations et ressources.</p>
               <span className="text-amber-600 font-semibold group-hover:text-amber-700 inline-flex items-center gap-1">
                 Accéder <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </span>
@@ -2840,7 +2852,7 @@ function PatientHome() {
           <Lock className="w-6 h-6 text-blue-600 flex-shrink-0 mt-0.5" />
           <div>
             <p className="text-base text-blue-900 font-bold">Anonymisé. Protection structurelle de votre identité.</p>
-            <p className="text-sm text-blue-800 mt-1">Aucun compte, aucun nom, aucune adresse IP conservée avec votre signalement. Votre code postal est vérifié localement puis effacé — jamais transmis. L'établissement ne voit que des indicateurs agrégés — jamais votre témoignage individuel. Les détails trop précis sont automatiquement généralisés. Après modération (48h), l'établissement dispose de 14 jours pour répondre.</p>
+            <p className="text-sm text-blue-800 mt-1">Aucun compte, aucun nom, aucune adresse IP conservée. L’établissement ne voit que des indicateurs agrégés.</p>
           </div>
         </div>
       </Card>
@@ -2901,7 +2913,7 @@ function ProfessionalHome() {
           <Lock className="w-6 h-6 text-amber-600 flex-shrink-0 mt-0.5" />
           <div>
             <p className="text-base text-amber-900 font-bold">Votre identité est protégée par des mesures structurelles</p>
-            <p className="text-sm text-amber-800 mt-1">Aucun nom, aucune adresse IP conservée avec votre témoignage. Votre employeur ne reçoit que des indicateurs agrégés et ne peut pas relier un témoignage à son auteur·e par CareWatch™. Le formulaire professionnel permet de préciser la source (patient·e, collègue, hiérarchie) avec des types d'incidents adaptés. Le droit suisse protège les lanceurs d'alerte (CO art. 328 et 336).</p>
+            <p className="text-sm text-amber-800 mt-1">Aucun nom, aucune adresse IP conservée. Votre employeur ne voit que des indicateurs agrégés et ne peut pas relier un témoignage à son auteur·e.</p>
           </div>
         </div>
       </Card>
@@ -9220,7 +9232,7 @@ function AdminDashboard() {
           </div>
           <p className="text-2xl font-bold text-gray-900">{totalReports}</p>
           <p className="text-sm text-gray-600">Signalements reçus</p>
-          <p className="text-xs text-gray-400">Tous statuts confondus</p>
+          <p className="text-xs text-gray-400 cw-legende">Tous statuts confondus</p>
         </Card>
         <Card className="p-4">
           <div className="flex items-center justify-between mb-2">
@@ -9229,7 +9241,7 @@ function AdminDashboard() {
           </div>
           <p className="text-2xl font-bold text-gray-900">{totalVerified}</p>
           <p className="text-sm text-gray-700">Publiés après modération</p>
-          <p className="text-xs text-gray-400">Vérifiés et rendus publics</p>
+          <p className="text-xs text-gray-400 cw-legende">Vérifiés et rendus publics</p>
         </Card>
         <Card className="p-4">
           <div className="flex items-center justify-between mb-2">
@@ -9238,7 +9250,7 @@ function AdminDashboard() {
           </div>
           <p className="text-2xl font-bold text-gray-900">{totalContested}</p>
           <p className="text-sm text-gray-700">Contestés par l'établissement</p>
-          <p className="text-xs text-gray-400">Droit de réponse exercé (14 jours)</p>
+          <p className="text-xs text-gray-400 cw-legende">Droit de réponse exercé (14 jours)</p>
         </Card>
         <Card className="p-4">
           <div className="flex items-center justify-between mb-2">
@@ -9255,22 +9267,22 @@ function AdminDashboard() {
         <Card className="p-4 text-center">
           <p className="text-lg font-bold text-gray-900">{totalReports ? Math.round(totalVerified/totalReports*100) : 0}%</p>
           <p className="text-sm text-gray-600">Taux de publication</p>
-          <p className="text-xs text-gray-400">Signalements publiés / reçus</p>
+          <p className="text-xs text-gray-400 cw-legende">Signalements publiés / reçus</p>
         </Card>
         <Card className="p-4 text-center">
           <p className="text-lg font-bold text-gray-900">{stats.avgReliability}%</p>
           <p className="text-sm text-gray-700">Score de fiabilité moyen</p>
-          <p className="text-xs text-gray-400">Cohérence des témoignages</p>
+          <p className="text-xs text-gray-400 cw-legende">Cohérence des témoignages</p>
         </Card>
         <Card className="p-4 text-center">
           <p className="text-lg font-bold text-indigo-600">{DB.institutions.filter(i => i.rating === 'outstanding').length}</p>
           <p className="text-sm text-gray-600">Établissements exemplaires</p>
-          <p className="text-xs text-gray-400">Note « Outstanding »</p>
+          <p className="text-xs text-gray-400 cw-legende">Note « Outstanding »</p>
         </Card>
         <Card className="p-4 text-center">
           <p className="text-lg font-bold text-rose-600">{alertInstitutions.length}</p>
           <p className="text-sm text-gray-600">Établissements à surveiller</p>
-          <p className="text-xs text-gray-400">Notes « Inadequate » ou « Requires improvement »</p>
+          <p className="text-xs text-gray-400 cw-legende">Notes « Inadequate » ou « Requires improvement »</p>
         </Card>
       </div>
 
@@ -9406,7 +9418,7 @@ function AdminDashboard() {
             {DB.cantons.map(c => {
               const cantInst = DB.institutions.filter(i => i.canton === c);
               const cantReports = cantInst.reduce((a, i) => a + i.reports, 0);
-              const pct = Math.round(cantReports / totalReports * 100);
+              const pct = Math.min(100, Math.round(cantReports / Math.max(reel ? totalReports : allReports, 1) * 100));
               return (
                 <div key={c}>
                   <div className="flex items-center justify-between mb-1">
@@ -9618,7 +9630,7 @@ function AdminReports() {
 
       <Card className="overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="cw-tableau w-full">
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500">Code</th>
@@ -9634,14 +9646,14 @@ function AdminReports() {
                 <tr><td colSpan={6} className="px-4 py-8 text-center text-gray-500">Aucun signalement</td></tr>
               ) : filteredReports.map(r => (
                 <tr key={r.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-3 font-mono text-sm text-teal-600">{r.code}</td>
-                  <td className="px-4 py-3 text-sm">{r.date}</td>
-                  <td className="px-4 py-3 text-sm">{getInstitutionName(r.institution)}</td>
-                  <td className="px-4 py-3 text-sm">{r.incidentType}</td>
-                  <td className="px-4 py-3">
+                  <td data-label="Code" className="px-4 py-3 font-mono text-sm text-teal-600">{r.code}</td>
+                  <td data-label="Date" className="px-4 py-3 text-sm">{r.date}</td>
+                  <td data-label="Établissement" className="px-4 py-3 text-sm">{getInstitutionName(r.institution)}</td>
+                  <td data-label="Type" className="px-4 py-3 text-sm">{r.incidentType}</td>
+                  <td data-label="Statut" className="px-4 py-3">
                     <span className={`px-2 py-1 rounded text-xs ${r.status === 'Vérifié' ? 'bg-emerald-100 text-emerald-700' : r.status === 'Contesté' ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-700'}`}>{r.status}</span>
                   </td>
-                  <td className="px-4 py-3">
+                  <td data-label="Actions" className="px-4 py-3">
                     <div className="flex gap-1">
                       <button onClick={() => setSelectedReport(r)} className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded"><Eye className="w-4 h-4" /></button>
                       {r.status === 'En modération' && (
@@ -9738,7 +9750,8 @@ function InspectionsView() {
         <p className="text-sm text-indigo-800">Organe indépendant chargé d'évaluer l'équité des soins dans les établissements de santé selon 5 critères : Sécurité, Efficacité, Bienveillance, Réactivité, Gouvernance. Les inspections sont menées par des expert·e·s formé·e·s à l'équité culturelle.</p>
       </div>
       <Card>
-        <table className="w-full">
+        <div className="overflow-x-auto">
+        <table className="cw-tableau w-full">
           <thead className="bg-gray-50">
             <tr>
               <th className="px-4 py-3 text-left text-xs font-medium text-gray-500">Établissement</th>
@@ -9750,14 +9763,15 @@ function InspectionsView() {
           <tbody className="divide-y">
             {inspections.map((ins, i) => (
               <tr key={i} className="hover:bg-gray-50">
-                <td className="px-4 py-3 text-sm font-medium">{ins.institution}</td>
-                <td className="px-4 py-3 text-sm text-gray-500">{ins.date}</td>
-                <td className="px-4 py-3 text-sm text-gray-500">{ins.inspector}</td>
-                <td className="px-4 py-3"><RatingBadge rating={ins.rating} /></td>
+                <td data-label="Établissement" className="px-4 py-3 text-sm font-medium">{ins.institution}</td>
+                <td data-label="Date" className="px-4 py-3 text-sm text-gray-500">{ins.date}</td>
+                <td data-label="Inspecteur" className="px-4 py-3 text-sm text-gray-500">{ins.inspector}</td>
+                <td data-label="Évaluation" className="px-4 py-3"><RatingBadge rating={ins.rating} /></td>
               </tr>
             ))}
           </tbody>
         </table>
+        </div>
       </Card>
     </div>
   );
@@ -10296,12 +10310,12 @@ function AdminReferentiels({ signaler }) {
           </div>
           {!donnees ? <p className="text-sm text-gray-500">Chargement…</p> : (
             <div className="overflow-x-auto" style={{ maxHeight: '60vh', overflowY: 'auto' }}>
-              <table className="w-full text-sm">
+              <table className="cw-tableau w-full text-sm">
                 <thead><tr className="text-left text-xs text-gray-500 border-b">{def.colonnes.map(c => <th key={c} className="py-1 pr-3">{c}</th>)}<th></th></tr></thead>
                 <tbody>
                   {lignes.map(l => (
                     <tr key={l[def.cle]} className="border-b border-gray-100">
-                      {def.colonnes.map(c => <td key={c} className="py-1 pr-3 text-gray-800">{afficher(l[c])}</td>)}
+                      {def.colonnes.map(c => <td key={c} data-label={c} className="py-1 pr-3 text-gray-800">{afficher(l[c])}</td>)}
                       <td className="py-1 whitespace-nowrap text-right">
                         <button onClick={() => setEdition({ ...l })} className="text-teal-700 underline text-xs" style={{ marginRight: 8 }}>Modifier</button>
                         <button onClick={() => supprimer(l)} className="text-rose-600 underline text-xs">Supprimer</button>
@@ -10360,13 +10374,13 @@ function AdminAcces({ signaler, dateFr }) {
         {dernierCode && <p className="text-sm text-teal-800 mb-3">Nouveau code : <span className="font-mono font-bold">{dernierCode}</span> — à transmettre avec l’adresse du site.</p>}
         {acces && (
           <div className="overflow-x-auto" style={{ maxHeight: '40vh', overflowY: 'auto' }}>
-            <table className="w-full text-sm">
+            <table className="cw-tableau w-full text-sm">
               <thead><tr className="text-left text-xs text-gray-500 border-b"><th className="py-1 pr-3">Code</th><th className="py-1 pr-3">Attribué à</th><th className="py-1 pr-3">E-mail</th><th className="py-1 pr-3">Date</th><th className="py-1 pr-3">Accord signé</th><th className="py-1 pr-3">Actif</th></tr></thead>
               <tbody>{acces.invitations.map(i => (
                 <tr key={i.code} className="border-b border-gray-100">
-                  <td className="py-1 pr-3 font-mono">{i.code.toUpperCase()}</td><td className="py-1 pr-3">{i.attribue_a || '—'}</td><td className="py-1 pr-3">{i.email || '—'}</td>
-                  <td className="py-1 pr-3">{i.attribue_le || '—'}</td><td className="py-1 pr-3">{i.nda_signe_le ? dateFr(i.nda_signe_le) : 'non'}</td>
-                  <td className="py-1 pr-3"><button onClick={() => ecrire('invitation_actif', { code: i.code, actif: !i.actif }, i.actif ? 'Code désactivé.' : 'Code réactivé.')} className={`text-xs underline ${i.actif ? 'text-emerald-700' : 'text-rose-600'}`}>{i.actif ? 'actif · désactiver' : 'inactif · réactiver'}</button></td>
+                  <td data-label="Code" className="py-1 pr-3 font-mono">{i.code.toUpperCase()}</td><td data-label="Attribué à" className="py-1 pr-3">{i.attribue_a || '—'}</td><td data-label="E-mail" className="py-1 pr-3">{i.email || '—'}</td>
+                  <td data-label="Date" className="py-1 pr-3">{i.attribue_le || '—'}</td><td data-label="Accord signé" className="py-1 pr-3">{i.nda_signe_le ? dateFr(i.nda_signe_le) : 'non'}</td>
+                  <td data-label="Actif" className="py-1 pr-3"><button onClick={() => ecrire('invitation_actif', { code: i.code, actif: !i.actif }, i.actif ? 'Code désactivé.' : 'Code réactivé.')} className={`text-xs underline ${i.actif ? 'text-emerald-700' : 'text-rose-600'}`}>{i.actif ? 'actif · désactiver' : 'inactif · réactiver'}</button></td>
                 </tr>
               ))}</tbody>
             </table>
@@ -10402,22 +10416,24 @@ function AdminAcces({ signaler, dateFr }) {
         {dernierAcces && (
           <div className="p-3 rounded-xl bg-teal-50 border border-teal-200 text-sm text-teal-900 mb-3">
             <p><strong>{dernierAcces.envoye ? 'Code d’accès envoyé par e-mail à ' + dernierAcces.email : 'Le courriel n’a pas pu partir : transmettez ce code à ' + dernierAcces.email}</strong> · <span className="font-mono text-lg">{dernierAcces.code}</span></p>
-            <p className="text-xs mt-1">Valable 14 jours, usage unique. La personne choisit « Première connexion » sur l’écran de modération, saisit son e-mail et ce code, reçoit un lien, puis définit son propre mot de passe et active le second facteur.</p>
+            <p className="text-xs mt-1">Valable 14 jours, usage unique. La personne saisit son e-mail et ce code dans la fenêtre Administration, puis choisit son mot de passe.</p>
           </div>
         )}
         {acces && (
           <>
-            <table className="w-full text-sm mb-3">
+            <div className="overflow-x-auto">
+            <table className="cw-tableau w-full text-sm mb-3">
               <thead><tr className="text-left text-xs text-gray-500 border-b"><th className="py-1 pr-3">Nom</th><th className="py-1 pr-3">E-mail</th><th className="py-1 pr-3">Rôle</th><th className="py-1 pr-3">Dernière connexion</th><th></th></tr></thead>
               <tbody>{acces.moderateurs.map(m => (
                 <tr key={m.user_id} className="border-b border-gray-100">
-                  <td className="py-1 pr-3">{m.nom || '—'}</td><td className="py-1 pr-3">{m.email}</td>
-                  <td className="py-1 pr-3"><select value={m.role} onChange={e => ecrire('role', { user_id: m.user_id, role: e.target.value }, 'Rôle modifié.')} className="border rounded px-1 py-0.5 text-xs"><option value="moderateur">modérateur·rice</option><option value="admin">admin</option></select></td>
-                  <td className="py-1 pr-3">{m.derniere_connexion ? dateFr(m.derniere_connexion) : 'jamais'}</td>
+                  <td data-label="Nom" className="py-1 pr-3">{m.nom || '—'}</td><td data-label="E-mail" className="py-1 pr-3">{m.email}</td>
+                  <td data-label="Rôle" className="py-1 pr-3"><select value={m.role} onChange={e => ecrire('role', { user_id: m.user_id, role: e.target.value }, 'Rôle modifié.')} className="border rounded px-1 py-0.5 text-xs"><option value="moderateur">modérateur·rice</option><option value="admin">admin</option></select></td>
+                  <td data-label="Dernière connexion" className="py-1 pr-3">{m.derniere_connexion ? dateFr(m.derniere_connexion) : 'jamais'}</td>
                   <td className="py-1 text-right"><button onClick={() => { if (window.confirm('Retirer ' + (m.nom || m.email) + ' ? Ses droits et son compte de connexion sont supprimés.')) ecrire('retirer_moderateur', { user_id: m.user_id }, 'Compte retiré.'); }} className="text-rose-600 underline text-xs">Retirer</button></td>
                 </tr>
               ))}</tbody>
             </table>
+            </div>
             {Array.isArray(acces.orphelins) && acces.orphelins.length > 0 && (
               <div className="text-sm mb-3">
                 <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Comptes de connexion sans droits</p>
@@ -10759,10 +10775,10 @@ function ModerationPage({ integre }) {
       {ndaListe && (
         ndaListe.length === 0 ? <p className="text-sm text-gray-500 mt-3">Aucune signature enregistrée.</p> : (
           <div className="overflow-x-auto mt-3">
-            <table className="w-full text-sm">
+            <table className="cw-tableau w-full text-sm">
               <thead><tr className="text-left text-xs text-gray-500 border-b"><th className="py-1 pr-3">Signé le</th><th className="py-1 pr-3">Nom</th><th className="py-1 pr-3">Organisation</th><th className="py-1 pr-3">E-mail</th><th className="py-1 pr-3">Code</th><th className="py-1 pr-3">Version</th></tr></thead>
               <tbody>{ndaListe.map((n, i) => (
-                <tr key={i} className="border-b border-gray-100"><td className="py-1 pr-3">{dateFr(n.signe_le)}</td><td className="py-1 pr-3">{n.nom}</td><td className="py-1 pr-3">{n.organisation || '—'}</td><td className="py-1 pr-3">{n.email}</td><td className="py-1 pr-3 font-mono">{n.code}{n.attribue_a ? ' · ' + n.attribue_a : ''}</td><td className="py-1 pr-3">{n.version}</td></tr>
+                <tr key={i} className="border-b border-gray-100"><td data-label="Signé le" className="py-1 pr-3">{dateFr(n.signe_le)}</td><td data-label="Nom" className="py-1 pr-3">{n.nom}</td><td data-label="Organisation" className="py-1 pr-3">{n.organisation || '—'}</td><td data-label="E-mail" className="py-1 pr-3">{n.email}</td><td data-label="Code" className="py-1 pr-3 font-mono">{n.code}{n.attribue_a ? ' · ' + n.attribue_a : ''}</td><td data-label="Version" className="py-1 pr-3">{n.version}</td></tr>
               ))}</tbody>
             </table>
           </div>
@@ -10967,11 +10983,11 @@ function OpenDataPage({ integre }) {
         <Bloc titre="2. Établissements : comptes et indice d’équité">
           <p className="text-sm text-gray-600 mb-3">{DB.institutions.length} établissements référencés en Suisse romande. L’indice (0 à 100) n’est calculé qu’à partir de 5 témoignages vérifiés, selon la formule publiée sur la page Méthodologie.</p>
           <div className="overflow-x-auto mb-3">
-            <table className="w-full text-sm">
+            <table className="cw-tableau w-full text-sm">
               <thead><tr className="text-left text-xs text-gray-500 border-b"><th className="py-2 pr-3">Établissement</th><th className="py-2 pr-3">Canton</th><th className="py-2 pr-3">Signalements</th><th className="py-2 pr-3">Positifs</th><th className="py-2 pr-3">Vérifiés</th><th className="py-2 pr-3">Indice</th></tr></thead>
               <tbody>
                 {etabl.filter(e => e.signalements + e.positifs > 0).map(e => (
-                  <tr key={e.id} className="border-b border-gray-100"><td className="py-2 pr-3 text-gray-800">{e.nom}</td><td className="py-2 pr-3">{e.canton}</td><td className="py-2 pr-3">{e.signalements}</td><td className="py-2 pr-3">{e.positifs}</td><td className="py-2 pr-3">{e.verifies}</td><td className="py-2 pr-3">{e.indice_equite === '' ? '—' : `${e.indice_equite} · ${e.niveau}`}</td></tr>
+                  <tr key={e.id} className="border-b border-gray-100"><td data-label="Établissement" className="py-2 pr-3 text-gray-800">{e.nom}</td><td data-label="Canton" className="py-2 pr-3">{e.canton}</td><td data-label="Signalements" className="py-2 pr-3">{e.signalements}</td><td data-label="Positifs" className="py-2 pr-3">{e.positifs}</td><td data-label="Vérifiés" className="py-2 pr-3">{e.verifies}</td><td data-label="Indice" className="py-2 pr-3">{e.indice_equite === '' ? '—' : `${e.indice_equite} · ${e.niveau}`}</td></tr>
                 ))}
                 {etabl.filter(e => e.signalements + e.positifs > 0).length === 0 && <tr><td colSpan="6" className="py-3 text-gray-500">Aucun témoignage reçu pour l’instant.</td></tr>}
               </tbody>
@@ -10987,11 +11003,11 @@ function OpenDataPage({ integre }) {
             <p className="text-sm text-gray-500 mb-3">Aucune fiche publiée pour l’instant.</p>
           ) : (
             <div className="overflow-x-auto mb-3">
-              <table className="w-full text-sm">
+              <table className="cw-tableau w-full text-sm">
                 <thead><tr className="text-left text-xs text-gray-500 border-b"><th className="py-2 pr-3">Numéro</th><th className="py-2 pr-3">Type</th><th className="py-2 pr-3">Année</th><th className="py-2 pr-3">Canton</th><th className="py-2 pr-3">Établissement</th><th className="py-2 pr-3">Service</th><th className="py-2 pr-3">Objet</th><th className="py-2 pr-3">Score</th></tr></thead>
                 <tbody>
                   {fiches.slice(0, 200).map(r => (
-                    <tr key={r.numero} className="border-b border-gray-100"><td className="py-2 pr-3 font-mono text-teal-700">{r.numero}</td><td className="py-2 pr-3">{r.type === 'positif' ? 'Positif' : 'Signalement'}</td><td className="py-2 pr-3">{r.annee}</td><td className="py-2 pr-3">{r.canton}</td><td className="py-2 pr-3">{r.etablissement_nom}</td><td className="py-2 pr-3">{r.service}</td><td className="py-2 pr-3">{r.type === 'positif' ? (Array.isArray(r.categories_positives) ? r.categories_positives.join(', ') : '') : r.type_incident}</td><td className="py-2 pr-3">{r.dms_score != null ? `${r.dms_score}/${r.dms_max}` : '—'}</td></tr>
+                    <tr key={r.numero} className="border-b border-gray-100"><td data-label="Numéro" className="py-2 pr-3 font-mono text-teal-700">{r.numero}</td><td data-label="Type" className="py-2 pr-3">{r.type === 'positif' ? 'Positif' : 'Signalement'}</td><td data-label="Année" className="py-2 pr-3">{r.annee}</td><td data-label="Canton" className="py-2 pr-3">{r.canton}</td><td data-label="Établissement" className="py-2 pr-3">{r.etablissement_nom}</td><td data-label="Service" className="py-2 pr-3">{r.service}</td><td data-label="Objet" className="py-2 pr-3">{r.type === 'positif' ? (Array.isArray(r.categories_positives) ? r.categories_positives.join(', ') : '') : r.type_incident}</td><td data-label="Score" className="py-2 pr-3">{r.dms_score != null ? `${r.dms_score}/${r.dms_max}` : '—'}</td></tr>
                   ))}
                 </tbody>
               </table>
