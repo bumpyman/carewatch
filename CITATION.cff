@@ -7,8 +7,8 @@ abstract: >-
   fonctions de la base de données, et documents de cadrage. Les données publiées
   sont dé-identifiées et ne concernent que les témoignages vérifiés.
 type: software
-version: "v0.4.1-alpha"
-date-released: "2026-09-03"
+version: "v0.4.2-alpha"
+date-released: "2026-09-09"
 url: "https://carewat.ch"
 repository-code: "https://github.com/bumpyman/carewatch"
 license: AGPL-3.0-or-later
