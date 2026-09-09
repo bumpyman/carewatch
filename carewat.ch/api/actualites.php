@@ -41,7 +41,7 @@ $LOCK     = __DIR__ . '/cache/veille.lock';
 $SOURCES = [
   ['nom' => 'OFSP', 'type' => 'flux', 'urls' => ['https://www.news.admin.ch/fr/rss?deptid=7', 'https://www.bag.admin.ch/bag/fr/home.rss', 'https://www.bag.admin.ch/bag/fr/home/das-bag/aktuell/medienmitteilungen.html', 'https://www.admin.ch/gov/fr/accueil/documentation/communiques.html']],
   ['nom' => 'Obsan', 'type' => 'flux', 'ssl_lax' => true, 'urls' => ['https://www.obsan.admin.ch/fr/rss.xml', 'https://www.obsan.admin.ch/fr/publications', 'https://www.obsan.admin.ch/fr']],
-  ['nom' => 'Revue Médicale Suisse', 'type' => 'html', 'url' => 'https://www.revmed.ch/', 'motif' => '#revmed\.ch/(revue-medicale-suisse|actualite|actu|article)#i'],
+  ['nom' => 'Revue Médicale Suisse', 'type' => 'html', 'url' => 'https://www.revmed.ch/', 'motif' => '#revmed\.ch/revue-medicale-suisse/\d{4}/revue-medicale-suisse-\d+/.+#i'],
   ['nom' => 'Unisanté', 'type' => 'html', 'url' => 'https://www.unisante.ch/fr/propos-dunisante/actualites', 'motif' => '#unisante\.ch/fr/propos-dunisante/actualites/.+#i'],
   ['nom' => 'HETSL', 'type' => 'flux', 'urls' => ['https://www.hetsl.ch/rss.xml']],
   ['nom' => 'Commission fédérale contre le racisme', 'type' => 'flux', 'urls' => ['https://www.news.admin.ch/fr/rss?deptid=7&orgid=', 'https://www.ekr.admin.ch/ekr/fr/home/aktuell.html', 'https://www.ekr.admin.ch/ekr/fr/home.html']],
