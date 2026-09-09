@@ -1781,7 +1781,7 @@ function CareWatch() {
 // ============================================
 
 function Landing() {
-  const { realStats, showDemo, setShowDemo, setView, setShowLogin, setLoginType, stats, DB, searchQuery, setSearchQuery, selectedCanton, setSelectedCanton, selectedInstitution, setSelectedInstitution } = useApp();
+  const { realStats, showDemo, setShowDemo, setView, setShowLogin, setLoginType, stats, DB, searchQuery, setSearchQuery, selectedCanton, setSelectedCanton, selectedInstitution, setSelectedInstitution , ref } = useApp();
   const [ratingFilter, setRatingFilter] = useState('');
   const [sortBy, setSortBy] = useState('rating');
   const [menuOpen, setMenuOpen] = useState(false);
@@ -1888,51 +1888,95 @@ function Landing() {
       {/* ===== HERO ===== */}
       <section className="bg-gradient-to-b from-teal-50/80 to-white">
         <div className="max-w-3xl mx-auto px-6 pt-12 pb-10 md:pt-20 md:pb-14 text-center">
-          
+          <p className="text-xs font-semibold uppercase tracking-wider text-teal-700 mb-4">Observatoire participatif · Suisse romande · HES-SO Genève</p>
           <h2 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-gray-900 leading-[1.08] tracking-tight mb-5">
-            Contribuer à des soins<br className="sm:hidden" /> plus justes. Ensemble.
+            L’équité des soins,<br className="sm:hidden" /> documentée par celles et ceux qui la vivent.
           </h2>
-          
-          <p className="text-xl md:text-2xl text-gray-500 max-w-2xl mx-auto mb-4 leading-relaxed">
-            Observatoire participatif de l'équité des soins en Suisse romande.
+          <p className="text-xl md:text-2xl text-gray-500 max-w-2xl mx-auto mb-8 leading-relaxed">
+            CareWatch™ recueille, vérifie et mesure les expériences de traitement inéquitable et les bonnes pratiques vécues dans les hôpitaux et cliniques de Suisse romande.
           </p>
-
-          <p className="text-lg md:text-xl text-gray-800 font-bold mb-8">Signalez. Observez. Améliorez les soins.</p>
-          
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-            <button onClick={() => { setLoginType('patient'); setShowLogin(true); }} className="px-6 py-3 bg-teal-600 hover:bg-teal-700 text-white font-semibold rounded-xl transition-colors inline-flex items-center gap-2 shadow-sm">
+            <button onClick={() => { setLoginType('patient'); setShowLogin(true); }} className="px-6 py-3 bg-teal-600 hover:bg-teal-700 text-white font-semibold rounded-xl transition-colors inline-flex items-center gap-2">
               <User className="w-5 h-5" /> Je suis patient·e ou proche
             </button>
-            <button onClick={() => { setLoginType('professional'); setShowLogin(true); }} className="px-6 py-3 bg-amber-600 hover:bg-amber-700 text-white font-semibold rounded-xl transition-colors inline-flex items-center gap-2 shadow-sm">
+            <button onClick={() => { setLoginType('professional'); setShowLogin(true); }} className="px-6 py-3 bg-amber-600 hover:bg-amber-700 text-white font-semibold rounded-xl transition-colors inline-flex items-center gap-2">
               <Stethoscope className="w-5 h-5" /> Je suis professionnel·le
             </button>
+          </div>
+          <p className="text-sm text-gray-500 mt-6">Version alpha fermée, accès sur invitation. <button onClick={() => setView('methodology')} className="underline hover:text-teal-700">Méthodologie</button> · <button onClick={() => setView('opendata')} className="underline hover:text-teal-700">Données ouvertes</button></p>
+        </div>
+      </section>
+      {/* ===== MISSION ===== */}
+      <section className="bg-white border-t border-b border-gray-200">
+        <div className="max-w-3xl mx-auto px-6 py-14 md:py-16">
+          <p className="text-xs font-semibold uppercase tracking-wider text-teal-700 mb-2">Mission</p>
+          <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-10">Documenter, mesurer, restituer</h3>
+          <div className="space-y-8 md:space-y-0 md:grid md:grid-cols-3 md:gap-10">
+            {[
+              { icon: ClipboardList, color: 'teal', n: '1', title: 'Documenter', desc: 'Des témoignages anonymes de patient·e·s, de proches et de professionnel·le·s, recueillis selon une trame commune et vérifiés avant publication.' },
+              { icon: TrendingUp, color: 'indigo', n: '2', title: 'Mesurer', desc: 'Un indice d’équité par établissement, calculé à partir de témoignages vérifiés et publié seulement au-delà d’un seuil minimal.' },
+              { icon: ShieldCheck, color: 'amber', n: '3', title: 'Restituer', desc: 'Des données ouvertes dé-identifiées, un droit de réponse pour les établissements et des indicateurs lisibles par toutes et tous.' },
+            ].map(s => (
+              <div key={s.n} className="flex items-start gap-5">
+                <div className={`w-12 h-12 rounded-2xl bg-${s.color}-100 flex items-center justify-center flex-shrink-0`}>
+                  <s.icon className={`w-6 h-6 text-${s.color}-600`} />
+                </div>
+                <div>
+                  <h4 className="text-xl font-bold text-gray-900 mb-1">{s.title}</h4>
+                  <p className="text-base text-gray-600">{s.desc}</p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* ===== FONCTIONNEMENT ===== */}
-      <section className="bg-white border-t border-b border-gray-200">
-        <div className="max-w-3xl mx-auto px-6 py-14 md:py-16 text-center">
-          <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-10">Fonctionnement</h3>
-          <div className="space-y-8 md:space-y-0 md:grid md:grid-cols-3 md:gap-10 text-left">
+      {/* ===== AXES D'OBSERVATION ===== */}
+      <section className="bg-gray-50 border-b border-gray-200">
+        <div className="max-w-3xl mx-auto px-6 py-14 md:py-16">
+          <p className="text-xs font-semibold uppercase tracking-wider text-teal-700 mb-2">Axes d’observation</p>
+          <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">Ce que les témoignages permettent d’observer</h3>
+          <p className="text-gray-600 mb-8">Chaque témoignage renseigne les mêmes dimensions, ce qui rend les situations comparables d’un établissement à l’autre.</p>
+          <div className="grid sm:grid-cols-2 gap-4">
             {[
-              { icon: ClipboardList, color: 'teal', n: '1', title: 'Témoignez', desc: 'Décrivez votre expérience en quelques étapes. Aucune donnée personnelle n\'est collectée.' },
-              { icon: ShieldCheck, color: 'indigo', n: '2', title: 'Vérification', desc: 'Chaque témoignage est examiné sous 48h. L\'établissement dispose d\'un droit de réponse.' },
-              { icon: TrendingUp, color: 'amber', n: '3', title: 'Amélioration', desc: 'Les témoignages produisent des indicateurs d\'équité publics et accessibles à toutes et tous — chercheurs, associations, citoyens.' },
-            ].map(s => (
-              <div key={s.n} className="flex md:flex-col items-start md:items-center md:text-center gap-5 md:gap-0">
-                <div className={`w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-${s.color}-100 flex items-center justify-center flex-shrink-0 md:mx-auto md:mb-4`}>
-                  <s.icon className={`w-8 h-8 md:w-10 md:h-10 text-${s.color}-600`} />
-                </div>
-                <div>
-                  <div className="flex items-center md:justify-center gap-2 mb-1">
-                    <span className={`w-7 h-7 rounded-full bg-${s.color}-500 text-white flex items-center justify-center text-sm font-bold flex-shrink-0`}>{s.n}</span>
-                    <h4 className="text-xl font-bold text-gray-900">{s.title}</h4>
-                  </div>
-                  <p className="text-lg text-gray-500">{s.desc}</p>
-                </div>
+              { title: 'Motifs perçus de discrimination', desc: 'Couleur de peau, origine, langue, genre, orientation sexuelle, âge, handicap, santé mentale, précarité, et leurs croisements.' },
+              { title: 'Nature des situations', desc: 'Propos discriminatoires, attente ou refus de soins, non-écoute des symptômes, traitement différencié, attitude condescendante.' },
+              { title: 'Expérience de traitement', desc: 'Sept questions issues de l’échelle DMS (Discrimination in Medical Settings), qui donnent un score comparable entre témoignages.' },
+              { title: 'Bonnes pratiques', desc: 'Les expériences positives sont recueillies avec la même rigueur et entrent dans l’indice d’équité des établissements.' },
+            ].map(x => (
+              <div key={x.title} className="bg-white border border-gray-200 rounded-2xl p-5">
+                <h4 className="font-bold text-gray-900 mb-1">{x.title}</h4>
+                <p className="text-sm text-gray-600">{x.desc}</p>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ===== MÉTHODE ===== */}
+      <section className="bg-white border-b border-gray-200">
+        <div className="max-w-3xl mx-auto px-6 py-14 md:py-16">
+          <p className="text-xs font-semibold uppercase tracking-wider text-teal-700 mb-2">Méthode</p>
+          <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-8">Du témoignage à l’indicateur</h3>
+          <ol className="space-y-4">
+            {[
+              ['Recueil', 'Formulaire anonyme, charte de bonne conduite, contrôle local de cohérence géographique. Aucun compte, aucune adresse IP, aucun fichier.'],
+              ['Vérification', 'Chaque témoignage est relu par l’équipe de modération avant toute prise en compte. Les textes trop précis sont généralisés.'],
+              ['Droit de réponse', 'L’établissement concerné peut apporter son point de vue dans un délai de 14 jours.'],
+              ['Indice d’équité', 'Score de 0 à 100 par établissement : 70 % pour l’expérience de traitement (échelle DMS), 30 % pour la part d’expériences positives. Publié à partir de 5 témoignages vérifiés.'],
+              ['Restitution', 'Fiches résumées publiées avec l’accord des personnes, données ouvertes dé-identifiées et interface de programmation, sous licence CC BY-NC-SA 4.0.'],
+            ].map(([t, d], i) => (
+              <li key={t} className="flex items-start gap-4">
+                <span className="w-8 h-8 rounded-full bg-teal-600 text-white flex items-center justify-center text-sm font-bold flex-shrink-0">{i + 1}</span>
+                <div>
+                  <p className="font-bold text-gray-900">{t}</p>
+                  <p className="text-sm text-gray-600">{d}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+          <div className="mt-8">
+            <Button variant="outline" onClick={() => setView('methodology')}>Lire la méthodologie complète</Button>
           </div>
         </div>
       </section>
@@ -2028,7 +2072,8 @@ function Landing() {
       {/* ===== STATS INFOGRAPHIC ===== */}
       <section className="bg-gradient-to-b from-gray-50 to-white border-b border-gray-200">
         <div className="max-w-4xl mx-auto px-6 py-14 md:py-20">
-        <h3 className="text-2xl md:text-3xl font-bold text-center text-gray-900 mb-3">CareWatch™ en chiffres</h3>
+        <p className="text-xs font-semibold uppercase tracking-wider text-teal-700 text-center mb-2">Indicateurs</p>
+        <h3 className="text-2xl md:text-3xl font-bold text-center text-gray-900 mb-3">État de l’observatoire</h3>
         <p className="text-center text-gray-400 text-sm mb-10">{showDemo ? 'Données de démonstration — les chiffres réels seront collectés au lancement officiel' : 'Chiffres réels — l’observatoire démarre, les compteurs se rempliront au fil des témoignages'}</p>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
           {showDemo ? (
@@ -2089,6 +2134,49 @@ function Landing() {
             <p className="text-sm text-gray-500 mt-1">L'établissement peut apporter son point de vue</p>
           </div>
         </div>
+        </div>
+      </section>
+
+      {/* ===== ACTUALITÉS (référentiel, publiées par l'équipe) ===== */}
+      {ref && Array.isArray(ref.actualites) && ref.actualites.length > 0 && (
+      <section className="bg-white border-b border-gray-200">
+        <div className="max-w-3xl mx-auto px-6 py-14 md:py-16">
+          <p className="text-xs font-semibold uppercase tracking-wider text-teal-700 mb-2">Actualités</p>
+          <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-8">Publications et annonces</h3>
+          <div className="divide-y border rounded-2xl">
+            {ref.actualites.slice(0, 3).map(a => (
+              <div key={a.id} className="p-5">
+                <p className="text-xs text-gray-500 mb-1">{a.date_affichee || ''}{a.source ? ` · ${a.source}` : ''}</p>
+                <p className="font-bold text-gray-900">{a.url ? <a href={a.url} target="_blank" rel="noopener noreferrer" className="hover:text-teal-700">{a.titre}</a> : a.titre}</p>
+                {a.resume && <p className="text-sm text-gray-600 mt-1">{a.resume}</p>}
+              </div>
+            ))}
+          </div>
+          <div className="mt-6"><button onClick={() => setView('news')} className="text-sm text-teal-700 underline hover:text-teal-700">Toutes les actualités</button></div>
+        </div>
+      </section>
+      )}
+
+      {/* ===== CADRE SCIENTIFIQUE ET ÉTHIQUE ===== */}
+      <section className="bg-gray-50 border-b border-gray-200">
+        <div className="max-w-3xl mx-auto px-6 py-14 md:py-16">
+          <p className="text-xs font-semibold uppercase tracking-wider text-teal-700 mb-2">Cadre</p>
+          <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-8">Cadre scientifique et éthique</h3>
+          <div className="grid sm:grid-cols-2 gap-4">
+            {[
+              { title: 'Porteur', desc: 'Convivens Lab, Haute école de gestion de Genève (HES-SO). Coordination technique et scientifique.', action: ['Partenaires', 'partners'] },
+              { title: 'Éthique et protection des données', desc: 'Démarche de clarification en cours auprès de la Commission cantonale d’éthique de la recherche (CER-VD). Données hébergées en Suisse, aucune donnée personnelle conservée avec les témoignages.', action: ['Confidentialité', 'privacy-public'] },
+              { title: 'Science ouverte', desc: 'Code source publié sous licence AGPL-3.0 et archivé avec un identifiant pérenne. Données ouvertes dé-identifiées sous licence CC BY-NC-SA 4.0.', lien: ['Dépôt GitHub', 'https://github.com/bumpyman/carewatch'] },
+              { title: 'Statut', desc: `Version ${CW_VERSION}, alpha fermée. Les fonctions, les textes et les indicateurs évoluent avec les retours des premières personnes invitées.`, action: ['Méthodologie', 'methodology'] },
+            ].map(x => (
+              <div key={x.title} className="bg-white border border-gray-200 rounded-2xl p-5">
+                <h4 className="font-bold text-gray-900 mb-1">{x.title}</h4>
+                <p className="text-sm text-gray-600 mb-3">{x.desc}</p>
+                {x.action && <button onClick={() => setView(x.action[1])} className="text-sm text-teal-700 underline hover:text-teal-700">{x.action[0]}</button>}
+                {x.lien && <a href={x.lien[1]} target="_blank" rel="noopener noreferrer" className="text-sm text-teal-700 underline hover:text-teal-700">{x.lien[0]}</a>}
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
