@@ -2237,7 +2237,7 @@ function Landing() {
               { title: 'Institutions', desc: 'Haute école de gestion de Genève (HES-SO), Unisanté et Hôpitaux universitaires de Genève. Coordination technique et scientifique par le Convivens Lab.', action: ['Partenaires', 'partners'] },
               { title: 'Protection des données', desc: 'Témoignages anonymes, hébergement en Suisse, données réduites au strict nécessaire. Les textes publiés sont vérifiés et dé-identifiés.', action: ['Confidentialité', 'privacy-public'] },
               { title: 'Science ouverte', desc: 'Code source publié sous licence AGPL-3.0. Données ouvertes dé-identifiées sous licence CC BY-NC-SA 4.0, avec une interface de programmation documentée.', lien: ['Dépôt GitHub', 'https://github.com/bumpyman/carewatch'] },
-              { title: 'Statut', desc: `Version ${CW_VERSION}, alpha fermée. Les fonctions, les textes et les indicateurs évoluent avec les retours des premières personnes invitées.`, action: ['Méthodologie', 'methodology'] },
+              { title: 'Statut', desc: `Version ${CW_VERSION}, alpha fermée sur invitation.`, action: ['Méthodologie', 'methodology'] },
             ].map(x => (
               <div key={x.title} className="bg-white border border-gray-200 rounded-2xl p-5">
                 <h4 className="font-bold text-gray-900 mb-1">{x.title}</h4>
@@ -10114,9 +10114,13 @@ function FAQPage() {
 function PartnersPage() {
   const { setView } = useApp();
   const partners = [
+    { cat: 'Institutions', items: [
+      'HEG-Genève (HES-SO) — Convivens Lab, coordination technique et scientifique',
+      'Unisanté — Centre universitaire de médecine générale et santé publique, Lausanne',
+      'HUG — Hôpitaux universitaires de Genève, division des sciences de l\'information médicale (SIMED)',
+    ]},
     { cat: 'Membres fondateurs', items: [
       'Convivens Lab (HES-SO Genève) — Coordination technique & scientifique',
-      'SIMED / HUG — Division des Sciences de l\'Information Médicale, partenaire clinique',
       'APSR-GE — Réseau de professionnels de santé racisés',
       'Association Suisse de la Drépanocytose (Suisse Drépano) — Expertise patient & advocacy',
       'KimboCare/Resilia — Navigation santé'
@@ -10135,8 +10139,7 @@ function PartnersPage() {
     { cat: 'Partenaires institutionnels (en développement)', items: [
       'BAG/OFSP — Soutien institutionnel',
       'OBSAN — Partenariat données',
-      'Swiss Health Network for Equity',
-      'Unisanté — Recherche & indicateurs'
+      'Swiss Health Network for Equity'
     ]},
   ];
 
@@ -11285,7 +11288,9 @@ function PublicPage() {
             <p className="text-gray-700 text-lg leading-relaxed mb-4">CareWatch™ est une initiative portée par un consortium de partenaires académiques, associatifs et communautaires, unis par la conviction que l'équité des soins est un droit fondamental.</p>
             <div className="grid sm:grid-cols-2 gap-3">
               {[
-                { name: 'Convivens Lab', role: 'Coordination technique & scientifique', org: 'HES-SO Genève' },
+                { name: 'Convivens Lab', role: 'Coordination technique & scientifique', org: 'HES-SO / HEG-Genève' },
+                { name: 'Unisanté', role: 'Partenaire institutionnel', org: 'Centre universitaire de médecine générale et santé publique, Lausanne' },
+                { name: 'HUG', role: 'Partenaire institutionnel', org: 'Hôpitaux universitaires de Genève' },
                 { name: 'APSR-GE', role: 'Réseau de professionnels de santé racisés', org: 'Association' },
                 { name: 'Suisse Drépano', role: 'Expertise patient & advocacy', org: 'Association' },
                 { name: 'KimboCare / Resilia', role: 'Navigation santé', org: 'Plateforme' },
@@ -11797,9 +11802,10 @@ function PublicPage() {
 
   if (view === 'partners-public' || view === 'partners') {
     const partners = [
+      { cat: 'Institutions', items: ['HEG-Genève (HES-SO) — Convivens Lab, coordination technique et scientifique', 'Unisanté — Centre universitaire de médecine générale et santé publique, Lausanne', 'HUG — Hôpitaux universitaires de Genève, division des sciences de l\'information médicale (SIMED)'] },
       { cat: 'Membres fondateurs', items: ['Convivens Lab (HES-SO Genève) — Coordination technique & scientifique', 'APSR-GE — Réseau de professionnels de santé racisés', 'Association Suisse de la Drépanocytose — Expertise patient & advocacy', 'KimboCare / Resilia — Navigation santé'] },
       { cat: 'Organisations ressources', items: ['FAANG — Médiation interculturelle', 'Centre LAVI — Accompagnement juridique aux victimes', 'Appartenances — Consultations transculturelles', 'Pluriels — Psychiatrie transculturelle', 'Afro-Cité — Forum de dialogue et mobilisation citoyenne'] },
-      { cat: 'Partenaires institutionnels', items: ['BAG/OFSP — Soutien institutionnel', 'OBSAN — Partenariat données', 'Swiss Health Network for Equity — Expertise méthodologique', 'Unisanté — Recherche & indicateurs', 'Cantons romands (médecins cantonaux)'] },
+      { cat: 'Partenaires institutionnels', items: ['BAG/OFSP — Soutien institutionnel', 'OBSAN — Partenariat données', 'Swiss Health Network for Equity — Expertise méthodologique', 'Cantons romands (médecins cantonaux)'] },
     ];
     return (
       <div className="min-h-screen bg-white">
