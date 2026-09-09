@@ -327,7 +327,31 @@ const DemoNotice = ({ texte }) => (
   </div>
 );
 
-const CW_NOTIFIER_URL = '/api/notifier.php'; // notification par courriel, hébergée sur Infomaniak (remplace FormSubmit)
+const CW_NOTIFIER_URL = '/api/notifier.php';
+const CW_VEILLE_URL = '/api/actualites.php'; // veille automatique : flux RSS lus côté serveur, cache 6 h
+let cwVeillePromesse = null;
+const cwVeille = () => {
+  if (!cwVeillePromesse) cwVeillePromesse = (async () => {
+    let entrees = [], masques = [];
+    try { const r = await fetch(CW_VEILLE_URL, { headers: { 'Accept': 'application/json' } }); const j = await r.json(); entrees = Array.isArray(j.entrees) ? j.entrees : []; } catch (e) {}
+    try { if (window.cwDb) { const { data } = await window.cwDb.rpc('veille_masquee_liste'); if (Array.isArray(data)) masques = data; } } catch (e) {}
+    return { entrees, masques };
+  })();
+  return cwVeillePromesse;
+};
+const cwDateCourte = (iso) => { if (!iso) return ''; const d = new Date(iso + 'T12:00:00'); return isNaN(d) ? iso : d.toLocaleDateString('fr-CH', { day: 'numeric', month: 'short', year: 'numeric' }); };
+function useVeille() {
+  const [etat, setEtat] = React.useState({ entrees: [], masques: [], charge: false });
+  React.useEffect(() => { let actif = true; cwVeille().then(v => { if (actif) setEtat({ ...v, charge: true }); }); return () => { actif = false; }; }, []);
+  const visibles = etat.entrees.filter(e => !etat.masques.includes(e.lien));
+  const masquer = async (lien, masquer) => {
+    const { data, error } = await window.cwDb.rpc('admin_veille_masquer', { p_url: lien, p_masquer: masquer });
+    if (error) throw error;
+    setEtat(prev => ({ ...prev, masques: Array.isArray(data) ? data : prev.masques }));
+    cwVeillePromesse = Promise.resolve({ entrees: etat.entrees, masques: Array.isArray(data) ? data : etat.masques });
+  };
+  return { ...etat, visibles, masquer };
+} // notification par courriel, hébergée sur Infomaniak (remplace FormSubmit)
 const VUE_TITRES = {
   'patient-home': 'Accueil', 'professional-home': 'Accueil', 'new-report': 'Signalement', 'positive-report': 'Expérience positive',
   'my-reports': 'Mes témoignages', 'institutions': 'Établissements', 'access-care': 'Accès aux soins', 'directory': 'Annuaire',
@@ -1782,6 +1806,7 @@ function CareWatch() {
 
 function Landing() {
   const { realStats, showDemo, setShowDemo, setView, setShowLogin, setLoginType, stats, DB, searchQuery, setSearchQuery, selectedCanton, setSelectedCanton, selectedInstitution, setSelectedInstitution , ref } = useApp();
+  const veille = useVeille();
   const [ratingFilter, setRatingFilter] = useState('');
   const [sortBy, setSortBy] = useState('rating');
   const [menuOpen, setMenuOpen] = useState(false);
@@ -1888,7 +1913,7 @@ function Landing() {
       {/* ===== HERO ===== */}
       <section className="bg-gradient-to-b from-teal-50/80 to-white">
         <div className="max-w-3xl mx-auto px-6 pt-12 pb-10 md:pt-20 md:pb-14 text-center">
-          <p className="text-xs font-semibold uppercase tracking-wider text-teal-700 mb-4">Observatoire participatif · Suisse romande · HES-SO Genève</p>
+          <p className="text-xs font-semibold uppercase tracking-wider text-teal-700 mb-4">Observatoire participatif · HEG-Genève · Unisanté · HUG</p>
           <h2 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-gray-900 leading-[1.08] tracking-tight mb-5">
             L’équité des soins,<br className="sm:hidden" /> documentée par celles et ceux qui la vivent.
           </h2>
@@ -1903,19 +1928,17 @@ function Landing() {
               <Stethoscope className="w-5 h-5" /> Je suis professionnel·le
             </button>
           </div>
-          <p className="text-sm text-gray-500 mt-6">Version alpha fermée, accès sur invitation. <button onClick={() => setView('methodology')} className="underline hover:text-teal-700">Méthodologie</button> · <button onClick={() => setView('opendata')} className="underline hover:text-teal-700">Données ouvertes</button></p>
         </div>
       </section>
       {/* ===== MISSION ===== */}
       <section className="bg-white border-t border-b border-gray-200">
         <div className="max-w-3xl mx-auto px-6 py-14 md:py-16">
-          <p className="text-xs font-semibold uppercase tracking-wider text-teal-700 mb-2">Mission</p>
-          <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-10">Documenter, mesurer, restituer</h3>
+          <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-10">Mission</h3>
           <div className="space-y-8 md:space-y-0 md:grid md:grid-cols-3 md:gap-10">
             {[
               { icon: ClipboardList, color: 'teal', n: '1', title: 'Documenter', desc: 'Des témoignages anonymes de patient·e·s, de proches et de professionnel·le·s, recueillis selon une trame commune et vérifiés avant publication.' },
               { icon: TrendingUp, color: 'indigo', n: '2', title: 'Mesurer', desc: 'Un indice d’équité par établissement, calculé à partir de témoignages vérifiés et publié seulement au-delà d’un seuil minimal.' },
-              { icon: ShieldCheck, color: 'amber', n: '3', title: 'Restituer', desc: 'Des données ouvertes dé-identifiées, un droit de réponse pour les établissements et des indicateurs lisibles par toutes et tous.' },
+              { icon: ShieldCheck, color: 'amber', n: '3', title: 'Restituer', desc: 'Des données ouvertes dé-identifiées, un droit de réponse pour les établissements et des indicateurs lisibles par le public.' },
             ].map(s => (
               <div key={s.n} className="flex items-start gap-5">
                 <div className={`w-12 h-12 rounded-2xl bg-${s.color}-100 flex items-center justify-center flex-shrink-0`}>
@@ -1934,9 +1957,8 @@ function Landing() {
       {/* ===== AXES D'OBSERVATION ===== */}
       <section className="bg-gray-50 border-b border-gray-200">
         <div className="max-w-3xl mx-auto px-6 py-14 md:py-16">
-          <p className="text-xs font-semibold uppercase tracking-wider text-teal-700 mb-2">Axes d’observation</p>
-          <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">Ce que les témoignages permettent d’observer</h3>
-          <p className="text-gray-600 mb-8">Chaque témoignage renseigne les mêmes dimensions, ce qui rend les situations comparables d’un établissement à l’autre.</p>
+          <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">Dimensions observées</h3>
+          <p className="text-gray-600 mb-8">Chaque témoignage renseigne les mêmes dimensions, d’où des situations comparables d’un établissement à l’autre.</p>
           <div className="grid sm:grid-cols-2 gap-4">
             {[
               { title: 'Motifs perçus de discrimination', desc: 'Couleur de peau, origine, langue, genre, orientation sexuelle, âge, handicap, santé mentale, précarité, et leurs croisements.' },
@@ -1956,15 +1978,13 @@ function Landing() {
       {/* ===== MÉTHODE ===== */}
       <section className="bg-white border-b border-gray-200">
         <div className="max-w-3xl mx-auto px-6 py-14 md:py-16">
-          <p className="text-xs font-semibold uppercase tracking-wider text-teal-700 mb-2">Méthode</p>
-          <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-8">Du témoignage à l’indicateur</h3>
+          <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-8">Méthode</h3>
           <ol className="space-y-4">
             {[
-              ['Recueil', 'Formulaire anonyme, charte de bonne conduite, contrôle local de cohérence géographique. Aucun compte, aucune adresse IP, aucun fichier.'],
-              ['Vérification', 'Chaque témoignage est relu par l’équipe de modération avant toute prise en compte. Les textes trop précis sont généralisés.'],
-              ['Droit de réponse', 'L’établissement concerné peut apporter son point de vue dans un délai de 14 jours.'],
-              ['Indice d’équité', 'Score de 0 à 100 par établissement : 70 % pour l’expérience de traitement (échelle DMS), 30 % pour la part d’expériences positives. Publié à partir de 5 témoignages vérifiés.'],
-              ['Restitution', 'Fiches résumées publiées avec l’accord des personnes, données ouvertes dé-identifiées et interface de programmation, sous licence CC BY-NC-SA 4.0.'],
+              ['Témoigner', 'Un formulaire anonyme, en quelques minutes.'],
+              ['Vérifier', 'L’équipe relit chaque témoignage et l’établissement dispose de 14 jours pour répondre.'],
+              ['Mesurer', 'Un indice d’équité de 0 à 100 par établissement, publié dès 5 témoignages vérifiés.'],
+              ['Publier', 'Des fiches résumées, avec l’accord des personnes, et des données ouvertes.'],
             ].map(([t, d], i) => (
               <li key={t} className="flex items-start gap-4">
                 <span className="w-8 h-8 rounded-full bg-teal-600 text-white flex items-center justify-center text-sm font-bold flex-shrink-0">{i + 1}</span>
@@ -2072,8 +2092,7 @@ function Landing() {
       {/* ===== STATS INFOGRAPHIC ===== */}
       <section className="bg-gradient-to-b from-gray-50 to-white border-b border-gray-200">
         <div className="max-w-4xl mx-auto px-6 py-14 md:py-20">
-        <p className="text-xs font-semibold uppercase tracking-wider text-teal-700 text-center mb-2">Indicateurs</p>
-        <h3 className="text-2xl md:text-3xl font-bold text-center text-gray-900 mb-3">État de l’observatoire</h3>
+        <h3 className="text-2xl md:text-3xl font-bold text-center text-gray-900 mb-3">Indicateurs</h3>
         <p className="text-center text-gray-400 text-sm mb-10">{showDemo ? 'Données de démonstration — les chiffres réels seront collectés au lancement officiel' : 'Chiffres réels — l’observatoire démarre, les compteurs se rempliront au fil des témoignages'}</p>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
           {showDemo ? (
@@ -2138,20 +2157,35 @@ function Landing() {
       </section>
 
       {/* ===== ACTUALITÉS (référentiel, publiées par l'équipe) ===== */}
-      {ref && Array.isArray(ref.actualites) && ref.actualites.length > 0 && (
+      {((ref && Array.isArray(ref.actualites) && ref.actualites.length > 0) || veille.visibles.length > 0) && (
       <section className="bg-white border-b border-gray-200">
         <div className="max-w-3xl mx-auto px-6 py-14 md:py-16">
-          <p className="text-xs font-semibold uppercase tracking-wider text-teal-700 mb-2">Actualités</p>
-          <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-8">Publications et annonces</h3>
-          <div className="divide-y border rounded-2xl">
-            {ref.actualites.slice(0, 3).map(a => (
-              <div key={a.id} className="p-5">
-                <p className="text-xs text-gray-500 mb-1">{a.date_affichee || ''}{a.source ? ` · ${a.source}` : ''}</p>
-                <p className="font-bold text-gray-900">{a.url ? <a href={a.url} target="_blank" rel="noopener noreferrer" className="hover:text-teal-700">{a.titre}</a> : a.titre}</p>
-                {a.resume && <p className="text-sm text-gray-600 mt-1">{a.resume}</p>}
+          <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-8">Actualités</h3>
+          {ref && Array.isArray(ref.actualites) && ref.actualites.length > 0 && (
+            <div className="divide-y border rounded-2xl mb-6">
+              {ref.actualites.slice(0, 3).map(a => (
+                <div key={a.id} className="p-5">
+                  <p className="text-xs text-gray-500 mb-1">{a.date_affichee || ''}{a.source ? ` · ${a.source}` : ''}</p>
+                  <p className="font-bold text-gray-900">{a.url ? <a href={a.url} target="_blank" rel="noopener noreferrer" className="hover:text-teal-700">{a.titre}</a> : a.titre}</p>
+                  {a.resume && <p className="text-sm text-gray-600 mt-1">{a.resume}</p>}
+                </div>
+              ))}
+            </div>
+          )}
+          {veille.visibles.length > 0 && (
+            <div>
+              <p className="text-sm font-semibold text-gray-700 mb-2">Veille automatique</p>
+              <div className="divide-y border rounded-2xl">
+                {veille.visibles.slice(0, 5).map(e => (
+                  <div key={e.lien} className="p-4">
+                    <p className="text-xs text-gray-500 mb-1">{cwDateCourte(e.date)}{e.source ? ` · ${e.source}` : ''}</p>
+                    <a href={e.lien} target="_blank" rel="noopener noreferrer" className="font-medium text-gray-900 hover:text-teal-700">{e.titre}</a>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+              <p className="text-xs text-gray-500 mt-2">Titres relevés automatiquement sur les sites des sources, sans sélection éditoriale.</p>
+            </div>
+          )}
           <div className="mt-6"><button onClick={() => setView('news')} className="text-sm text-teal-700 underline hover:text-teal-700">Toutes les actualités</button></div>
         </div>
       </section>
@@ -2160,13 +2194,12 @@ function Landing() {
       {/* ===== CADRE SCIENTIFIQUE ET ÉTHIQUE ===== */}
       <section className="bg-gray-50 border-b border-gray-200">
         <div className="max-w-3xl mx-auto px-6 py-14 md:py-16">
-          <p className="text-xs font-semibold uppercase tracking-wider text-teal-700 mb-2">Cadre</p>
           <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-8">Cadre scientifique et éthique</h3>
           <div className="grid sm:grid-cols-2 gap-4">
             {[
-              { title: 'Porteur', desc: 'Convivens Lab, Haute école de gestion de Genève (HES-SO). Coordination technique et scientifique.', action: ['Partenaires', 'partners'] },
-              { title: 'Éthique et protection des données', desc: 'Démarche de clarification en cours auprès de la Commission cantonale d’éthique de la recherche (CER-VD). Données hébergées en Suisse, aucune donnée personnelle conservée avec les témoignages.', action: ['Confidentialité', 'privacy-public'] },
-              { title: 'Science ouverte', desc: 'Code source publié sous licence AGPL-3.0 et archivé avec un identifiant pérenne. Données ouvertes dé-identifiées sous licence CC BY-NC-SA 4.0.', lien: ['Dépôt GitHub', 'https://github.com/bumpyman/carewatch'] },
+              { title: 'Institutions', desc: 'Haute école de gestion de Genève (HES-SO), Unisanté et Hôpitaux universitaires de Genève. Coordination technique et scientifique par le Convivens Lab.', action: ['Partenaires', 'partners'] },
+              { title: 'Protection des données', desc: 'Témoignages anonymes, hébergement en Suisse, données réduites au strict nécessaire. Les textes publiés sont vérifiés et dé-identifiés.', action: ['Confidentialité', 'privacy-public'] },
+              { title: 'Science ouverte', desc: 'Code source publié sous licence AGPL-3.0. Données ouvertes dé-identifiées sous licence CC BY-NC-SA 4.0, avec une interface de programmation documentée.', lien: ['Dépôt GitHub', 'https://github.com/bumpyman/carewatch'] },
               { title: 'Statut', desc: `Version ${CW_VERSION}, alpha fermée. Les fonctions, les textes et les indicateurs évoluent avec les retours des premières personnes invitées.`, action: ['Méthodologie', 'methodology'] },
             ].map(x => (
               <div key={x.title} className="bg-white border border-gray-200 rounded-2xl p-5">
@@ -8311,8 +8344,13 @@ function HelpView() {
 }
 
 function NewsView() {
-  const { ref, setView, userType } = useApp();
+  const { ref, setView, userType, user } = useApp();
   const [activeTab, setActiveTab] = useState('news');
+  const veille = useVeille();
+  const moderateur = !!(user && user.reel);
+  const [veilleTout, setVeilleTout] = useState(false);
+  const [veilleErreur, setVeilleErreur] = useState('');
+  const basculer = async (lien, masquer) => { setVeilleErreur(''); try { await veille.masquer(lien, masquer); } catch (e) { setVeilleErreur(e.message || 'Action impossible.'); } };
   useScrollOnChange(activeTab);
   
   const newsEmbarquees = [
@@ -8359,6 +8397,30 @@ function NewsView() {
 
       {activeTab === 'news' && (
         <div className="space-y-4">
+          {veille.charge && (veille.entrees.length > 0 || moderateur) && (
+            <Card className="p-4">
+              <h3 className="font-semibold text-gray-900 mb-1">Veille automatique</h3>
+              <p className="text-sm text-gray-600 mb-3">Titres relevés sur les sites de l’OFSP, de l’Obsan, de la Revue Médicale Suisse, d’Unisanté, de la HETSL, de la Commission fédérale contre le racisme et de swimsa. Mise à jour toutes les six heures, sans sélection éditoriale.</p>
+              {veilleErreur && <p className="text-sm text-rose-700 mb-2">{veilleErreur}</p>}
+              {veille.entrees.length === 0 && <p className="text-sm text-gray-500">Aucune entrée pour l’instant.</p>}
+              <div className="divide-y">
+                {(moderateur ? veille.entrees : veille.visibles).slice(0, veilleTout ? 200 : 12).map(e => {
+                  const masque = veille.masques.includes(e.lien);
+                  return (
+                    <div key={e.lien} className={`py-3 ${masque ? 'opacity-60' : ''}`}>
+                      <p className="text-xs text-gray-500 mb-0.5">{cwDateCourte(e.date)}{e.source ? ` · ${e.source}` : ''}{masque ? ' · masqué' : ''}</p>
+                      <a href={e.lien} target="_blank" rel="noopener noreferrer" className="font-medium text-gray-900 hover:text-teal-700">{e.titre}</a>
+                      {e.resume && <p className="text-sm text-gray-600 mt-1">{e.resume}</p>}
+                      {moderateur && <button onClick={() => basculer(e.lien, !masque)} className="text-xs text-teal-700 underline mt-1">{masque ? 'Réafficher' : 'Masquer'}</button>}
+                    </div>
+                  );
+                })}
+              </div>
+              {(moderateur ? veille.entrees : veille.visibles).length > 12 && (
+                <button onClick={() => setVeilleTout(v => !v)} className="text-sm text-teal-700 underline mt-3">{veilleTout ? 'Réduire' : 'Afficher tout'}</button>
+              )}
+            </Card>
+          )}
           {news.map(n => (
             <Card key={n.id} className="p-4">
               <div className="flex items-start justify-between mb-2">
@@ -9731,7 +9793,9 @@ function AboutPage() {
           <p className="text-gray-600 mb-4">La plateforme couvre l'ensemble de la Suisse romande. Les ressources détaillées (contacts, guides juridiques cantonaux, accès aux soins spécialisés) sont actuellement disponibles pour les <strong>cantons de Genève et Vaud</strong>, et seront étendues progressivement aux autres cantons.</p>
           <div className="space-y-3">
             {[
-              { name: 'Convivens Lab', org: 'HES-SO / HEG Genève', desc: 'Coordination technique et scientifique', color: 'teal' },
+              { name: 'Convivens Lab', org: 'HES-SO / HEG-Genève', desc: 'Coordination technique et scientifique', color: 'teal' },
+              { name: 'Unisanté', org: 'Centre universitaire de médecine générale et santé publique, Lausanne', desc: 'Partenaire institutionnel', color: 'indigo' },
+              { name: 'HUG', org: 'Hôpitaux universitaires de Genève', desc: 'Partenaire institutionnel', color: 'amber' },
               { name: 'APSR-GE', desc: 'Réseau de professionnel·le·s de santé racisé·e·s, pair-aidance', color: 'indigo' },
               { name: 'Association Suisse de la Drépanocytose', org: 'Suisse Drépano', desc: 'Expertise patient·e et advocacy pour les maladies rares', color: 'amber' },
               { name: 'KimboCare / Resilia', desc: 'Navigation santé — aide les patient·e·s à s\'orienter dans le système suisse', color: 'teal' },
