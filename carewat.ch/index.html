@@ -1533,6 +1533,24 @@ function NdaGate({ invitation, onSigne }) {
 
 function AlphaGate({ onUnlock }) {
   const [code, setCode] = useState('');
+  const [demande, setDemande] = useState({ ouvert: false, email: '', nom: '', organisation: '', message: '', busy: false, envoye: false, erreur: '' });
+  const envoyerDemande = async () => {
+    const email = demande.email.trim();
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { setDemande(d => ({ ...d, erreur: 'Indiquez une adresse e-mail valide.' })); return; }
+    setDemande(d => ({ ...d, busy: true, erreur: '' }));
+    let data = null, error = null;
+    try { ({ data, error } = await window.cwDb.rpc('demander_invitation', { p_email: email, p_nom: demande.nom.trim() || null, p_organisation: demande.organisation.trim() || null, p_message: demande.message.trim() || null })); } catch (ex) { error = ex; }
+    if (error || !data || !data.ok) {
+      const m = (error && error.message) || (data && data.erreur) || '';
+      setDemande(d => ({ ...d, busy: false, erreur: /Trop de demandes/i.test(m) ? 'Trop de demandes depuis cette connexion. Réessayez demain.' : /invalide/i.test(m) ? m : 'Demande impossible pour l’instant. Écrivez à contact@carewat.ch.' }));
+      return;
+    }
+    try {
+      await fetch(CW_NOTIFIER_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ _subject: '[CareWatch™] Demande d’invitation', _template: 'table', _captcha: false, type: 'DEMANDE_INVITATION', email, nom: demande.nom.trim() || '—', organisation: demande.organisation.trim() || '—', message: demande.message.trim() || '—', statut: 'à examiner dans Accès et comptes' }) });
+    } catch (e) {}
+    setDemande(d => ({ ...d, busy: false, envoye: true }));
+  };
   const [error, setError] = useState(false);
   const [shaking, setShaking] = useState(false);
 
@@ -1617,9 +1635,28 @@ function AlphaGate({ onUnlock }) {
               </div>
             ))}
           </div>
-          <a href="mailto:contact@carewat.ch?subject=Demande%20d%27invitation%20alpha%20CareWatch™&body=Bonjour%2C%0A%0AJe%20souhaiterais%20recevoir%20une%20invitation%20pour%20acc%C3%A9der%20%C3%A0%20la%20version%20alpha%20de%20CareWatch™.%0A%0AJe%20suis%20%3A%20%5Bpatient%C2%B7e%20%2F%20proche%20%2F%20professionnel%C2%B7le%20de%20sant%C3%A9%5D%0ACanton%20%3A%20%5B%5D%0A%0AMerci%20!" className="block w-full py-2.5 rounded-xl bg-teal-50 border-2 border-teal-200 text-teal-700 font-semibold text-center hover:bg-teal-100 transition-colors">
-            Demander une invitation
-          </a>
+          {demande.envoye ? (
+            <div className="rounded-xl bg-teal-50 border border-teal-200 p-4 text-sm text-teal-900">
+              <p className="font-semibold mb-1">Demande enregistrée.</p>
+              <p>L’équipe l’examine et vous envoie un code d’invitation à {demande.email.trim()} après approbation.</p>
+            </div>
+          ) : !demande.ouvert ? (
+            <button type="button" onClick={() => setDemande(d => ({ ...d, ouvert: true }))} className="w-full py-3 rounded-xl bg-white border-2 border-teal-500 text-teal-700 font-semibold hover:bg-teal-50 transition-colors">
+              Demander une invitation
+            </button>
+          ) : (
+            <div className="space-y-2">
+              <input type="email" value={demande.email} onChange={e => setDemande(d => ({ ...d, email: e.target.value, erreur: '' }))} placeholder="Votre adresse e-mail" className="w-full px-3 py-2.5 rounded-xl border-2 border-gray-200 focus:border-teal-500 focus:outline-none text-sm" />
+              <input type="text" value={demande.nom} onChange={e => setDemande(d => ({ ...d, nom: e.target.value }))} placeholder="Prénom et nom (facultatif)" maxLength={120} className="w-full px-3 py-2.5 rounded-xl border-2 border-gray-200 focus:border-teal-500 focus:outline-none text-sm" />
+              <input type="text" value={demande.organisation} onChange={e => setDemande(d => ({ ...d, organisation: e.target.value }))} placeholder="Organisation ou rôle (facultatif)" maxLength={120} className="w-full px-3 py-2.5 rounded-xl border-2 border-gray-200 focus:border-teal-500 focus:outline-none text-sm" />
+              <textarea value={demande.message} onChange={e => setDemande(d => ({ ...d, message: e.target.value }))} placeholder="Pourquoi souhaitez-vous participer ? (facultatif)" maxLength={500} rows={3} className="w-full px-3 py-2.5 rounded-xl border-2 border-gray-200 focus:border-teal-500 focus:outline-none text-sm" />
+              {demande.erreur && <p className="text-amber-600 text-sm">{demande.erreur}</p>}
+              <button type="button" onClick={envoyerDemande} disabled={demande.busy} className="w-full py-3 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-semibold transition-colors">
+                {demande.busy ? 'Envoi…' : 'Envoyer la demande'}
+              </button>
+              <p className="text-xs text-gray-500">Votre adresse sert uniquement à vous transmettre le code. La demande est examinée par l’équipe.</p>
+            </div>
+          )}
           <p className="text-xs text-gray-400 mt-2 text-center">Accès gratuit · Signalement sans compte ni nom · Site hébergé en Suisse</p>
         </div>
 
@@ -10340,6 +10377,7 @@ function AdminAcces({ signaler, dateFr }) {
   const [nvMod, setNvMod] = useState({ email: '', nom: '', role: 'moderateur' });
   const [dernierCode, setDernierCode] = useState('');
   const [dernierAcces, setDernierAcces] = useState(null);
+  const [demandes, setDemandes] = useState(null);
 
   const charger = async () => {
     setBusy(true);
@@ -10347,8 +10385,27 @@ function AdminAcces({ signaler, dateFr }) {
     setBusy(false);
     if (error) { signaler('Accès indisponibles : ' + (error.message || '')); return; }
     setAcces(data);
+    try { const r = await window.cwDb.rpc('admin_demandes_lire'); if (!r.error) setDemandes(Array.isArray(r.data) ? r.data : []); } catch (e) {}
   };
   useEffect(() => { charger(); }, []);
+  const traiterDemande = async (d, decision) => {
+    if (decision === 'refuser' && !window.confirm('Refuser la demande de ' + d.email + ' ?')) return;
+    setBusy(true);
+    const { data, error } = await window.cwDb.rpc('admin_demande_traiter', { p_id: d.id, p_decision: decision });
+    setBusy(false);
+    if (error || !data || !data.ok) { signaler('Refusé : ' + ((error && error.message) || (data && data.erreur) || '')); return; }
+    if (decision === 'approuver') {
+      let envoye = false;
+      try {
+        const rep = await fetch(CW_NOTIFIER_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify({ _mode: 'invitation', email: data.email, nom: data.nom || '', code: data.code }) });
+        envoye = rep.ok;
+      } catch (e) {}
+      setDernierCode(String(data.code || '').toUpperCase());
+      signaler(envoye ? 'Code ' + String(data.code).toUpperCase() + ' envoyé à ' + data.email + '.' : 'Code ' + String(data.code).toUpperCase() + ' créé, mais le courriel n’est pas parti : transmettez-le vous-même à ' + data.email + '.');
+    } else signaler('Demande refusée.');
+    charger();
+  };
   const ecrire = async (op, p, msgOk) => {
     setBusy(true);
     const { data, error } = await window.cwDb.rpc('admin_acces_ecrire', { p_op: op, p });
@@ -10359,8 +10416,45 @@ function AdminAcces({ signaler, dateFr }) {
     return data;
   };
 
+  const enAttente = (demandes || []).filter(d => d.statut === 'en_attente');
+  const traitees = (demandes || []).filter(d => d.statut !== 'en_attente').slice(0, 10);
   return (
     <>
+      <Card className="p-4 mb-4">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="font-semibold">Demandes d’invitation{enAttente.length ? ` (${enAttente.length} en attente)` : ''}</h2>
+        </div>
+        {demandes === null && <p className="text-sm text-gray-500">Chargement…</p>}
+        {demandes !== null && enAttente.length === 0 && <p className="text-sm text-gray-500 mb-2">Aucune demande en attente.</p>}
+        <div className="space-y-2">
+          {enAttente.map(d => (
+            <div key={d.id} className="border rounded-xl p-3 bg-amber-50 border-amber-100">
+              <p className="text-sm"><span className="font-semibold">{d.nom || d.email}</span>{d.nom ? <span className="text-gray-600"> · {d.email}</span> : null}{d.organisation ? <span className="text-gray-600"> · {d.organisation}</span> : null}</p>
+              <p className="text-xs text-gray-500 mb-1">{dateFr(d.cree_le)}</p>
+              {d.message && <p className="text-sm text-gray-700 mb-2">{d.message}</p>}
+              <div className="flex gap-2">
+                <Button size="sm" onClick={() => traiterDemande(d, 'approuver')} disabled={busy}>Approuver et envoyer le code</Button>
+                <Button size="sm" variant="secondary" onClick={() => traiterDemande(d, 'refuser')} disabled={busy}>Refuser</Button>
+              </div>
+            </div>
+          ))}
+        </div>
+        {traitees.length > 0 && (
+          <div className="mt-3">
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Dernières décisions</p>
+            <div className="text-sm divide-y">
+              {traitees.map(d => (
+                <div key={d.id} className="py-1.5 flex flex-wrap gap-2 text-gray-700">
+                  <span>{d.nom || d.email}</span>
+                  <span className={d.statut === 'approuvee' ? 'text-emerald-700' : 'text-rose-700'}>{d.statut === 'approuvee' ? 'approuvée' : 'refusée'}</span>
+                  {d.code && <span className="font-mono">{String(d.code).toUpperCase()}</span>}
+                  <span className="text-gray-500">{d.traite_le ? dateFr(d.traite_le) : ''}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </Card>
       <Card className="p-4 mb-4">
         <div className="flex items-center justify-between mb-3">
           <h2 className="font-semibold">Codes d’invitation</h2>

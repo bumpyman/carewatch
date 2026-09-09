@@ -186,6 +186,56 @@ if (isset($donnees['_mode']) && $donnees['_mode'] === 'nda') {
 
 // 4c. Code d'accès pour un nouveau compte de modération : envoyé à la personne, copie à l'équipe.
 //     Texte fixe côté serveur ; le code seul ne donne rien sans l'adresse autorisée en base.
+// 4d. Code d'invitation envoyé à la personne dont la demande vient d'être approuvée.
+//     Le navigateur fournit l'adresse, le nom et le code ; le texte est côté serveur. Copie à l'équipe.
+if (isset($donnees['_mode']) && $donnees['_mode'] === 'invitation') {
+    $fichierQuotaInv = sys_get_temp_dir() . '/carewatch_invitation_' . gmdate('YmdH') . '.cnt';
+    $compteInv = 0;
+    $fp = @fopen($fichierQuotaInv, 'c+');
+    if ($fp) {
+        if (flock($fp, LOCK_EX)) { $compteInv = (int) stream_get_contents($fp) + 1; ftruncate($fp, 0); rewind($fp); fwrite($fp, (string) $compteInv); flock($fp, LOCK_UN); }
+        fclose($fp);
+    }
+    if ($compteInv > 30) { repondre(429, false, 'Trop de demandes, réessayez plus tard'); }
+
+    $emailPersonne = trim((string) ($donnees['email'] ?? ''));
+    if (!filter_var($emailPersonne, FILTER_VALIDATE_EMAIL) || preg_match('/[\r\n]/', $emailPersonne)) {
+        repondre(400, false, 'Adresse e-mail invalide');
+    }
+    $nom  = preg_replace('/[\r\n]+/', ' ', mb_substr(trim((string) ($donnees['nom'] ?? '')), 0, 120));
+    $code = strtoupper(preg_replace('/[^a-zA-Z0-9-]/', '', (string) ($donnees['code'] ?? '')));
+    if (strlen($code) < 6) { repondre(400, false, 'Code invalide'); }
+
+    $corps  = "Bonjour" . ($nom !== '' ? ' ' . $nom : '') . ",\r\n\r\n";
+    $corps .= "Votre demande de participation à la version alpha de CareWatch(TM) a été acceptée.\r\n\r\n";
+    $corps .= "Votre code d'invitation : " . $code . "\r\n\r\n";
+    $corps .= "Pour entrer :\r\n";
+    $corps .= "1. Ouvrez https://carewat.ch\r\n";
+    $corps .= "2. Saisissez ce code dans le champ « Code d'invitation ».\r\n";
+    $corps .= "3. Lisez et signez l'accord de confidentialité qui s'affiche à la première entrée.\r\n\r\n";
+    $corps .= "Le code est personnel. Merci de ne pas le transmettre.\r\n\r\n";
+    $corps .= "Si vous n'avez rien demandé, ignorez ce message.\r\n\r\n";
+    $corps .= "L'équipe CareWatch(TM)\r\n";
+
+    $sujetInv = '=?UTF-8?B?' . base64_encode('Votre invitation CareWatch') . '?=';
+    $entetesInv  = "From: CareWatch <" . $SMTP['expediteur'] . ">\r\n";
+    $entetesInv .= "To: <" . $emailPersonne . ">\r\n";
+    $entetesInv .= "Reply-To: <" . $DESTINATAIRE . ">\r\n";
+    $entetesInv .= "Subject: " . $sujetInv . "\r\n";
+    $entetesInv .= "Date: " . date('r') . "\r\n";
+    $entetesInv .= "Message-ID: <" . bin2hex(random_bytes(12)) . "@carewat.ch>\r\n";
+    $entetesInv .= "MIME-Version: 1.0\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Transfer-Encoding: 8bit\r\nX-Mailer: CareWatch-notifier\r\n";
+
+    $etape = '';
+    $ok = smtp_envoyer($SMTP, $emailPersonne, $entetesInv . "\r\n" . $corps, $etape);
+    $entetesEquipe = str_replace("To: <" . $emailPersonne . ">", "To: <" . $DESTINATAIRE . ">", $entetesInv);
+    $entetesEquipe = preg_replace('/Subject: .*\r\n/', "Subject: " . '=?UTF-8?B?' . base64_encode('[CareWatch] Invitation envoyée à ' . $emailPersonne) . '?=' . "\r\n", $entetesEquipe);
+    $etape2 = '';
+    smtp_envoyer($SMTP, $DESTINATAIRE, $entetesEquipe . "\r\n" . "Invitation " . $code . " envoyée à " . $emailPersonne . ($nom !== '' ? ' (' . $nom . ')' : '') . ".\r\n", $etape2);
+    if (!$ok) { repondre(502, false, 'Envoi impossible (' . $etape . ')'); }
+    repondre(200, true, 'Invitation envoyée');
+}
+
 if (isset($donnees['_mode']) && $donnees['_mode'] === 'acces') {
     $fichierQuotaAcces = sys_get_temp_dir() . '/carewatch_acces_' . gmdate('YmdH') . '.cnt';
     $compteAcces = 0;
