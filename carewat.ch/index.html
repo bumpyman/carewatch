@@ -237,6 +237,16 @@ const cwTraduireErreur = (e) => {
   if (/Failed to fetch|NetworkError|Load failed/i.test(m)) return 'base injoignable';
   return m ? m.slice(0, 120) : 'base injoignable';
 };
+const cwTypeLibelle = (t) => t === 'positif' ? 'Expérience positive' : t === 'enquete' ? 'Baromètre d’expérience' : 'Signalement';
+const CW_DMS_PATIENT = [
+  "On vous traite avec moins de courtoisie que les autres personnes.",
+  "On vous traite avec moins de respect que les autres personnes.",
+  "Vous recevez un service de moins bonne qualité que les autres.",
+  "Un médecin ou une infirmière agit comme s'il/elle pensait que vous n'étiez pas intelligent(e).",
+  "Un médecin ou une infirmière agit comme s'il/elle avait peur de vous.",
+  "Un médecin ou une infirmière agit comme s'il/elle était supérieur(e) à vous.",
+  "Vous avez l'impression qu'un médecin ou une infirmière n'écoute pas ce que vous dites.",
+];
 const cwSoumettre = async (payload) => {
   try {
     const { data, error } = await window.cwDb.rpc('soumettre_recit', { p: payload });
@@ -353,6 +363,7 @@ function useVeille() {
   return { ...etat, visibles, masquer };
 } // notification par courriel, hébergée sur Infomaniak (remplace FormSubmit)
 const VUE_TITRES = {
+  'barometre': 'Baromètre d’expérience', 'etat': 'État du projet',
   'patient-home': 'Accueil', 'professional-home': 'Accueil', 'new-report': 'Signalement', 'positive-report': 'Expérience positive',
   'my-reports': 'Mes témoignages', 'institutions': 'Établissements', 'access-care': 'Accès aux soins', 'directory': 'Annuaire',
   'legal-guide': 'Guide juridique', 'plafa-doc': 'PLAFA', 'dossier-analysis': 'Analyse de dossier', 'news': 'Actualités', 'help': 'Aide et ressources',
@@ -2000,7 +2011,7 @@ function Landing() {
             {[
               { title: 'Motifs perçus de discrimination', desc: 'Couleur de peau, origine, langue, genre, orientation sexuelle, âge, handicap, santé mentale, précarité, et leurs croisements.' },
               { title: 'Nature des situations', desc: 'Propos discriminatoires, attente ou refus de soins, non-écoute des symptômes, traitement différencié, attitude condescendante.' },
-              { title: 'Expérience de traitement', desc: 'Sept questions issues de l’échelle DMS (Discrimination in Medical Settings), qui donnent un score comparable entre témoignages.' },
+              { title: 'Expérience de traitement', desc: 'Sept questions de l’échelle DMS (Discrimination in Medical Settings), posées après un incident ou dans le baromètre d’expérience, avec ou sans incident.' },
               { title: 'Bonnes pratiques', desc: 'Les expériences positives sont recueillies avec la même rigueur et entrent dans l’indice d’équité des établissements.' },
             ].map(x => (
               <div key={x.title} className="bg-white border border-gray-200 rounded-2xl p-5">
@@ -2018,7 +2029,7 @@ function Landing() {
           <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-8">Méthode</h3>
           <ol className="space-y-4">
             {[
-              ['Témoigner', 'Un formulaire anonyme, en quelques minutes.'],
+              ['Témoigner', 'Un formulaire anonyme en quelques minutes, ou le baromètre d’expérience en deux.'],
               ['Vérifier', 'L’équipe relit chaque témoignage et l’établissement dispose de 14 jours pour répondre.'],
               ['Mesurer', 'Un indice d’équité de 0 à 100 par établissement, publié dès 5 témoignages vérifiés.'],
               ['Publier', 'Des fiches résumées, avec l’accord des personnes, et des données ouvertes.'],
@@ -2237,7 +2248,7 @@ function Landing() {
               { title: 'Institutions', desc: 'Haute école de gestion de Genève (HES-SO), Unisanté et Hôpitaux universitaires de Genève. Coordination technique et scientifique par le Convivens Lab.', action: ['Partenaires', 'partners'] },
               { title: 'Protection des données', desc: 'Témoignages anonymes, hébergement en Suisse, données réduites au strict nécessaire. Les textes publiés sont vérifiés et dé-identifiés.', action: ['Confidentialité', 'privacy-public'] },
               { title: 'Science ouverte', desc: 'Code source publié sous licence AGPL-3.0. Données ouvertes dé-identifiées sous licence CC BY-NC-SA 4.0, avec une interface de programmation documentée.', lien: ['Dépôt GitHub', 'https://github.com/bumpyman/carewatch'] },
-              { title: 'Statut', desc: `Version ${CW_VERSION}, alpha fermée sur invitation.`, action: ['Méthodologie', 'methodology'] },
+              { title: 'Statut', desc: `Version ${CW_VERSION}, alpha fermée sur invitation. Modules opérationnels, en essai, en démonstration ou prévus.`, action: ['État du projet', 'etat'] },
             ].map(x => (
               <div key={x.title} className="bg-white border border-gray-200 rounded-2xl p-5">
                 <h4 className="font-bold text-gray-900 mb-1">{x.title}</h4>
@@ -2292,9 +2303,9 @@ function Landing() {
               <div>
                 <p className="text-sm font-semibold text-teal-700 mb-2">En savoir plus</p>
                 <div className="space-y-1.5 text-sm">
-                  {['about','faq','methodology','partners','opendata'].map(v => (
+                  {['about','etat','faq','methodology','partners','opendata'].map(v => (
                     <button key={v} onClick={() => setView(v)} className="block hover:text-teal-700">
-                      {{about:'À propos',faq:'FAQ',methodology:'Méthodologie',partners:'Partenaires',opendata:'Open Data & API'}[v]}
+                      {{about:'À propos',etat:'État du projet',faq:'FAQ',methodology:'Méthodologie',partners:'Partenaires',opendata:'Open Data & API'}[v]}
                 </button>
               ))}
               <a
@@ -2793,6 +2804,8 @@ function AppShell() {
       case 'inspections': return <InspectionsView />;
       case 'admin-opendata': return adminReel ? <OpenDataPage integre /> : <AdminOpenData />;
       case 'admin-config': return adminReel ? <ModerationPage integre="compte" /> : <AdminConfig />;
+      case 'barometre': return <BarometreExperience />;
+      case 'etat': return <EtatProjetPage />;
       case 'about': return <AboutPage />;
       case 'methodology': return <MethodologyPage />;
       case 'faq': return <FAQPage />;
@@ -2976,8 +2989,9 @@ function PatientHome() {
 
       <div className="grid grid-cols-2 gap-3">
         {[
-          { icon: FileSearch, label: 'Analyse de dossier', desc: 'IA · Anonyme — détecter incohérences et injustices', v: 'dossier-analysis', color: 'purple' },
+          { icon: TrendingUp, label: 'Baromètre', desc: 'Évaluer une expérience de soins en deux minutes', v: 'barometre', color: 'teal' },
           { icon: ClipboardList, label: 'Mes témoignages', desc: 'Suivre et modifier', v: 'my-reports', color: 'teal' },
+          { icon: FileSearch, label: 'Analyse de dossier', desc: 'Démonstration', v: 'dossier-analysis', color: 'purple' },
           { icon: Building, label: 'Établissements', desc: 'Consulter les évaluations', v: 'institutions', color: 'indigo' },
           { icon: Stethoscope, label: 'Accès aux soins', desc: 'Trouver un soin spécialisé près de chez vous', v: 'access-care', color: 'blue' },
           { icon: Shield, label: 'Mes droits', desc: 'Connaître vos droits', v: 'rights', color: 'emerald' },
@@ -5064,6 +5078,108 @@ function NewReport() {
 // ============================================
 // POSITIVE REPORT (simplified)
 // ============================================
+
+// Baromètre d'expérience : mesure systématique de l'expérience de traitement, avec ou sans incident, sans récit.
+function BarometreExperience() {
+  const { DB, setView, ref } = useApp();
+  const [etape, setEtape] = useState(0);
+  const [d, setD] = useState({ canton: '', institution: '', service: '', periode: '', role: 'patient', vecu: false, dms: {}, motifs: [] });
+  const [busy, setBusy] = useState(false);
+  const [resultat, setResultat] = useState(null);
+  const [erreur, setErreur] = useState('');
+  const etablissements = DB.institutions.filter(i => !d.canton || i.canton === d.canton).sort((a, b) => a.fullName.localeCompare(b.fullName));
+  const motifs = (typeof discriminationGrounds !== 'undefined' && Array.isArray(discriminationGrounds)) ? discriminationGrounds : [];
+  const repondu = CW_DMS_PATIENT.every((_, i) => d.dms[i]);
+  const manque = () => {
+    if (etape === 0) { const m = []; if (!d.canton) m.push('le canton'); if (!d.institution) m.push('l’établissement'); if (!d.periode) m.push('la période'); if (!d.vecu) m.push('la confirmation'); return m; }
+    if (etape === 1 && !repondu) return ['une réponse à chaque question'];
+    return [];
+  };
+  const envoyer = async () => {
+    setBusy(true); setErreur('');
+    const inst = DB.institutions.find(i => i.id === d.institution);
+    const { total, max } = cwDmsScore(d.dms);
+    let data = null, error = null;
+    try { ({ data, error } = await window.cwDb.rpc('soumettre_enquete', { p: {
+      role: d.role, canton: d.canton, etablissement_id: d.institution, etablissement_nom: inst ? inst.fullName : null,
+      service: d.service.trim() || null, type_periode: d.periode, dms: d.dms, dms_score: total, dms_max: max, motifs_percus: d.motifs,
+    } })); } catch (ex) { error = ex; }
+    setBusy(false);
+    if (error || !data || !data.numero) { const m = (error && error.message) || ''; setErreur(/schema cache/i.test(m) ? 'Le baromètre sera ouvert après la prochaine mise à jour de la base.' : error ? cwTraduireErreur(error) : 'Envoi impossible pour l’instant.'); return; }
+    setResultat(data); setEtape(3);
+  };
+  const Opt = ({ i, opt }) => <button onClick={() => setD(prev => ({ ...prev, dms: { ...prev.dms, [i]: opt } }))} className={`py-1.5 px-3 rounded-lg text-xs font-medium transition-colors ${d.dms[i] === opt ? 'bg-teal-500 text-white' : 'bg-white border text-gray-700 hover:border-teal-400'}`}>{opt}</button>;
+  return (
+    <div className="p-4 md:p-8 max-w-2xl mx-auto">
+      <div className="flex items-center gap-2 mb-1"><h2 className="text-xl font-bold">Baromètre d’expérience</h2><span className="px-2 py-0.5 rounded text-xs bg-amber-100 text-amber-800">alpha</span></div>
+      <p className="text-gray-600 mb-5">Sept questions sur la façon dont vous avez été traité·e lors d’un épisode de soins, avec ou sans incident. Deux minutes, sans récit, anonyme.</p>
+      {etape < 3 && <p className="text-xs text-gray-500 mb-4">Étape {etape + 1} sur 3</p>}
+      {etape === 0 && (
+        <Card className="p-5 space-y-4">
+          <Select label="Canton" value={d.canton} onChange={v => setD({ ...d, canton: v, institution: '' })} options={DB.cantons.map(c => ({ value: c, label: DB.cantonNames[c] }))} />
+          <Select label="Établissement" value={d.institution} onChange={v => setD({ ...d, institution: v })} options={etablissements.map(i => ({ value: i.id, label: i.fullName }))} />
+          <Input label="Service (facultatif)" value={d.service} onChange={v => setD({ ...d, service: v })} placeholder="Urgences, maternité, consultation…" />
+          <Select label="Période" value={d.periode} onChange={v => setD({ ...d, periode: v })} options={[['mois', 'Ce mois-ci'], ['trimestre', 'Ces trois derniers mois'], ['annee', 'Cette année'], ['ancien', 'Plus ancien']].map(([value, label]) => ({ value, label }))} />
+          <div>
+            <p className="text-sm font-medium text-gray-700 mb-2">Vous répondez en tant que</p>
+            <div className="grid grid-cols-2 gap-2">
+              {[['patient', 'Patient·e'], ['proche', 'Proche']].map(([v, l]) => <button key={v} onClick={() => setD({ ...d, role: v })} className={`p-3 rounded-xl border text-sm font-semibold ${d.role === v ? 'bg-teal-50 border-teal-500 text-teal-800' : 'bg-white border-gray-200 text-gray-700'}`}>{l}</button>)}
+            </div>
+          </div>
+          <label className="flex items-start gap-3 text-sm text-gray-700 cursor-pointer"><input type="checkbox" checked={d.vecu} onChange={e => setD({ ...d, vecu: e.target.checked })} className="mt-1" /> Je réponds pour une expérience de soins que j’ai vécue ou accompagnée.</label>
+        </Card>
+      )}
+      {etape === 1 && (
+        <Card className="p-5">
+          <p className="text-sm text-gray-600 mb-4">Pendant cet épisode de soins, à quelle fréquence avez-vous vécu les situations suivantes ?</p>
+          <div className="space-y-4">
+            {CW_DMS_PATIENT.map((q, i) => (
+              <div key={i} className="p-3 rounded-xl bg-gray-50">
+                <p className="text-sm mb-2">{i + 1}. {q}</p>
+                <div className="flex flex-wrap gap-1.5">{['Jamais', 'Rarement', 'Parfois', 'Souvent', 'Toujours'].map(opt => <Opt key={opt} i={i} opt={opt} />)}</div>
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
+      {etape === 2 && (
+        <Card className="p-5">
+          <p className="text-sm text-gray-700 mb-1 font-medium">Si vous pensez avoir été traité·e différemment, pour quel motif ? (facultatif)</p>
+          <p className="text-xs text-gray-500 mb-3">Plusieurs réponses possibles. Laissez vide si cela ne s’applique pas.</p>
+          <div className="flex flex-wrap gap-2">
+            {motifs.map(g => { const on = d.motifs.includes(g.id); return <button key={g.id} onClick={() => setD(prev => ({ ...prev, motifs: prev.motifs.includes(g.id) ? prev.motifs.filter(x => x !== g.id) : [...prev.motifs, g.id] }))} className={`px-3 py-1.5 rounded-full text-xs border ${on ? 'bg-teal-500 text-white border-teal-500' : 'bg-white text-gray-700 border-gray-200'}`}>{g.label}</button>; })}
+          </div>
+          <p className="text-xs text-gray-500 mt-4">Vos réponses rejoignent l’indice d’équité de l’établissement, sans texte libre. Vous recevrez un numéro et un code personnel pour retirer votre réponse si vous le souhaitez.</p>
+        </Card>
+      )}
+      {etape === 3 && resultat && (
+        <Card className="p-5">
+          <h3 className="font-semibold text-gray-900 mb-2">Merci, votre réponse est enregistrée.</h3>
+          <p className="text-sm text-gray-600 mb-3">Elle compte dans l’indice d’équité de l’établissement dès que cinq témoignages vérifiés le concernent.</p>
+          <div className="grid sm:grid-cols-2 gap-3 mb-4">
+            <div className="p-3 rounded-xl bg-gray-50"><p className="text-xs text-gray-500">Numéro</p><p className="font-mono font-bold">{resultat.numero}</p></div>
+            <div className="p-3 rounded-xl bg-gray-50"><p className="text-xs text-gray-500">Code personnel</p><p className="font-mono font-bold">{resultat.code}</p></div>
+          </div>
+          <p className="text-xs text-gray-500 mb-4">Notez ces deux valeurs : elles permettent de retirer la réponse depuis « Mes témoignages ».</p>
+          <div className="flex flex-wrap gap-2">
+            <Button onClick={() => setView('institutions')}>Voir les établissements</Button>
+            <Button variant="outline" onClick={() => setView('patient-home')}>Accueil</Button>
+          </div>
+        </Card>
+      )}
+      {etape < 3 && (
+        <div className="mt-4">
+          {erreur && <p className="text-sm text-rose-700 mb-2">{erreur}</p>}
+          {manque().length > 0 && <p className="text-xs text-gray-500 mb-2">Il manque : {manque().join(', ')}.</p>}
+          <div className="flex justify-between gap-2">
+            <Button variant="outline" onClick={() => etape === 0 ? setView('patient-home') : setEtape(etape - 1)}>{etape === 0 ? 'Annuler' : 'Précédent'}</Button>
+            {etape < 2 ? <Button onClick={() => setEtape(etape + 1)} disabled={manque().length > 0}>Suivant</Button> : <Button onClick={envoyer} disabled={busy}>{busy ? 'Envoi…' : 'Envoyer'}</Button>}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 function PositiveReport() {
   const { setView, DB, userType, reports, setReports } = useApp();
@@ -10011,6 +10127,102 @@ function AboutPage() {
     </div>
   );
 }
+// Périmètre, état des modules et cadre de qualité : ce qui existe, ce qui est en démonstration, ce qui est prévu.
+function EtatProjetPage() {
+  const { setView } = useApp();
+  const Statut = ({ s }) => {
+    const c = { 'Opérationnel': 'bg-emerald-100 text-emerald-800', 'Alpha': 'bg-amber-100 text-amber-800', 'Démonstration': 'bg-gray-200 text-gray-700', 'Prévu': 'bg-indigo-100 text-indigo-800' }[s] || 'bg-gray-100 text-gray-700';
+    return <span className={`px-2 py-0.5 rounded text-xs font-medium whitespace-nowrap ${c}`}>{s}</span>;
+  };
+  const noyau = [
+    ['Signalement patient·e ou proche', 'Formulaire anonyme, code personnel, modification et retrait', 'Opérationnel'],
+    ['Retour positif', 'Bonnes pratiques vécues, mêmes garanties', 'Opérationnel'],
+    ['Baromètre d’expérience', 'Sept questions DMS, avec ou sans incident, sans récit', 'Alpha'],
+    ['Modération et vérification', 'Relecture par l’équipe, journal des décisions, second facteur', 'Opérationnel'],
+    ['Indice d’équité et niveaux', 'Calcul en base, publié dès 5 témoignages vérifiés', 'Opérationnel'],
+    ['Fiches résumées et données ouvertes', 'Dé-identifiées, avec accord, CSV et interface de programmation', 'Opérationnel'],
+    ['Droit de réponse des établissements', 'Procédure définie (14 jours), guichet établissement à ouvrir avec les partenaires', 'Prévu'],
+    ['Tableau de bord par établissement', 'Indicateurs par service et par motif, sans texte libre', 'Prévu'],
+    ['Rapport annuel aux autorités cantonales', 'Indicateurs stratifiés, recommandations', 'Prévu'],
+    ['Actualités et veille', 'Annonces de l’équipe et titres relevés automatiquement', 'Opérationnel'],
+  ];
+  const complementaires = [
+    ['Signalement par les professionnel·le·s', 'Canal indépendant de l’employeur, détails généralisés', 'Opérationnel'],
+    ['Accès aux soins spécialisés', 'Cartographie par établissement, référentiel géré par l’équipe', 'Alpha'],
+    ['Orientation juridique et courriers', 'Générateurs de documents, relecture juridique à venir', 'Alpha'],
+    ['Accompagnement PLAFA', 'Notes conservées sur l’appareil, sans horodatage certifié', 'Démonstration'],
+    ['Analyse de dossier', 'Aucun traitement automatique actif', 'Démonstration'],
+    ['Pair-aidance', 'Profils fictifs, prise de rendez-vous fermée', 'Démonstration'],
+    ['Formations', 'Catalogue fictif', 'Démonstration'],
+    ['Annuaire de professionnel·le·s', 'Entrées fictives', 'Démonstration'],
+  ];
+  const Liste = ({ items }) => (
+    <div className="divide-y border rounded-2xl">
+      {items.map(([t, d, st]) => (
+        <div key={t} className="p-3 flex items-start gap-3">
+          <div className="flex-1 min-w-0"><p className="font-medium text-gray-900 text-sm">{t}</p><p className="text-xs text-gray-600">{d}</p></div>
+          <Statut s={st} />
+        </div>
+      ))}
+    </div>
+  );
+  return (
+    <div className="p-4 md:p-8 max-w-3xl mx-auto">
+      <h2 className="text-2xl font-bold mb-2">Périmètre et état du projet</h2>
+      <p className="text-gray-600 mb-6">Version {CW_VERSION}, alpha fermée. Cette page dit ce qui fonctionne, ce qui est en essai, ce qui est montré à titre d’exemple et ce qui reste à construire.</p>
+
+      <Card className="p-5 mb-4">
+        <h3 className="font-semibold text-gray-900 mb-2">Objet</h3>
+        <p className="text-sm text-gray-700 mb-3">CareWatch mesure la qualité des soins telle qu’elle est vécue par les patient·e·s sous l’angle de l’équité : est-on traité·e avec la même courtoisie, le même respect, la même qualité de service, quelle que soit son origine, sa langue, son assurance, son handicap ou sa situation sociale. Les indicateurs produits sont destinés aux établissements et aux autorités cantonales pour alimenter leurs démarches qualité au sens de l’article 58 LAMal.</p>
+        <p className="text-sm text-gray-700">Deux périmètres sont distingués. Le noyau porte sur la qualité des prestations de soins aux patient·e·s. Les modules complémentaires, portés avec les associations partenaires, relèvent de l’accompagnement des personnes et sont financés séparément.</p>
+      </Card>
+
+      <h3 className="font-semibold text-gray-900 mb-2">Noyau : qualité des soins vécue par les patient·e·s</h3>
+      <div className="mb-6"><Liste items={noyau} /></div>
+      <h3 className="font-semibold text-gray-900 mb-2">Modules complémentaires</h3>
+      <div className="mb-6"><Liste items={complementaires} /></div>
+      <p className="text-xs text-gray-500 mb-6">Opérationnel : fonctionne avec de vraies données. Alpha : fonctionne, en test avec les personnes invitées. Démonstration : contenu fictif, signalé en tête de page. Prévu : décrit, à construire.</p>
+
+      <Card className="p-5 mb-4">
+        <h3 className="font-semibold text-gray-900 mb-2">Mesure systématique</h3>
+        <p className="text-sm text-gray-700 mb-2">Trois sources alimentent les mêmes indicateurs : les signalements, les retours positifs et le baromètre d’expérience, ouvert à toute personne soignée, avec ou sans incident. Les sept questions de l’échelle DMS (Discrimination in Medical Settings) sont posées dans les trois cas, ce qui rend les résultats comparables entre établissements et dans le temps.</p>
+        <p className="text-sm text-gray-700">L’indice d’équité par établissement combine le ressenti moyen (70 %) et la part de retours positifs (30 %), sur témoignages vérifiés, publié dès cinq témoignages. <button onClick={() => setView('methodology')} className="text-teal-700 underline">Méthodologie</button></p>
+      </Card>
+
+      <Card className="p-5 mb-4">
+        <h3 className="font-semibold text-gray-900 mb-2">Boucle d’amélioration avec les établissements</h3>
+        <ol className="text-sm text-gray-700 space-y-1 list-disc pl-6">
+          <li>Mesurer : témoignages et baromètre, vérifiés par l’équipe.</li>
+          <li>Restituer : indice, niveaux et indicateurs par service et par motif, transmis à l’établissement avec droit de réponse de 14 jours.</li>
+          <li>Agir : actions correctives décidées et documentées par l’établissement dans son plan qualité.</li>
+          <li>Réévaluer : évolution de l’indice et des indicateurs à six et douze mois.</li>
+        </ol>
+        <p className="text-sm text-gray-700 mt-3">Les effets suivis portent sur les prestations elles-mêmes : évolution du ressenti DMS par établissement et par service, part de retours positifs, délai et contenu des réponses des établissements, actions correctives documentées, renoncement aux soins déclaré. Un comité de suivi réunit établissements partenaires, autorités cantonales invitées et associations ; sa composition est publiée dès sa constitution.</p>
+      </Card>
+
+      <Card className="p-5 mb-4">
+        <h3 className="font-semibold text-gray-900 mb-2">Complémentarité avec les dispositifs existants</h3>
+        <div className="text-sm text-gray-700 space-y-2">
+          <p><span className="font-medium">CIRS</span> : déclaration interne d’incidents de sécurité clinique, gérée par chaque établissement. CareWatch est externe aux établissements et porte sur l’équité de traitement.</p>
+          <p><span className="font-medium">PatBox.ch</span> : signalement national d’incidents individuels du point de vue du patient. CareWatch ajoute une mesure standardisée (DMS), un indice par établissement et des données ouvertes ; les indicateurs sont conçus pour être repris par ces dispositifs.</p>
+          <p><span className="font-medium">PREMs de l’ANQ</span> : enquêtes nationales de satisfaction. CareWatch propose une dimension équité compatible, avec l’objectif de l’intégrer aux enquêtes existantes.</p>
+        </div>
+      </Card>
+
+      <Card className="p-5 mb-4">
+        <h3 className="font-semibold text-gray-900 mb-2">Données</h3>
+        <ul className="text-sm text-gray-700 space-y-1 list-disc pl-6">
+          <li>Hébergement en Suisse (base à Zurich, site à Genève), données réduites au strict nécessaire, sans compte ni adresse IP conservée avec les témoignages.</li>
+          <li>Relecture humaine des témoignages ; les textes libres restent dans la base et ne sont jamais transmis aux établissements.</li>
+          <li>Publication seulement sous forme agrégée dès cinq témoignages vérifiés, ou en fiche résumée dé-identifiée avec l’accord de la personne.</li>
+          <li>Code source publié sous licence AGPL-3.0, données ouvertes sous licence CC BY-NC-SA 4.0, sans dépendance à un fournisseur.</li>
+        </ul>
+        <p className="text-sm text-gray-700 mt-2"><button onClick={() => setView('privacy-public')} className="text-teal-700 underline">Confidentialité</button> · <a href="https://github.com/bumpyman/carewatch" target="_blank" rel="noopener noreferrer" className="text-teal-700 underline">Dépôt GitHub</a></p>
+      </Card>
+    </div>
+  );
+}
+
 function MethodologyPage() {
   const { setView, DB } = useApp();
   return (
@@ -10021,7 +10233,8 @@ function MethodologyPage() {
       <div className="space-y-6">
         <Card className="p-6">
           <h3 className="font-semibold mb-3">1. Questionnaire DMS</h3>
-          <p className="text-gray-600">Le questionnaire DMS (Discrimination in Medical Settings) mesure 7 dimensions de l'expérience de discrimination dans les soins.</p>
+          <p className="text-gray-600 mb-2">Le questionnaire DMS (Discrimination in Medical Settings) mesure 7 dimensions de l'expérience de discrimination dans les soins.</p>
+          <p className="text-gray-600">Il est posé dans les signalements et dans le baromètre d’expérience, ouvert à toute personne soignée avec ou sans incident. Les réponses au baromètre sont enregistrées sans récit et comptent dans le ressenti moyen de l’établissement au même titre que les signalements vérifiés.</p>
         </Card>
         <Card className="p-6">
           <h3 className="font-semibold mb-3">2. Indice d’équité par établissement</h3>
@@ -10059,6 +10272,25 @@ function MethodologyPage() {
             <li><strong>Interprétariat et médiation</strong> — Services d'interprétariat communautaire (Appartenances, Interpret) et médiation interculturelle intégrée</li>
           </ul>
           <p className="text-sm text-blue-600 mt-3 italic">Sources : sites institutionnels, ERN EuroBloodNet, ORPHANET Suisse, partenaires CareWatch™. Données vérifiées trimestriellement.</p>
+        </Card>
+        <Card className="p-6">
+          <h3 className="font-semibold mb-3">6. Boucle d’amélioration avec les établissements</h3>
+          <p className="text-gray-600 text-sm mb-2">Mesurer, restituer, agir, réévaluer. L’établissement reçoit ses indicateurs par service et par motif, sans texte libre, avec un droit de réponse de 14 jours ; il documente ses actions correctives dans son plan qualité ; l’évolution de l’indice est suivie à six et douze mois.</p>
+          <p className="text-gray-600 text-sm">Les effets suivis portent sur les prestations : ressenti DMS par établissement et par service, part de retours positifs, délai et contenu des réponses, actions correctives documentées, renoncement aux soins déclaré.</p>
+        </Card>
+        <Card className="p-6">
+          <h3 className="font-semibold mb-3">7. Protection contre la réidentification</h3>
+          <ul className="list-disc pl-6 text-gray-600 space-y-1 text-sm">
+            <li>Les textes libres restent dans la base, relus par l’équipe, et ne sont jamais transmis aux établissements.</li>
+            <li>Les indicateurs sont publiés par établissement dès cinq témoignages vérifiés, jamais en dessous.</li>
+            <li>Une fiche résumée n’est publiée qu’avec l’accord de la personne, après généralisation des détails (dates, noms de services précis, circonstances rares).</li>
+            <li>Les données ouvertes contiennent la fiche résumée, le score DMS et l’établissement ; ni date exacte, ni âge précis, ni récit.</li>
+          </ul>
+        </Card>
+        <Card className="p-6">
+          <h3 className="font-semibold mb-3">8. Dispositifs existants</h3>
+          <p className="text-gray-600 text-sm mb-2">CIRS : déclaration interne d’incidents de sécurité clinique. PatBox.ch : signalement national d’incidents individuels du point de vue du patient. PREMs de l’ANQ : enquêtes nationales de satisfaction.</p>
+          <p className="text-gray-600 text-sm">CareWatch ajoute une mesure standardisée de l’équité de traitement, indépendante des établissements, comparable entre eux, publiée en données ouvertes. Les indicateurs sont conçus pour être repris par ces dispositifs, et l’équipe propose une dimension équité aux enquêtes existantes.</p>
         </Card>
       </div>
     </div>
@@ -10885,7 +11117,7 @@ function ModerationPage({ integre }) {
   );
 
   const infos = !fiche ? [] : [
-    ['Type', fiche.type === 'positif' ? 'Expérience positive' : 'Signalement'],
+    ['Type', cwTypeLibelle(fiche.type)],
     ['Reçu le', dateFr(fiche.cree_le)],
     ['Canton', fiche.canton],
     ['Établissement', fiche.etablissement_nom],
@@ -11104,7 +11336,7 @@ function OpenDataPage({ integre }) {
                 <thead><tr className="text-left text-xs text-gray-500 border-b"><th className="py-2 pr-3">Numéro</th><th className="py-2 pr-3">Type</th><th className="py-2 pr-3">Année</th><th className="py-2 pr-3">Canton</th><th className="py-2 pr-3">Établissement</th><th className="py-2 pr-3">Service</th><th className="py-2 pr-3">Objet</th><th className="py-2 pr-3">Score</th></tr></thead>
                 <tbody>
                   {fiches.slice(0, 200).map(r => (
-                    <tr key={r.numero} className="border-b border-gray-100"><td data-label="Numéro" className="py-2 pr-3 font-mono text-teal-700">{r.numero}</td><td data-label="Type" className="py-2 pr-3">{r.type === 'positif' ? 'Positif' : 'Signalement'}</td><td data-label="Année" className="py-2 pr-3">{r.annee}</td><td data-label="Canton" className="py-2 pr-3">{r.canton}</td><td data-label="Établissement" className="py-2 pr-3">{r.etablissement_nom}</td><td data-label="Service" className="py-2 pr-3">{r.service}</td><td data-label="Objet" className="py-2 pr-3">{r.type === 'positif' ? (Array.isArray(r.categories_positives) ? r.categories_positives.join(', ') : '') : r.type_incident}</td><td data-label="Score" className="py-2 pr-3">{r.dms_score != null ? `${r.dms_score}/${r.dms_max}` : '—'}</td></tr>
+                    <tr key={r.numero} className="border-b border-gray-100"><td data-label="Numéro" className="py-2 pr-3 font-mono text-teal-700">{r.numero}</td><td data-label="Type" className="py-2 pr-3">{cwTypeLibelle(r.type)}</td><td data-label="Année" className="py-2 pr-3">{r.annee}</td><td data-label="Canton" className="py-2 pr-3">{r.canton}</td><td data-label="Établissement" className="py-2 pr-3">{r.etablissement_nom}</td><td data-label="Service" className="py-2 pr-3">{r.service}</td><td data-label="Objet" className="py-2 pr-3">{r.type === 'positif' ? (Array.isArray(r.categories_positives) ? r.categories_positives.join(', ') : '') : r.type_incident}</td><td data-label="Score" className="py-2 pr-3">{r.dms_score != null ? `${r.dms_score}/${r.dms_max}` : '—'}</td></tr>
                   ))}
                 </tbody>
               </table>
@@ -11468,6 +11700,14 @@ function PublicPage() {
     );
   }
 
+  if (view === 'etat' || view === 'etat-public') {
+    return (
+      <div className="min-h-screen bg-white">
+        <div className="max-w-3xl mx-auto p-4 md:p-8"><BackButton /></div>
+        <EtatProjetPage />
+      </div>
+    );
+  }
   if (view === 'methodology-public' || view === 'methodology') {
     return (
       <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
