@@ -1802,7 +1802,7 @@ function CareWatch() {
       institutions: institutions.map(i => {
         const z = vide(i);
         const c = pe && pe[i.id];
-        return c ? { ...z, reports: c.signalements || 0, verified: c.verifies || 0, positiveReports: c.positifs || 0, rating: c.niveau || 'no_data', indice: c.indice, ressenti: c.ressenti } : z;
+        return c ? { ...z, reports: c.signalements || 0, verified: c.verifies || 0, positiveReports: c.positifs || 0, enquetes: c.enquetes || 0, rating: c.niveau || 'no_data', indice: c.indice, ressenti: c.ressenti } : z;
       }),
     };
   }, [showDemo, realStats, ref]);
@@ -6405,7 +6405,7 @@ function InstitutionsView() {
             <Building className={`w-5 h-5 text-${DB.ratings[i.rating].color}-500`} />
             <div className="flex-1 min-w-0">
               <p className="font-medium truncate">{i.fullName}</p>
-              <p className="text-sm text-gray-600">{i.city} ({i.canton}) • {i.reports} signalement{i.reports === 1 ? '' : 's'}{showDemo ? ` • ${i.reliability}% fiabilité` : ` • ${i.verified} vérifié${i.verified === 1 ? '' : 's'}${i.positiveReports ? ` • ${i.positiveReports} positif${i.positiveReports === 1 ? '' : 's'}` : ''}${i.indice != null ? ` • indice d’équité ${i.indice}/100` : ''}`}</p>
+              <p className="text-sm text-gray-600">{i.city} ({i.canton}) • {(i.reports || 0) + (i.positiveReports || 0) + (i.enquetes || 0)} témoignage{((i.reports || 0) + (i.positiveReports || 0) + (i.enquetes || 0)) === 1 ? '' : 's'}{showDemo ? ` • ${i.reliability}% fiabilité` : ` • ${i.verified} vérifié${i.verified === 1 ? '' : 's'}${i.positiveReports ? ` • ${i.positiveReports} positif${i.positiveReports === 1 ? '' : 's'}` : ''}${i.indice != null ? ` • indice d’équité ${i.indice}/100` : ''}`}</p>
             </div>
             <RatingBadge rating={i.rating} />
           </Card>
