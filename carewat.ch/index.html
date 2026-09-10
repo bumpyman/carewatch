@@ -436,6 +436,14 @@ function SuiviCheckboxes({ data, setData, positif, partie }) {
 
       {montrer('suivi') && (
         <Card className="p-4">
+          <h3 className="font-medium mb-1 flex items-center gap-2"><Shield className="w-5 h-5 text-indigo-600" /> Recherche</h3>
+          <p className="text-sm text-gray-600 mb-3">Indépendant de tout suivi : vos données dé-identifiées peuvent servir sans qu’aucun contact soit nécessaire.</p>
+          <CwSwitch id="cwResearchUse" checked={data.researchUse} onChange={set('researchUse')} titre="J’accepte que mes données dé-identifiées soient utilisées à des fins de recherche, de sensibilisation et de formation" detail="Sans nom, sans adresse, sans texte intégral. Modifiable ensuite avec votre numéro et votre code personnel." />
+        </Card>
+      )}
+
+      {montrer('suivi') && (
+        <Card className="p-4">
           <h3 className="font-medium mb-1 flex items-center gap-2"><Mail className="w-5 h-5 text-indigo-600" /> Suivi par e-mail</h3>
           <p className="text-sm text-gray-600 mb-3">Facultatif. Ce canal ne sert à aucun suivi thérapeutique.</p>
           <div className="grid grid-cols-2 gap-2 mb-3">
@@ -451,7 +459,7 @@ function SuiviCheckboxes({ data, setData, positif, partie }) {
                 {!positif && <CwSwitch id="cwPeerSupport" checked={data.wantPeerSupport} onChange={set('wantPeerSupport')} titre="Mise en relation avec un·e pair·e aidant·e" detail="Une personne ayant vécu une situation comparable prend contact avec vous." />}
                 <CwSwitch id="cwContactExchange" checked={data.contactExchange} onChange={set('contactExchange')} titre="Échange avec l’équipe" detail={positif ? 'Questions, partage d’expérience.' : 'Questions, précisions sur votre témoignage.'} />
                 <CwSwitch id="cwWantResults" checked={data.wantResults} onChange={set('wantResults')} titre="Résultats généraux" detail="Chiffres d’ensemble une fois publiés, aucun témoignage individuel." />
-                <CwSwitch id="cwContactStudy" checked={data.contactStudy} onChange={set('contactStudy')} titre="Participation à une étude" detail="Étude sur l’équité des soins menée par Unisanté." />
+                <CwSwitch id="cwContactStudy" checked={data.contactStudy} onChange={set('contactStudy')} titre="Participation à une étude" detail="Être contacté·e pour une étude sur l’équité des soins menée par Unisanté. Distinct du consentement à la recherche donné plus haut." />
               </div>
             </div>
           )}
@@ -464,7 +472,6 @@ function SuiviCheckboxes({ data, setData, positif, partie }) {
           <p className="text-sm text-gray-600 mb-3">Chaque autorisation reste modifiable avec votre numéro et votre code personnel.</p>
           <div className="space-y-2">
             <CwSwitch id="cwPublishSummary" checked={data.publishSummary} onChange={set('publishSummary')} titre="Publication d’une fiche résumée" detail={positif ? 'Dans les données ouvertes, sous un numéro : canton, année, tranche d’âge, service, catégories.' : 'Dans les données ouvertes, sous un numéro : canton, année, tranche d’âge, service, type d’incident, score.'} />
-            <CwSwitch id="cwResearchUse" checked={data.researchUse} onChange={set('researchUse')} titre="Recherche, sensibilisation, formation" detail="Mes données dé-identifiées peuvent y servir." />
             <CwSwitch id="cwAllowFullRead" checked={data.allowFullRead} onChange={set('allowFullRead')} titre="Lecture de mon texte complet" detail="Par les membres de l’équipe, tenus au secret par contrat, au-delà de la modération." />
           </div>
         </Card>
