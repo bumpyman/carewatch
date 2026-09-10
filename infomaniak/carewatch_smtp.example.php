@@ -21,4 +21,5 @@ return [
     'utilisateur'  => 'no-reply@carewat.ch',     // À COMPLÉTER si autre boîte
     'mot_de_passe' => 'A_COMPLETER',
     'expediteur'   => 'no-reply@carewat.ch',    // alias de la boîte ci-dessus
+    'secret_verification' => 'A_COMPLETER',   // clé affichée par sql/carewatch_v2_supabase_etablissements.sql (vérification des adresses professionnelles)
 ];

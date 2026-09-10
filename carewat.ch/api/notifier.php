@@ -186,6 +186,59 @@ if (isset($donnees['_mode']) && $donnees['_mode'] === 'nda') {
 
 // 4c. Code d'accès pour un nouveau compte de modération : envoyé à la personne, copie à l'équipe.
 //     Texte fixe côté serveur ; le code seul ne donne rien sans l'adresse autorisée en base.
+// 4c. Vérification d'une adresse professionnelle (signalements de soignant·e·s).
+//     Étape 1 « verif_pro_envoyer » : un code à six chiffres est envoyé à l'adresse ; seule une empreinte
+//     (code, adresse, échéance) est conservée 15 minutes dans le dossier temporaire. L'adresse n'est jamais
+//     transmise à la base. Étape 2 « verif_pro_confirmer » : si le code est juste, le serveur renvoie le niveau
+//     de vérification (domaine seulement) et un jeton signé que la base peut contrôler (clé « secret_verification »
+//     dans carewatch_smtp.php, identique à celle de la table cw_config).
+$DOMAINES_INSTITUTIONNELS = ['hug.ch', 'hcuge.ch', 'chuv.ch', 'unisante.ch', 'hopitalvs.ch', 'hopitalduvalais.ch', 'h-fr.ch', 'hne.ch', 'h-ju.ch', 'hopitalrivierachablais.ch', 'ghol.ch', 'ehc.vd.ch', 'ehnv.ch', 'hopital-la-tour.ch', 'latour.ch', 'lasource.ch', 'hirslanden.ch', 'clinique-de-genolier.ch', 'swissmedical.net', 'imad-ge.ch', 'avasad.ch', 'ne.ch', 'vd.ch', 'ge.ch', 'fr.ch', 'vs.ch', 'ju.ch', 'hes-so.ch', 'unige.ch', 'unil.ch', 'unifr.ch', 'unine.ch'];
+$WEBMAILS = ['gmail.com', 'googlemail.com', 'hotmail.com', 'hotmail.ch', 'hotmail.fr', 'outlook.com', 'outlook.fr', 'live.com', 'yahoo.com', 'yahoo.fr', 'icloud.com', 'me.com', 'protonmail.com', 'proton.me', 'pm.me', 'bluewin.ch', 'gmx.ch', 'gmx.net', 'gmx.de', 'sunrise.ch', 'msn.com', 'aol.com'];
+if (isset($donnees['_mode']) && in_array($donnees['_mode'], ['verif_pro_envoyer', 'verif_pro_confirmer'], true)) {
+    $emailPro = strtolower(trim((string) ($donnees['email'] ?? '')));
+    if (!filter_var($emailPro, FILTER_VALIDATE_EMAIL) || preg_match('/[\r\n]/', $emailPro)) { repondre(400, false, 'Adresse e-mail invalide'); }
+    $domaine = substr(strrchr($emailPro, '@'), 1);
+    $racine  = implode('.', array_slice(explode('.', $domaine), -2));
+    if (in_array($domaine, $WEBMAILS, true) || in_array($racine, $WEBMAILS, true)) { repondre(400, false, 'Utilisez une adresse professionnelle, pas une messagerie personnelle'); }
+    $niveau = (in_array($domaine, $DOMAINES_INSTITUTIONNELS, true) || in_array($racine, $DOMAINES_INSTITUTIONNELS, true)) ? 'email_institutionnel' : 'email_professionnel';
+    $fichierEmp = sys_get_temp_dir() . '/carewatch_verif_' . hash('sha256', $emailPro) . '.txt';
+
+    if ($donnees['_mode'] === 'verif_pro_envoyer') {
+        $fichierQuotaV = sys_get_temp_dir() . '/carewatch_verif_' . gmdate('YmdH') . '.cnt';
+        $compteV = 0; $fp = @fopen($fichierQuotaV, 'c+');
+        if ($fp) { if (flock($fp, LOCK_EX)) { $compteV = (int) stream_get_contents($fp) + 1; ftruncate($fp, 0); rewind($fp); fwrite($fp, (string) $compteV); flock($fp, LOCK_UN); } fclose($fp); }
+        if ($compteV > 40) { repondre(429, false, 'Trop de demandes, réessayez plus tard'); }
+        $codeV = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+        $echeance = time() + 15 * 60;
+        @file_put_contents($fichierEmp, hash('sha256', $codeV . '|' . $emailPro . '|' . $echeance) . "\n" . $echeance, LOCK_EX);
+        $corps  = "Bonjour,\r\n\r\nVotre code de vérification CareWatch(TM) : " . $codeV . "\r\n\r\n";
+        $corps .= "Il est valable 15 minutes et sert uniquement à confirmer que vous disposez d'une adresse professionnelle.\r\n";
+        $corps .= "Votre adresse n'est pas enregistrée avec votre signalement ; seul le domaine (" . $domaine . ") est retenu.\r\n\r\n";
+        $corps .= "Si vous n'avez rien demandé, ignorez ce message.\r\n\r\nL'équipe CareWatch(TM)\r\n";
+        $sujetV = '=?UTF-8?B?' . base64_encode('Votre code de vérification CareWatch') . '?=';
+        $entetesV  = "From: CareWatch <" . $SMTP['expediteur'] . ">\r\nTo: <" . $emailPro . ">\r\nReply-To: <" . $DESTINATAIRE . ">\r\nSubject: " . $sujetV . "\r\nDate: " . date('r') . "\r\n";
+        $entetesV .= "Message-ID: <" . bin2hex(random_bytes(12)) . "@carewat.ch>\r\nMIME-Version: 1.0\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Transfer-Encoding: 8bit\r\nX-Mailer: CareWatch-notifier\r\n";
+        $etapeV = '';
+        if (!smtp_envoyer($SMTP, $emailPro, $entetesV . "\r\n" . $corps, $etapeV)) { repondre(502, false, 'Envoi impossible (' . $etapeV . ')'); }
+        repondre(200, true, 'Code envoyé');
+    }
+
+    // verif_pro_confirmer
+    $codeV = preg_replace('/\D/', '', (string) ($donnees['code'] ?? ''));
+    $numero = strtoupper(preg_replace('/[^A-Z0-9-]/i', '', (string) ($donnees['numero'] ?? '')));
+    if (strlen($codeV) !== 6 || !preg_match('/^CW-\d{4}-\d{5}$/', $numero)) { repondre(400, false, 'Code ou numéro invalide'); }
+    $enr = is_file($fichierEmp) ? explode("\n", (string) file_get_contents($fichierEmp)) : [];
+    $echeance = (int) ($enr[1] ?? 0);
+    if (count($enr) < 2 || $echeance < time()) { repondre(400, false, 'Code expiré, demandez-en un nouveau'); }
+    if (!hash_equals(trim($enr[0]), hash('sha256', $codeV . '|' . $emailPro . '|' . $echeance))) { repondre(400, false, 'Code incorrect'); }
+    @unlink($fichierEmp);
+    $secret = (string) ($SMTP['secret_verification'] ?? '');
+    if ($secret === '') { repondre(500, false, 'Clé de vérification absente de la configuration'); }
+    $verification = $niveau . ':' . $domaine;
+    $jeton = hash_hmac('sha256', $verification . '|' . $numero, $secret);
+    repondre(200, true, json_encode(['verification' => $verification, 'jeton' => $jeton]));
+}
+
 // 4d. Code d'invitation envoyé à la personne dont la demande vient d'être approuvée.
 //     Le navigateur fournit l'adresse, le nom et le code ; le texte est côté serveur. Copie à l'équipe.
 if (isset($donnees['_mode']) && $donnees['_mode'] === 'invitation') {
@@ -252,7 +305,7 @@ if (isset($donnees['_mode']) && $donnees['_mode'] === 'acces') {
     }
     $nom   = preg_replace('/[\r\n]+/', ' ', mb_substr(trim((string) ($donnees['nom'] ?? '')), 0, 120));
     $code  = preg_replace('/[^A-Z0-9]/', '', strtoupper((string) ($donnees['code'] ?? '')));
-    $role  = ($donnees['role'] ?? '') === 'admin' ? 'administrateur·rice' : 'modérateur·rice';
+    $role  = ($donnees['role'] ?? '') === 'admin' ? 'administrateur·rice' : (($donnees['role'] ?? '') === 'etablissement' ? 'établissement (tableau de bord et droit de réponse)' : 'modérateur·rice');
     if (strlen($code) < 6) { repondre(400, false, 'Code invalide'); }
 
     $corps  = "Bonjour" . ($nom !== '' ? ' ' . $nom : '') . ",\r\n\r\n";

@@ -2761,7 +2761,10 @@ function AppShell() {
     ],
   };
 
-  const menuAdminReel = [
+  const menuAdminReel = (user && user.role === 'etablissement') ? [
+    { icon: BarChart3, label: 'Mon établissement', v: 'dashboard' },
+    { icon: Settings, label: 'Mon compte', v: 'admin-config' },
+  ] : [
     { icon: BarChart3, label: 'Tableau de bord', v: 'dashboard' },
     { icon: ClipboardList, label: 'Signalements', v: 'admin-reports' },
     ...(user && user.role === 'admin' ? [
@@ -2781,6 +2784,7 @@ function AppShell() {
   };
 
   const renderContent = () => {
+    if (adminReel && user && user.role === 'etablissement' && view !== 'admin-config') return <EspaceEtablissement />;
     switch (view) {
       case 'patient-home': return <PatientHome />;
       case 'professional-home': return <ProfessionalHome />;
@@ -3928,6 +3932,7 @@ function NewReport() {
         lecture_texte_complet: !!data.allowFullRead,
         accepte_recontact_email: !!data.acceptEmailContact,
       });
+      if (db && db.numero && data.renoncement) { try { await window.cwDb.rpc('recit_completer', { p_numero: db.numero, p_code: db.code, p: { renoncement: data.renoncement } }); } catch (e) {} }
       if (db && db.numero) { setNumero(db.numero); setCodePerso(db.code); newReport.numero = db.numero; setReports(prev => prev.map(r => r.id === newReport.id ? { ...r, numero: db.numero } : r)); }
       else setDbErreur((db && db.erreur) || 'base injoignable');
     }
@@ -4511,6 +4516,10 @@ function NewReport() {
               />
               <p className="text-sm text-gray-700 mt-1">Ces informations nous aident à comprendre la gravité de la situation.</p>
             </div>
+            <div className="pt-2">
+              <p className="text-sm font-medium text-gray-700 mb-2">Après cette situation, avez-vous renoncé à des soins ou repoussé une consultation ? (facultatif)</p>
+              <div className="flex flex-wrap gap-2">{Object.entries(CW_RENONCEMENT).map(([v, l]) => <button key={v} onClick={() => setData(prev => ({ ...prev, renoncement: prev.renoncement === v ? '' : v }))} className={`px-3 py-1.5 rounded-full text-xs border ${data.renoncement === v ? 'bg-teal-500 text-white border-teal-500' : 'bg-white text-gray-700 border-gray-200'}`}>{l}</button>)}</div>
+            </div>
           </div>
         )}
 
@@ -4939,6 +4948,7 @@ function NewReport() {
               <p className="text-sm text-gray-600 text-center mt-2">
                 Avec le numéro et le code personnel, vous pouvez à tout moment consulter, modifier ou retirer ce signalement dans « Mes témoignages ».
               </p>
+              {isPro && numero && codePerso && <VerificationPro numero={numero} code={codePerso} />}
             </div>
             
             {emailSent && (
@@ -5081,11 +5091,161 @@ function NewReport() {
 // POSITIVE REPORT (simplified)
 // ============================================
 
+// Espace établissement : indicateurs de son établissement (sans texte libre) et droit de réponse.
+const CW_RENONCEMENT = { oui: 'Oui', non: 'Non', ne_sait_pas: 'Ne sait pas' };
+function EspaceEtablissement() {
+  const { DB, user } = useApp();
+  const [tb, setTb] = useState(null);
+  const [erreur, setErreur] = useState('');
+  const [reponses, setReponses] = useState({});
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState('');
+  const charger = async () => {
+    setErreur('');
+    const { data, error } = await window.cwDb.rpc('etab_tableau_de_bord');
+    if (error) { setErreur(/schema cache/i.test(error.message || '') ? 'L’espace établissement sera ouvert après la prochaine mise à jour de la base.' : (error.message || 'Lecture impossible.')); return; }
+    setTb(data);
+  };
+  useEffect(() => { charger(); }, []);
+  const repondre = async (numero) => {
+    const texte = (reponses[numero] || '').trim();
+    if (texte.length < 20) { setMsg('La réponse doit faire au moins 20 caractères.'); return; }
+    setBusy(true); setMsg('');
+    const { data, error } = await window.cwDb.rpc('etab_repondre', { p_numero: numero, p_texte: texte });
+    setBusy(false);
+    if (error || !data || !data.ok) { setMsg('Refusé : ' + ((error && error.message) || '')); return; }
+    setMsg('Réponse enregistrée. Elle est visible par la personne et accompagne la fiche si elle est publiée.');
+    setReponses(p => ({ ...p, [numero]: '' }));
+    charger();
+  };
+  const exporter = () => {
+    if (!tb) return;
+    const l = [['section', 'cle', 'n', 'ressenti', 'positifs']];
+    tb.par_service.forEach(x => l.push(['service', x.service, x.masque ? '<3' : x.n, x.ressenti ?? '', x.positifs ?? '']));
+    tb.par_motif.forEach(x => l.push(['motif', x.motif, x.masque ? '<3' : x.n, '', '']));
+    tb.par_mois.forEach(x => l.push(['mois', x.mois, x.n, x.ressenti ?? '', '']));
+    cwTelecharger(`carewatch_${tb.etablissement_id}_${new Date().toISOString().slice(0, 10)}.csv`, l.map(r => r.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(';')).join('\n'));
+  };
+  const motifLibelle = (id) => { const g = (typeof discriminationGrounds !== 'undefined' ? discriminationGrounds : []).find(x => x.id === id); return g ? g.label : id; };
+  const Tuile = ({ v, l, c }) => <div className="text-center p-4 rounded-2xl bg-gray-50 border border-gray-200"><p className="text-3xl font-extrabold text-gray-800 mb-1">{v}</p><p className="text-sm font-semibold text-gray-800">{l}</p>{c && <p className="text-xs text-gray-500 cw-legende">{c}</p>}</div>;
+  if (erreur) return <div className="p-4 md:p-8 max-w-3xl mx-auto"><Card className="p-5"><p className="text-sm text-rose-700">{erreur}</p></Card></div>;
+  if (!tb) return <div className="p-4 md:p-8 max-w-3xl mx-auto"><p className="text-sm text-gray-500">Chargement…</p></div>;
+  const t = tb.total || {};
+  const pct = (a, b) => b ? Math.round(100 * a / b) + ' %' : '—';
+  const aRepondre = tb.temoignages.filter(x => !x.reponse);
+  const repondus = tb.temoignages.filter(x => x.reponse);
+  return (
+    <div className="p-4 md:p-8 max-w-3xl mx-auto">
+      <div className="flex items-center gap-2 mb-1"><h2 className="text-xl font-bold">{tb.etablissement_nom || tb.etablissement_id}</h2><span className="px-2 py-0.5 rounded text-xs bg-amber-100 text-amber-800">alpha</span></div>
+      <p className="text-gray-600 mb-5">Témoignages vérifiés concernant votre établissement, agrégés par service, par motif et par mois. Les cellules de moins de trois témoignages sont masquées ; les textes libres restent dans la base.</p>
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+        <Tuile v={t.verifies || 0} l="Témoignages vérifiés" c={`${t.signalements || 0} signalements · ${t.positifs || 0} positifs · ${t.enquetes || 0} baromètre`} />
+        <Tuile v={t.ressenti != null ? Math.round(t.ressenti * 100) + ' %' : '—'} l="Ressenti de discrimination" c="0 % jamais, 100 % toujours (DMS)" />
+        <Tuile v={pct(t.repondus_14j || 0, (t.repondus || 0) + (t.en_retard || 0))} l="Réponses dans les 14 jours" c={`${t.a_repondre || 0} en attente · ${t.en_retard || 0} en retard`} />
+        <Tuile v={t.renoncement_repondu ? pct(t.renoncement_oui || 0, t.renoncement_repondu) : '—'} l="Renoncement aux soins" c="part des personnes ayant renoncé après l’expérience" />
+      </div>
+
+      <Card className="p-4 mb-4">
+        <div className="flex items-center justify-between mb-3"><h3 className="font-semibold">Par service</h3><Button size="sm" variant="secondary" onClick={exporter}>Exporter (CSV)</Button></div>
+        <div className="overflow-x-auto">
+          <table className="cw-tableau w-full text-sm">
+            <thead><tr className="text-left text-xs text-gray-500 border-b"><th className="py-1 pr-3">Service</th><th className="py-1 pr-3">Témoignages</th><th className="py-1 pr-3">Ressenti</th><th className="py-1 pr-3">Positifs</th></tr></thead>
+            <tbody>{tb.par_service.map(x => <tr key={x.service} className="border-b border-gray-100"><td data-label="Service" className="py-1 pr-3">{x.service}</td><td data-label="Témoignages" className="py-1 pr-3">{x.masque ? 'moins de 3' : x.n}</td><td data-label="Ressenti" className="py-1 pr-3">{x.ressenti != null ? Math.round(x.ressenti * 100) + ' %' : '—'}</td><td data-label="Positifs" className="py-1 pr-3">{x.positifs ?? '—'}</td></tr>)}</tbody>
+          </table>
+        </div>
+      </Card>
+      <div className="grid sm:grid-cols-2 gap-4 mb-4">
+        <Card className="p-4">
+          <h3 className="font-semibold mb-3">Motifs perçus</h3>
+          <div className="space-y-1.5 text-sm">{tb.par_motif.length === 0 && <p className="text-gray-500">Aucun motif renseigné.</p>}{tb.par_motif.map(x => <div key={x.motif} className="flex justify-between gap-2"><span className="text-gray-700">{motifLibelle(x.motif)}</span><span className="font-semibold">{x.masque ? 'moins de 3' : x.n}</span></div>)}</div>
+        </Card>
+        <Card className="p-4">
+          <h3 className="font-semibold mb-3">Par mois</h3>
+          <div className="space-y-1.5 text-sm">{tb.par_mois.map(x => <div key={x.mois} className="flex justify-between gap-2"><span className="text-gray-700">{x.mois}</span><span className="font-semibold">{x.n}{x.ressenti != null ? ` · ${Math.round(x.ressenti * 100)} %` : ''}</span></div>)}</div>
+        </Card>
+      </div>
+
+      <Card className="p-4 mb-4">
+        <h3 className="font-semibold mb-1">Droit de réponse</h3>
+        <p className="text-xs text-gray-500 mb-3">Quatorze jours après vérification pour répondre. La réponse est lue par la personne et accompagne la fiche publiée. Sans données personnelles, sans mise en cause d’une personne.</p>
+        {msg && <p className="text-sm text-teal-800 mb-2">{msg}</p>}
+        {aRepondre.length === 0 && <p className="text-sm text-gray-500">Aucun témoignage en attente de réponse.</p>}
+        <div className="space-y-3">
+          {aRepondre.map(x => (
+            <div key={x.numero} className={`border rounded-xl p-3 ${new Date(x.echeance) < new Date() ? 'border-rose-200 bg-rose-50' : 'border-gray-200'}`}>
+              <p className="text-sm"><span className="font-mono font-semibold">{x.numero}</span> · {cwTypeLibelle(x.type)} · {x.service || 'service non précisé'} · {x.mois}</p>
+              <p className="text-xs text-gray-600 mb-2">{x.type_incident || ''}{Array.isArray(x.motifs) && x.motifs.length ? ' · ' + x.motifs.map(motifLibelle).join(', ') : ''}{x.dms_score != null ? ` · ressenti ${x.dms_score}/${x.dms_max}` : ''} · échéance {cwDateCourte(String(x.echeance).slice(0, 10))}</p>
+              <textarea value={reponses[x.numero] || ''} onChange={e => setReponses(p => ({ ...p, [x.numero]: e.target.value }))} maxLength={2000} rows={3} placeholder="Votre réponse : ce que l’établissement a compris, ce qu’il fait, à qui s’adresser." className="w-full px-3 py-2 rounded-xl border-2 border-gray-200 focus:border-teal-500 focus:outline-none text-sm mb-2" />
+              <Button size="sm" onClick={() => repondre(x.numero)} disabled={busy}>Envoyer la réponse</Button>
+            </div>
+          ))}
+        </div>
+        {repondus.length > 0 && (
+          <div className="mt-4">
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Réponses données</p>
+            <div className="divide-y text-sm">{repondus.map(x => <div key={x.numero} className="py-2"><p><span className="font-mono font-semibold">{x.numero}</span> · {x.service || ''} · répondu le {cwDateCourte(String(x.reponse_le).slice(0, 10))}</p><p className="text-gray-600">{x.reponse}</p></div>)}</div>
+          </div>
+        )}
+      </Card>
+    </div>
+  );
+}
+
+// Vérification d'une adresse professionnelle après un signalement de soignant·e : seul le domaine est retenu.
+function VerificationPro({ numero, code }) {
+  const [email, setEmail] = useState('');
+  const [codeV, setCodeV] = useState('');
+  const [etape, setEtape] = useState('email'); // email | code | fait
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState('');
+  const [resultat, setResultat] = useState('');
+  const appel = async (corps) => {
+    const r = await fetch(CW_NOTIFIER_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }, body: JSON.stringify(corps) });
+    let j = null; try { j = await r.json(); } catch (e) {}
+    return { ok: r.ok && j && j.success === 'true', message: (j && j.message) || '' };
+  };
+  const envoyer = async () => {
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.trim())) { setMsg('Adresse e-mail invalide.'); return; }
+    setBusy(true); setMsg('');
+    const r = await appel({ _mode: 'verif_pro_envoyer', email: email.trim() });
+    setBusy(false);
+    if (!r.ok) { setMsg(r.message || 'Envoi impossible.'); return; }
+    setEtape('code');
+  };
+  const confirmer = async () => {
+    setBusy(true); setMsg('');
+    const r = await appel({ _mode: 'verif_pro_confirmer', email: email.trim(), code: codeV.trim(), numero });
+    if (!r.ok) { setBusy(false); setMsg(r.message || 'Code incorrect.'); return; }
+    let v = null; try { v = JSON.parse(r.message); } catch (e) {}
+    if (!v || !v.verification) { setBusy(false); setMsg('Réponse inattendue du serveur.'); return; }
+    const { data, error } = await window.cwDb.rpc('recit_completer', { p_numero: numero, p_code: code, p: { verification_pro: v.verification, jeton: v.jeton } });
+    setBusy(false);
+    if (error || !data || !data.ok) { setMsg('Vérification refusée par la base : ' + ((error && error.message) || (data && data.erreur) || '')); return; }
+    setResultat(v.verification); setEtape('fait');
+  };
+  const domaine = resultat.split(':')[1] || '';
+  return (
+    <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-left">
+      <p className="text-sm font-semibold text-amber-900 mb-1">Renforcer la crédibilité de votre signalement (facultatif)</p>
+      {etape === 'fait' ? (
+        <p className="text-sm text-amber-900">Adresse vérifiée : {resultat.startsWith('email_institutionnel') ? 'institution de santé' : 'organisation professionnelle'} ({domaine}). Seul le domaine est enregistré avec le signalement.</p>
+      ) : (
+        <>
+          <p className="text-xs text-amber-900 mb-2">Un code vous est envoyé à votre adresse professionnelle. Seul le domaine de l’adresse (par exemple hug.ch) est enregistré ; l’adresse elle-même n’est ni conservée ni transmise à la modération.</p>
+          {etape === 'email' && <div className="flex flex-col sm:flex-row gap-2"><input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="prenom.nom@hopital.ch" className="flex-1 px-3 py-2 rounded-xl border-2 border-gray-200 focus:border-teal-500 focus:outline-none text-sm" /><Button size="sm" onClick={envoyer} disabled={busy}>{busy ? 'Envoi…' : 'Recevoir un code'}</Button></div>}
+          {etape === 'code' && <div className="flex flex-col sm:flex-row gap-2"><input type="text" inputMode="numeric" value={codeV} onChange={e => setCodeV(e.target.value)} placeholder="Code à 6 chiffres" className="flex-1 px-3 py-2 rounded-xl border-2 border-gray-200 focus:border-teal-500 focus:outline-none text-sm" /><Button size="sm" onClick={confirmer} disabled={busy}>{busy ? 'Vérification…' : 'Confirmer'}</Button></div>}
+          {msg && <p className="text-sm text-rose-700 mt-2">{msg}</p>}
+        </>
+      )}
+    </div>
+  );
+}
+
 // Baromètre d'expérience : mesure systématique de l'expérience de traitement, avec ou sans incident, sans récit.
 function BarometreExperience() {
   const { DB, setView, ref } = useApp();
   const [etape, setEtape] = useState(0);
-  const [d, setD] = useState({ canton: '', institution: '', service: '', periode: '', role: 'patient', vecu: false, dms: {}, motifs: [] });
+  const [d, setD] = useState({ canton: '', institution: '', service: '', periode: '', role: 'patient', vecu: false, dms: {}, motifs: [], renoncement: '', confiance: 0 });
   const [busy, setBusy] = useState(false);
   const [resultat, setResultat] = useState(null);
   const [erreur, setErreur] = useState('');
@@ -5105,6 +5265,7 @@ function BarometreExperience() {
     try { ({ data, error } = await window.cwDb.rpc('soumettre_enquete', { p: {
       role: d.role, canton: d.canton, etablissement_id: d.institution, etablissement_nom: inst ? inst.fullName : null,
       service: d.service.trim() || null, type_periode: d.periode, dms: d.dms, dms_score: total, dms_max: max, motifs_percus: d.motifs,
+      renoncement: d.renoncement || null, confiance: d.confiance || null,
     } })); } catch (ex) { error = ex; }
     setBusy(false);
     if (error || !data || !data.numero) { const m = (error && error.message) || ''; setErreur(/schema cache/i.test(m) ? 'Le baromètre sera ouvert après la prochaine mise à jour de la base.' : error ? cwTraduireErreur(error) : 'Envoi impossible pour l’instant.'); return; }
@@ -5150,6 +5311,14 @@ function BarometreExperience() {
           <p className="text-xs text-gray-500 mb-3">Plusieurs réponses possibles. Laissez vide si cela ne s’applique pas.</p>
           <div className="flex flex-wrap gap-2">
             {motifs.map(g => { const on = d.motifs.includes(g.id); return <button key={g.id} onClick={() => setD(prev => ({ ...prev, motifs: prev.motifs.includes(g.id) ? prev.motifs.filter(x => x !== g.id) : [...prev.motifs, g.id] }))} className={`px-3 py-1.5 rounded-full text-xs border ${on ? 'bg-teal-500 text-white border-teal-500' : 'bg-white text-gray-700 border-gray-200'}`}>{g.label}</button>; })}
+          </div>
+          <div className="mt-5">
+            <p className="text-sm text-gray-700 font-medium mb-2">Après cette expérience, avez-vous renoncé à des soins ou repoussé une consultation ?</p>
+            <div className="flex flex-wrap gap-2">{Object.entries(CW_RENONCEMENT).map(([v, l]) => <button key={v} onClick={() => setD(prev => ({ ...prev, renoncement: v }))} className={`px-3 py-1.5 rounded-full text-xs border ${d.renoncement === v ? 'bg-teal-500 text-white border-teal-500' : 'bg-white text-gray-700 border-gray-200'}`}>{l}</button>)}</div>
+          </div>
+          <div className="mt-5">
+            <p className="text-sm text-gray-700 font-medium mb-2">Pensez-vous que ce type de dispositif peut améliorer les choses ? (1 pas du tout, 5 tout à fait)</p>
+            <div className="flex gap-2">{[1, 2, 3, 4, 5].map(v => <button key={v} onClick={() => setD(prev => ({ ...prev, confiance: v }))} className={`w-10 h-10 rounded-full text-sm font-semibold border ${d.confiance === v ? 'bg-teal-500 text-white border-teal-500' : 'bg-white text-gray-700 border-gray-200'}`}>{v}</button>)}</div>
           </div>
           <p className="text-xs text-gray-500 mt-4">Vos réponses rejoignent l’indice d’équité de l’établissement, sans texte libre. Vous recevrez un numéro et un code personnel pour retirer votre réponse si vous le souhaitez.</p>
         </Card>
@@ -7697,6 +7866,7 @@ function LegalGuide() {
           </div>
           <div>
             <h2 className="text-xl font-bold text-gray-900 mb-1">Guide juridique</h2>
+      <div className="rounded-xl bg-amber-50 border border-amber-200 p-3 mb-4 text-sm text-amber-900"><span className="font-semibold">Version alpha.</span> Les modèles de courriers sont en relecture par des juristes partenaires. Vérifiez les délais et les adresses avant tout envoi ; en cas de doute, adressez-vous au Centre LAVI de votre canton.</div>
             <p className="text-sm text-gray-600">Droits, cadre légal, voies de recours et délais — adapté au contexte de la discrimination dans les soins en Suisse</p>
             <p className="text-sm text-indigo-600 mt-2 bg-indigo-100 px-3 py-1 rounded-lg inline-block"><strong>Avertissement :</strong> Ce guide est informatif. Pour une situation concrète, consultez un·e avocat·e.</p>
             <p className="text-sm text-teal-700 mt-1 bg-teal-50 px-3 py-1 rounded-lg inline-block"><Shield className="w-3.5 h-3.5 inline mr-1" /> Consulter ce guide est anonyme — aucune trace n'est conservée.</p>
@@ -10294,16 +10464,16 @@ function EtatProjetPage() {
     ['Modération et vérification', 'Relecture par l’équipe, journal des décisions, second facteur', 'Opérationnel'],
     ['Indice d’équité et niveaux', 'Calcul en base, publié dès 5 témoignages vérifiés', 'Opérationnel'],
     ['Fiches résumées et données ouvertes', 'Dé-identifiées, avec accord, CSV et interface de programmation', 'Opérationnel'],
-    ['Droit de réponse des établissements', 'Procédure définie (14 jours), guichet établissement à ouvrir avec les partenaires', 'Prévu'],
-    ['Tableau de bord par établissement', 'Indicateurs par service et par motif, sans texte libre', 'Prévu'],
+    ['Droit de réponse des établissements', 'Compte établissement, réponse sous 14 jours visible par la personne et sur la fiche publiée', 'Alpha'],
+    ['Tableau de bord par établissement', 'Indicateurs par service, par motif et par mois, sans texte libre, export CSV', 'Alpha'],
     ['Rapport annuel aux autorités cantonales', 'Indicateurs stratifiés, recommandations', 'Prévu'],
     ['Actualités et veille', 'Annonces de l’équipe et titres relevés automatiquement', 'Opérationnel'],
     ['Maturité en équité des soins', 'Grille en six dimensions et cinq stades, autoévaluation, plafond fixé par les données mesurées', 'Alpha'],
   ];
   const complementaires = [
-    ['Signalement par les professionnel·le·s', 'Canal indépendant de l’employeur, détails généralisés, mêmes garanties que pour les patient·e·s', 'Opérationnel'],
+    ['Signalement par les professionnel·le·s', 'Canal indépendant de l’employeur, détails généralisés, vérification facultative de l’adresse professionnelle', 'Opérationnel'],
     ['Accès aux soins spécialisés', 'Cartographie par établissement, référentiel géré par l’équipe', 'Alpha'],
-    ['Orientation juridique et courriers', 'Générateurs de documents, relecture juridique à venir', 'Alpha'],
+    ['Orientation juridique et courriers', 'Générateurs de documents, relecture juridique en cours, bandeau d’avertissement', 'Alpha'],
     ['Accompagnement PLAFA', 'Notes conservées sur l’appareil, sans horodatage certifié', 'Démonstration'],
     ['Analyse de dossier', 'Aucun traitement automatique actif', 'Démonstration'],
     ['Pair-aidance', 'Profils fictifs, prise de rendez-vous fermée', 'Démonstration'],
@@ -10784,7 +10954,8 @@ function AdminAcces({ signaler, dateFr }) {
   const [acces, setAcces] = useState(null);
   const [busy, setBusy] = useState(false);
   const [nvInv, setNvInv] = useState({ attribue_a: '', email: '' });
-  const [nvMod, setNvMod] = useState({ email: '', nom: '', role: 'moderateur' });
+  const [nvMod, setNvMod] = useState({ email: '', nom: '', role: 'moderateur', etablissement: '' });
+  const { DB: dbRef } = useApp();
   const [dernierCode, setDernierCode] = useState('');
   const [dernierAcces, setDernierAcces] = useState(null);
   const [demandes, setDemandes] = useState(null);
@@ -10898,10 +11069,12 @@ function AdminAcces({ signaler, dateFr }) {
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-2 mb-3">
           <Input label="E-mail" value={nvMod.email} onChange={v => setNvMod({ ...nvMod, email: v })} placeholder="prenom@exemple.ch" />
           <Input label="Nom" value={nvMod.nom} onChange={v => setNvMod({ ...nvMod, nom: v })} placeholder="Prénom Nom" />
-          <Select label="Rôle" value={nvMod.role} onChange={v => setNvMod({ ...nvMod, role: v })} options={[{ value: 'moderateur', label: 'Modérateur·rice' }, { value: 'admin', label: 'Administrateur·rice' }]} />
+          <Select label="Rôle" value={nvMod.role} onChange={v => setNvMod({ ...nvMod, role: v })} options={[{ value: 'moderateur', label: 'Modérateur·rice' }, { value: 'admin', label: 'Administrateur·rice' }, { value: 'etablissement', label: 'Établissement (tableau de bord)' }]} />
+          {nvMod.role === 'etablissement' && <Select label="Établissement" value={nvMod.etablissement} onChange={v => setNvMod({ ...nvMod, etablissement: v })} options={dbRef.institutions.slice().sort((a, b) => a.fullName.localeCompare(b.fullName)).map(i => ({ value: i.id, label: i.fullName }))} />}
           <div className="flex items-end"><Button onClick={async () => {
             setBusy(true);
-            const { data: r, error } = await window.cwDb.rpc('admin_autoriser_moderateur', { p_email: nvMod.email, p_nom: nvMod.nom, p_role: nvMod.role });
+            if (nvMod.role === 'etablissement' && !nvMod.etablissement) { signaler('Choisissez l’établissement.'); return; }
+            const { data: r, error } = await window.cwDb.rpc('admin_autoriser_moderateur', { p_email: nvMod.email, p_nom: nvMod.nom, p_role: nvMod.role, p_etablissement: nvMod.role === 'etablissement' ? nvMod.etablissement : null });
             setBusy(false);
             if (error || !r || !r.ok) { signaler('Refusé : ' + ((error && error.message) || '')); return; }
             if (r.etat === 'inscrit') { signaler('Compte existant : inscrit immédiatement.'); setDernierAcces(null); }
@@ -10984,6 +11157,7 @@ function ModerationPage({ integre }) {
   const [compteOuvert, setCompteOuvert] = useState(false);
   const [ndaListe, setNdaListe] = useState(null);
   const [onglet, setOnglet] = useState('tableau'); // tableau | moderation | referentiels | acces
+  const [reponseEtab, setReponseEtab] = useState(null);
   useEffect(() => {
     if (etape === 'pret' && !integre && profil) {
       setUser({ reel: true, role: profil.role || 'moderateur', email: (utilisateur && utilisateur.email) || profil.email || '', name: profil.nom || (utilisateur && utilisateur.email) || 'Modération' });
@@ -11163,6 +11337,7 @@ function ModerationPage({ integre }) {
     if (error) { erreur(error, 'Lecture impossible.'); return; }
     setFiche(data);
     setNote((data && data.note_moderation) || '');
+    try { const r = await window.cwDb.rpc('admin_reponse_etablissement', { p_numero: numero }); setReponseEtab(r && r.data ? r.data : null); } catch (e) { setReponseEtab(null); }
   };
   const changer = async (statut) => {
     if (!fiche) return;
@@ -11303,6 +11478,11 @@ function ModerationPage({ integre }) {
     ['Tranche d’âge', fiche.tranche_age],
     ['Cohérence NPA', fiche.npa_coherent],
     ['Score ressenti', fiche.dms_score != null ? fiche.dms_score + ' / ' + fiche.dms_max : null],
+    ['Renoncement aux soins', fiche.renoncement ? CW_RENONCEMENT[fiche.renoncement] || fiche.renoncement : null],
+    ['Confiance dans le dispositif', fiche.confiance ? fiche.confiance + ' / 5' : null],
+    ['Adresse professionnelle vérifiée', fiche.verification_pro ? (fiche.verification_pro.startsWith('email_institutionnel') ? 'institution de santé · ' : 'organisation · ') + (fiche.verification_pro.split(':')[1] || '') : null],
+    ['Vérifié le', fiche.verifie_le ? dateFr(fiche.verifie_le) : null],
+    ['Réponse de l’établissement', reponseEtab && reponseEtab.texte ? reponseEtab.texte + ' (' + dateFr(reponseEtab.cree_le) + ')' : null],
     ['Dernière modification', fiche.modifie_le ? dateFr(fiche.modifie_le) : null],
   ].filter(([, v]) => v);
   const autorisations = !fiche ? [] : [
