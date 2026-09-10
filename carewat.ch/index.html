@@ -10301,7 +10301,7 @@ function EtatProjetPage() {
     ['Maturité en équité des soins', 'Grille en six dimensions et cinq stades, autoévaluation, plafond fixé par les données mesurées', 'Alpha'],
   ];
   const complementaires = [
-    ['Signalement par les professionnel·le·s', 'Canal indépendant de l’employeur, détails généralisés', 'Opérationnel'],
+    ['Signalement par les professionnel·le·s', 'Canal indépendant de l’employeur, détails généralisés, mêmes garanties que pour les patient·e·s', 'Opérationnel'],
     ['Accès aux soins spécialisés', 'Cartographie par établissement, référentiel géré par l’équipe', 'Alpha'],
     ['Orientation juridique et courriers', 'Générateurs de documents, relecture juridique à venir', 'Alpha'],
     ['Accompagnement PLAFA', 'Notes conservées sur l’appareil, sans horodatage certifié', 'Démonstration'],
@@ -10328,12 +10328,12 @@ function EtatProjetPage() {
       <Card className="p-5 mb-4">
         <h3 className="font-semibold text-gray-900 mb-2">Objet</h3>
         <p className="text-sm text-gray-700 mb-3">CareWatch mesure la qualité des soins telle qu’elle est vécue par les patient·e·s sous l’angle de l’équité : est-on traité·e avec la même courtoisie, le même respect, la même qualité de service, quelle que soit son origine, sa langue, son assurance, son handicap ou sa situation sociale. Les indicateurs produits sont destinés aux établissements et aux autorités cantonales pour alimenter leurs démarches qualité au sens de l’article 58 LAMal.</p>
-        <p className="text-sm text-gray-700">Deux périmètres sont distingués. Le noyau porte sur la qualité des prestations de soins aux patient·e·s. Les modules complémentaires, portés avec les associations partenaires, relèvent de l’accompagnement des personnes et sont financés séparément.</p>
+        <p className="text-sm text-gray-700">Deux volets, un seul outil. Le premier porte sur la qualité des prestations de soins aux patient·e·s et relève du développement de la qualité au sens de la LAMal. Le second, l’accompagnement des personnes (signalement par les soignant·e·s, orientation juridique, pair-aidance, accès aux soins), est porté avec les associations partenaires et financé par d’autres sources. Les deux volets partagent la même base, la même modération et les mêmes garanties.</p>
       </Card>
 
       <h3 className="font-semibold text-gray-900 mb-2">Noyau : qualité des soins vécue par les patient·e·s</h3>
       <div className="mb-6"><Liste items={noyau} /></div>
-      <h3 className="font-semibold text-gray-900 mb-2">Modules complémentaires</h3>
+      <h3 className="font-semibold text-gray-900 mb-2">Accompagnement des personnes</h3>
       <div className="mb-6"><Liste items={complementaires} /></div>
       <p className="text-xs text-gray-500 mb-6">Opérationnel : fonctionne avec de vraies données. Alpha : fonctionne, en test avec les personnes invitées. Démonstration : contenu fictif, signalé en tête de page. Prévu : décrit, à construire.</p>
 
@@ -10352,7 +10352,7 @@ function EtatProjetPage() {
           <li>Agir : actions correctives décidées et documentées par l’établissement dans son plan qualité.</li>
           <li>Réévaluer : évolution de l’indice et des indicateurs à six et douze mois.</li>
         </ol>
-        <p className="text-sm text-gray-700 mt-3">Les effets suivis portent sur les prestations elles-mêmes : évolution du ressenti DMS par établissement et par service, part de retours positifs, délai et contenu des réponses des établissements, actions correctives documentées, renoncement aux soins déclaré. Un comité de suivi réunit établissements partenaires, autorités cantonales invitées et associations ; sa composition est publiée dès sa constitution.</p>
+        <p className="text-sm text-gray-700 mt-3">Les effets suivis portent sur les prestations elles-mêmes : ressenti DMS par établissement et par service, part de retours positifs, délai et contenu des réponses des établissements, actions correctives documentées, renoncement aux soins déclaré, confiance dans le canal. Les valeurs cibles et la méthode avant-après sont dans la <button onClick={() => setView('methodology')} className="text-teal-700 underline">Méthodologie</button>, point 6b. Un comité de suivi réunit établissements partenaires, autorités cantonales invitées et associations ; sa composition est publiée dès sa constitution.</p>
       </Card>
 
       <Card className="p-5 mb-4">
@@ -10432,6 +10432,26 @@ function MethodologyPage() {
           <h3 className="font-semibold mb-3">6. Boucle d’amélioration avec les établissements</h3>
           <p className="text-gray-600 text-sm mb-2">Mesurer, restituer, agir, réévaluer. L’établissement reçoit ses indicateurs par service et par motif, sans texte libre, avec un droit de réponse de 14 jours ; il documente ses actions correctives dans son plan qualité ; l’évolution de l’indice est suivie à six et douze mois.</p>
           <p className="text-gray-600 text-sm">Les effets suivis portent sur les prestations : ressenti DMS par établissement et par service, part de retours positifs, délai et contenu des réponses, actions correctives documentées, renoncement aux soins déclaré.</p>
+        </Card>
+        <Card className="p-6">
+          <h3 className="font-semibold mb-3">6b. Effets attendus sur les prestations : cibles et méthode</h3>
+          <p className="text-gray-600 text-sm mb-3">Valeurs cibles proposées pour un pilote de 24 mois dans les services participants. Elles sont revues avec les établissements et le comité de suivi avant le lancement.</p>
+          <div className="overflow-x-auto">
+            <table className="cw-tableau w-full text-sm">
+              <thead><tr className="text-left text-xs text-gray-500 border-b"><th className="py-1 pr-3">Indicateur</th><th className="py-1 pr-3">Mesure</th><th className="py-1 pr-3">Cible à 24 mois</th></tr></thead>
+              <tbody>
+                {[
+                  ['Ressenti de discrimination (DMS)', 'Moyenne par service, baromètre et signalements vérifiés', 'Baisse de 20 % entre la période de référence et le mois 24'],
+                  ['Retours positifs', 'Part des témoignages vérifiés de type positif, par établissement', 'Au moins 30 % dans les services participants'],
+                  ['Réponse des établissements', 'Part des témoignages vérifiés ayant reçu une réponse dans les 14 jours', '100 % dans les établissements partenaires'],
+                  ['Actions correctives', 'Actions documentées dans le plan qualité, par service et par semestre', 'Au moins une action par service participant et par semestre'],
+                  ['Renoncement aux soins', 'Réponse à la question « avez-vous renoncé à des soins après cette expérience ? »', 'Baisse de 25 % entre référence et mois 24'],
+                  ['Confiance dans le canal', 'Enquête annuelle auprès des patient·e·s et du personnel des services participants', 'Au moins 60 % de confiance déclarée au mois 24'],
+                ].map(([i, m, c]) => <tr key={i} className="border-b border-gray-100"><td data-label="Indicateur" className="py-1.5 pr-3 font-medium text-gray-800">{i}</td><td data-label="Mesure" className="py-1.5 pr-3 text-gray-600">{m}</td><td data-label="Cible à 24 mois" className="py-1.5 pr-3 text-gray-800">{c}</td></tr>)}
+              </tbody>
+            </table>
+          </div>
+          <p className="text-gray-600 text-sm mt-3"><span className="font-medium text-gray-800">Méthode.</span> Période de référence de trois mois par service avant toute restitution à l’établissement, puis mesure continue avec comparaison au mois 12 et au mois 24. Chaque service compte ses propres réponses ; un minimum de 30 réponses par trimestre et par service est requis pour interpréter une variation. Les services d’un même établissement qui ne participent pas encore servent de comparaison. Les résultats sont présentés par service et par motif, sans texte libre, et publiés en données ouvertes au niveau de l’établissement.</p>
         </Card>
         <Card className="p-6">
           <h3 className="font-semibold mb-3">7. Protection contre la réidentification</h3>
