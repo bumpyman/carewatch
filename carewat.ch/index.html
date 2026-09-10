@@ -547,6 +547,8 @@ function GererSignalement() {
           <div className="grid grid-cols-2 gap-3">
             <div className="bg-gray-50 rounded-xl p-3"><p className="text-sm text-gray-600">Statut</p><p className="font-medium capitalize">{recit.statut.replace('_', ' ')}</p></div>
             <div className="bg-gray-50 rounded-xl p-3"><p className="text-sm text-gray-600">Établissement</p><p className="font-medium">{recit.etablissement_nom || 'Non précisé'}</p></div>
+            {recit.reponse_etablissement && recit.reponse_etablissement.texte && <div className="bg-teal-50 border border-teal-200 rounded-xl p-3" style={{ gridColumn: '1 / -1' }}><p className="text-sm text-teal-900 font-semibold">Réponse de l’établissement{recit.reponse_etablissement.cree_le ? ' · ' + cwDateCourte(String(recit.reponse_etablissement.cree_le).slice(0, 10)) : ''}</p><p className="text-sm text-gray-800 mt-1">{recit.reponse_etablissement.texte}</p></div>}
+            {recit.verification_pro && <div className="bg-gray-50 rounded-xl p-3"><p className="text-sm text-gray-600">Adresse professionnelle</p><p className="font-medium">vérifiée · {recit.verification_pro.split(':')[1]}</p></div>}
           </div>
           <div>
             <p className="text-sm font-semibold text-gray-800 mb-2">Mes autorisations</p>
@@ -11632,7 +11634,7 @@ function OpenDataPage({ integre }) {
     const c = pe[i.id] || {};
     return { id: i.id, nom: i.fullName, type: i.type, ville: i.city, canton: i.canton, signalements: c.signalements || 0, positifs: c.positifs || 0, verifies: c.verifies || 0, indice_equite: c.indice == null ? '' : c.indice, niveau: c.niveau ? (DB.ratings[c.niveau] || {}).label || c.niveau : '' };
   });
-  const colFiches = ['numero', 'type', 'annee', 'tranche_age', 'canton', 'etablissement_nom', 'service', 'type_incident', 'categories_positives', 'dms_score', 'dms_max'];
+  const colFiches = ['numero', 'type', 'annee', 'tranche_age', 'canton', 'etablissement_nom', 'service', 'type_incident', 'categories_positives', 'dms_score', 'dms_max', 'reponse_etablissement', 'reponse_mois'];
   const colEtabl = ['id', 'nom', 'type', 'ville', 'canton', 'signalements', 'positifs', 'verifies', 'indice_equite', 'niveau'];
   const Bloc = ({ titre, children }) => <Card className="p-6 mb-6">{titre && <h2 className="text-xl font-bold text-gray-900 mb-3">{titre}</h2>}{children}</Card>;
   const Code = ({ children }) => <pre className="bg-gray-900 text-white text-xs rounded-xl p-3 overflow-x-auto" style={{ whiteSpace: 'pre' }}>{children}</pre>;
@@ -11688,10 +11690,10 @@ function OpenDataPage({ integre }) {
           ) : (
             <div className="overflow-x-auto mb-3">
               <table className="cw-tableau w-full text-sm">
-                <thead><tr className="text-left text-xs text-gray-500 border-b"><th className="py-2 pr-3">Numéro</th><th className="py-2 pr-3">Type</th><th className="py-2 pr-3">Année</th><th className="py-2 pr-3">Canton</th><th className="py-2 pr-3">Établissement</th><th className="py-2 pr-3">Service</th><th className="py-2 pr-3">Objet</th><th className="py-2 pr-3">Score</th></tr></thead>
+                <thead><tr className="text-left text-xs text-gray-500 border-b"><th className="py-2 pr-3">Numéro</th><th className="py-2 pr-3">Type</th><th className="py-2 pr-3">Année</th><th className="py-2 pr-3">Canton</th><th className="py-2 pr-3">Établissement</th><th className="py-2 pr-3">Service</th><th className="py-2 pr-3">Objet</th><th className="py-2 pr-3">Score</th><th className="py-2 pr-3">Réponse</th></tr></thead>
                 <tbody>
                   {fiches.slice(0, 200).map(r => (
-                    <tr key={r.numero} className="border-b border-gray-100"><td data-label="Numéro" className="py-2 pr-3 font-mono text-teal-700">{r.numero}</td><td data-label="Type" className="py-2 pr-3">{cwTypeLibelle(r.type)}</td><td data-label="Année" className="py-2 pr-3">{r.annee}</td><td data-label="Canton" className="py-2 pr-3">{r.canton}</td><td data-label="Établissement" className="py-2 pr-3">{r.etablissement_nom}</td><td data-label="Service" className="py-2 pr-3">{r.service}</td><td data-label="Objet" className="py-2 pr-3">{r.type === 'positif' ? (Array.isArray(r.categories_positives) ? r.categories_positives.join(', ') : '') : r.type_incident}</td><td data-label="Score" className="py-2 pr-3">{r.dms_score != null ? `${r.dms_score}/${r.dms_max}` : '—'}</td></tr>
+                    <tr key={r.numero} className="border-b border-gray-100"><td data-label="Numéro" className="py-2 pr-3 font-mono text-teal-700">{r.numero}</td><td data-label="Type" className="py-2 pr-3">{cwTypeLibelle(r.type)}</td><td data-label="Année" className="py-2 pr-3">{r.annee}</td><td data-label="Canton" className="py-2 pr-3">{r.canton}</td><td data-label="Établissement" className="py-2 pr-3">{r.etablissement_nom}</td><td data-label="Service" className="py-2 pr-3">{r.service}</td><td data-label="Objet" className="py-2 pr-3">{r.type === 'positif' ? (Array.isArray(r.categories_positives) ? r.categories_positives.join(', ') : '') : r.type_incident}</td><td data-label="Score" className="py-2 pr-3">{r.dms_score != null ? `${r.dms_score}/${r.dms_max}` : '—'}</td><td data-label="Réponse" className="py-2 pr-3" title={r.reponse_etablissement || ''}>{r.reponse_etablissement ? 'oui (' + (r.reponse_mois || '') + ')' : '—'}</td></tr>
                   ))}
                 </tbody>
               </table>
