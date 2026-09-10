@@ -7,6 +7,10 @@
 -- Prérequis : patch_complet (soumettre_recit), moderation_2 (stats_publiques).
 -- =============================================================================
 
+-- 0. Le type « enquete » doit être admis par la contrainte de la table
+alter table public.recits drop constraint if exists recits_type_check;
+alter table public.recits add constraint recits_type_check check (type in ('signalement', 'positif', 'enquete'));
+
 -- 1. Dépôt d'une réponse au baromètre : même circuit que soumettre_recit
 --    (quotas, numéro, code personnel), type « enquete », vérification automatique
 --    puisqu'il n'y a pas de texte libre à relire.
