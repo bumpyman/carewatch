@@ -363,7 +363,7 @@ function useVeille() {
   return { ...etat, visibles, masquer };
 } // notification par courriel, hébergée sur Infomaniak (remplace FormSubmit)
 const VUE_TITRES = {
-  'barometre': 'Baromètre d’expérience', 'etat': 'État du projet',
+  'barometre': 'Baromètre d’expérience', 'etat': 'État du projet', 'maturite': 'Maturité en équité',
   'patient-home': 'Accueil', 'professional-home': 'Accueil', 'new-report': 'Signalement', 'positive-report': 'Expérience positive',
   'my-reports': 'Mes témoignages', 'institutions': 'Établissements', 'access-care': 'Accès aux soins', 'directory': 'Annuaire',
   'legal-guide': 'Guide juridique', 'plafa-doc': 'PLAFA', 'dossier-analysis': 'Analyse de dossier', 'news': 'Actualités', 'help': 'Aide et ressources',
@@ -2303,9 +2303,9 @@ function Landing() {
               <div>
                 <p className="text-sm font-semibold text-teal-700 mb-2">En savoir plus</p>
                 <div className="space-y-1.5 text-sm">
-                  {['about','etat','faq','methodology','partners','opendata'].map(v => (
+                  {['about','etat','maturite','faq','methodology','partners','opendata'].map(v => (
                     <button key={v} onClick={() => setView(v)} className="block hover:text-teal-700">
-                      {{about:'À propos',etat:'État du projet',faq:'FAQ',methodology:'Méthodologie',partners:'Partenaires',opendata:'Open Data & API'}[v]}
+                      {{about:'À propos',etat:'État du projet',maturite:'Maturité en équité',faq:'FAQ',methodology:'Méthodologie',partners:'Partenaires',opendata:'Open Data & API'}[v]}
                 </button>
               ))}
               <a
@@ -2806,6 +2806,7 @@ function AppShell() {
       case 'admin-config': return adminReel ? <ModerationPage integre="compte" /> : <AdminConfig />;
       case 'barometre': return <BarometreExperience />;
       case 'etat': return <EtatProjetPage />;
+      case 'maturite': return <MaturitePage />;
       case 'about': return <AboutPage />;
       case 'methodology': return <MethodologyPage />;
       case 'faq': return <FAQPage />;
@@ -3054,6 +3055,7 @@ function ProfessionalHome() {
           { icon: ClipboardList, label: 'Mes témoignages', desc: 'Suivre et modifier', v: 'my-reports', color: 'teal' },
           { icon: Users, label: 'Pair-aidance', desc: 'Soutien entre pairs ASPR-GE', v: 'peer-support', color: 'amber' },
           { icon: GraduationCap, label: 'Formations', desc: 'Équité et non-discrimination', v: 'formations', color: 'indigo' },
+          { icon: TrendingUp, label: 'Maturité en équité', desc: 'Grille et autoévaluation pour votre établissement', v: 'maturite', color: 'teal' },
           { icon: Building, label: 'Établissements', desc: 'Consulter les évaluations', v: 'institutions', color: 'teal' },
           { icon: Stethoscope, label: 'Accès aux soins', desc: 'Soins spécialisés & équipements', v: 'access-care', color: 'blue' },
           { icon: BookOpen, label: 'Actualités', desc: 'Veille et recherche', v: 'news', color: 'emerald' },
@@ -10127,6 +10129,157 @@ function AboutPage() {
     </div>
   );
 }
+// Grille de maturité en équité des soins : six dimensions, cinq stades. Publiée sous licence CC BY 4.0.
+const CW_MATURITE_VERSION = '0.1';
+const CW_MATURITE_STADES = ['Non engagé', 'Sensibilisé', 'Organisé', 'Mesuré', 'Apprenant', 'Exemplaire'];
+const CW_MATURITE = [
+  { id: 'gouvernance', titre: 'Gouvernance et responsabilité', stades: [
+    'La direction a pris position par écrit sur l’équité des soins (charte, message interne ou public).',
+    'Une personne ou une fonction est responsable de l’équité des soins, avec un mandat écrit et du temps dédié.',
+    'Des objectifs d’équité chiffrés figurent dans le plan qualité annuel de l’établissement.',
+    'La direction revoit les résultats d’équité au moins deux fois par an ; les décisions sont consignées.',
+    'L’équité est un critère d’évaluation des cadres et des services ; les résultats sont publiés chaque année.',
+  ]},
+  { id: 'donnees', titre: 'Données et suivi', stades: [
+    'L’établissement recueille des retours de patient·e·s, sans dimension équité.',
+    'Les plaintes et incidents sont codés par motif de discrimination perçu.',
+    'L’établissement participe à une mesure externe standardisée de l’expérience de traitement (échelle DMS) dans au moins un service.',
+    'La mesure couvre les services à forte affluence ; les résultats sont stratifiés par service et comparés dans le temps.',
+    'Les indicateurs d’équité sont publiés en données ouvertes et intégrés au rapport qualité.',
+  ]},
+  { id: 'langue', titre: 'Accès linguistique et interprétariat', stades: [
+    'Les ressources d’interprétariat sont listées et connues des équipes.',
+    'Une procédure écrite fixe quand et comment recourir à un·e interprète professionnel·le ; le budget est identifié.',
+    'Le recours est mesuré : part des consultations avec interprète quand le besoin existe ; documents clés traduits dans les langues les plus fréquentes.',
+    'Interprétariat disponible en tout temps (présence, téléphone ou vidéo) ; taux de recours suivi par service.',
+    'Les écarts entre besoin et recours sont publiés et diminuent d’une année à l’autre.',
+  ]},
+  { id: 'formation', titre: 'Compétences et formation', stades: [
+    'Une sensibilisation à l’équité est proposée ponctuellement.',
+    'Une formation à l’équité et aux biais fait partie de l’accueil des nouveaux collaborateurs et collaboratrices.',
+    'Au moins la moitié du personnel en contact avec les patient·e·s a été formée dans les trois dernières années, avec un contenu construit avec des associations de patient·e·s.',
+    'Formation obligatoire pour les cadres, évaluation des acquis, supervision de situations.',
+    'Le personnel forme d’autres établissements ; des pair·e·s aidant·e·s sont intégré·e·s aux équipes.',
+  ]},
+  { id: 'signalement', titre: 'Signalement et culture juste', stades: [
+    'Un canal interne de plainte existe et les patient·e·s en sont informé·e·s.',
+    'Le canal interne permet d’indiquer un motif de discrimination ; accusé de réception sous dix jours ; protection écrite contre les représailles.',
+    'Un canal externe indépendant est reconnu ; l’établissement répond aux témoignages vérifiés dans les 14 jours.',
+    'Chaque signalement convergent fait l’objet d’une analyse des causes ; retour d’information aux personnes ; délais suivis en interne.',
+    'Personnel et patient·e·s déclarent leur confiance dans le dispositif (enquête annuelle) ; taux de réponse et actions publiés.',
+  ]},
+  { id: 'amelioration', titre: 'Réponse et amélioration', stades: [
+    'Les situations sont traitées au cas par cas.',
+    'Un plan d’action écrit découle des plaintes et incidents, avec responsable et échéance.',
+    'Des actions correctives sont décidées à partir des indicateurs mesurés et revues à six mois.',
+    'L’effet des actions est mesuré (ressenti, retours positifs) et les actions sont ajustées.',
+    'Les résultats d’équité s’améliorent deux années de suite et sont partagés avec d’autres établissements.',
+  ]},
+];
+// Plafond observé à partir des données CareWatch de l'établissement : sans mesure, le stade global ne dépasse pas 2.
+const cwMaturiteObservee = (stat) => {
+  if (!stat || !stat.verifies) return { plafond: 2, motif: 'aucun témoignage vérifié dans CareWatch' };
+  if (stat.indice == null) return { plafond: 3, motif: `${stat.verifies} témoignage${stat.verifies > 1 ? 's' : ''} vérifié${stat.verifies > 1 ? 's' : ''}, indice publié dès 5` };
+  if (stat.indice >= 75) return { plafond: 5, motif: `indice d’équité ${stat.indice}` };
+  if (stat.indice >= 50) return { plafond: 4, motif: `indice d’équité ${stat.indice}` };
+  return { plafond: 3, motif: `indice d’équité ${stat.indice}` };
+};
+
+// Autoévaluation de maturité : réservée aux établissements, résultats conservés sur l'appareil.
+function MaturitePage() {
+  const { DB, realStats, setView } = useApp();
+  const [onglet, setOnglet] = useState('grille');
+  const [etab, setEtab] = useState('');
+  const [niveaux, setNiveaux] = useState(() => { try { return JSON.parse(cwStore.get('cw_maturite') || '{}'); } catch (e) { return {}; } });
+  useEffect(() => { try { cwStore.set('cw_maturite', JSON.stringify(niveaux)); } catch (e) {} }, [niveaux]);
+  const stat = etab && realStats && realStats.par_etablissement ? realStats.par_etablissement[etab] : null;
+  const declare = CW_MATURITE.map(d => niveaux[d.id] || 0);
+  const complet = CW_MATURITE.every(d => niveaux[d.id] !== undefined);
+  const stadeDeclare = complet ? Math.min(...declare) : null;
+  const obs = cwMaturiteObservee(stat);
+  const stadeGlobal = stadeDeclare === null ? null : Math.min(stadeDeclare, obs.plafond);
+  const Radar = () => {
+    const c = 110, r = 90, n = CW_MATURITE.length;
+    const pt = (i, v) => { const a = -Math.PI / 2 + (2 * Math.PI * i) / n; return [c + Math.cos(a) * r * v / 5, c + Math.sin(a) * r * v / 5]; };
+    const poly = (v) => CW_MATURITE.map((_, i) => pt(i, v).join(',')).join(' ');
+    return (
+      <svg viewBox="0 0 220 220" className="w-full mx-auto" style={{ maxWidth: 320 }}>
+        {[1, 2, 3, 4, 5].map(v => <polygon key={v} points={poly(v)} fill="none" stroke="#e5e7eb" strokeWidth="1" />)}
+        {CW_MATURITE.map((d, i) => { const [x, y] = pt(i, 5); return <line key={d.id} x1={c} y1={c} x2={x} y2={y} stroke="#e5e7eb" strokeWidth="1" />; })}
+        <polygon points={CW_MATURITE.map((d, i) => pt(i, niveaux[d.id] || 0).join(',')).join(' ')} fill="rgba(13,148,136,0.25)" stroke="#0d9488" strokeWidth="2" />
+        {CW_MATURITE.map((d, i) => { const [x, y] = pt(i, 5.9); return <text key={d.id} x={x} y={y} fontSize="8" textAnchor="middle" fill="#374151">{d.titre.split(' ')[0]}</text>; })}
+      </svg>
+    );
+  };
+  const exporter = () => {
+    const inst = DB.institutions.find(i => i.id === etab);
+    const lignes = [['dimension', 'stade_declare', 'libelle'], ...CW_MATURITE.map(d => [d.titre, niveaux[d.id] || 0, CW_MATURITE_STADES[niveaux[d.id] || 0]]),
+      ['stade_declare_global', stadeDeclare ?? '', ''], ['plafond_observe', obs.plafond, obs.motif], ['stade_global', stadeGlobal ?? '', ''], ['etablissement', inst ? inst.fullName : '', ''], ['grille_version', CW_MATURITE_VERSION, ''], ['date', new Date().toISOString().slice(0, 10), '']];
+    cwTelecharger(`carewatch_maturite_${new Date().toISOString().slice(0, 10)}.csv`, lignes.map(l => l.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(';')).join('\n'));
+  };
+  return (
+    <div className="p-4 md:p-8 max-w-3xl mx-auto">
+      <div className="flex items-center gap-2 mb-1"><h2 className="text-2xl font-bold">Maturité en équité des soins</h2><span className="px-2 py-0.5 rounded text-xs bg-amber-100 text-amber-800">alpha</span></div>
+      <p className="text-gray-600 mb-4">Six dimensions, cinq stades. Un établissement s’autoévalue, puis les données CareWatch plafonnent le stade global : sans mesure auprès des patient·e·s, il reste au stade 2 au plus. L’attribution d’un label passera par une validation externe, à construire avec les établissements et les autorités.</p>
+      <div className="flex gap-2 mb-6">
+        {[['grille', 'Grille'], ['auto', 'Autoévaluation']].map(([k, l]) => <button key={k} onClick={() => setOnglet(k)} className={`px-4 py-2.5 rounded-lg font-semibold text-base ${onglet === k ? 'bg-teal-100 text-teal-700' : 'bg-gray-100 text-gray-600'}`}>{l}</button>)}
+      </div>
+
+      {onglet === 'grille' && (
+        <div className="space-y-4">
+          <Card className="p-4">
+            <p className="text-sm text-gray-700 mb-2"><span className="font-semibold">Stades.</span> {CW_MATURITE_STADES.map((s, i) => `${i} ${s}`).join(' · ')}.</p>
+            <p className="text-sm text-gray-700">Un stade est atteint quand son critère et ceux des stades inférieurs sont remplis. Le stade global déclaré est le plus bas des six dimensions. Le stade 3 suppose une mesure standardisée auprès des patient·e·s, par exemple le baromètre CareWatch.</p>
+          </Card>
+          {CW_MATURITE.map(d => (
+            <Card key={d.id} className="p-4">
+              <h3 className="font-semibold text-gray-900 mb-2">{d.titre}</h3>
+              <ol className="space-y-1.5">
+                {d.stades.map((c, i) => <li key={i} className="flex items-start gap-3 text-sm text-gray-700"><span className="w-6 h-6 rounded-full bg-teal-100 text-teal-800 flex items-center justify-center text-xs font-bold flex-shrink-0">{i + 1}</span><span>{c}</span></li>)}
+              </ol>
+            </Card>
+          ))}
+          <p className="text-xs text-gray-500">Grille version {CW_MATURITE_VERSION}, publiée sous licence CC BY 4.0. Toute reprise mentionne CareWatch.</p>
+        </div>
+      )}
+
+      {onglet === 'auto' && (
+        <div className="space-y-4">
+          <Card className="p-4">
+            <Select label="Établissement (facultatif, pour le plafond observé)" value={etab} onChange={setEtab} options={DB.institutions.slice().sort((a, b) => a.fullName.localeCompare(b.fullName)).map(i => ({ value: i.id, label: i.fullName }))} />
+            <p className="text-xs text-gray-500 mt-2">Les réponses restent sur cet appareil. Pour chaque dimension, choisissez le stade le plus élevé dont le critère et ceux des stades inférieurs sont remplis.</p>
+          </Card>
+          {CW_MATURITE.map(d => (
+            <Card key={d.id} className="p-4">
+              <h3 className="font-semibold text-gray-900 mb-2">{d.titre}</h3>
+              <div className="space-y-1.5">
+                <button onClick={() => setNiveaux(p => ({ ...p, [d.id]: 0 }))} className={`w-full text-left p-2 rounded-lg border text-sm ${(niveaux[d.id] || 0) === 0 && niveaux[d.id] !== undefined ? 'bg-teal-50 border-teal-500' : 'bg-white border-gray-200'}`}><span className="font-semibold">0 · Non engagé</span> <span className="text-gray-600">Aucun critère rempli.</span></button>
+                {d.stades.map((c, i) => <button key={i} onClick={() => setNiveaux(p => ({ ...p, [d.id]: i + 1 }))} className={`w-full text-left p-2 rounded-lg border text-sm ${niveaux[d.id] === i + 1 ? 'bg-teal-50 border-teal-500' : 'bg-white border-gray-200'}`}><span className="font-semibold">{i + 1} · {CW_MATURITE_STADES[i + 1]}</span> <span className="text-gray-600">{c}</span></button>)}
+              </div>
+            </Card>
+          ))}
+          <Card className="p-4">
+            <h3 className="font-semibold text-gray-900 mb-3">Résultat</h3>
+            {!complet && <p className="text-sm text-gray-500 mb-3">Répondez aux six dimensions pour obtenir le stade global.</p>}
+            <Radar />
+            <div className="divide-y text-sm mt-3">
+              {CW_MATURITE.map(d => <div key={d.id} className="py-1.5 flex justify-between gap-3"><span className="text-gray-700">{d.titre}</span><span className="font-semibold">{niveaux[d.id] !== undefined ? `${niveaux[d.id]} · ${CW_MATURITE_STADES[niveaux[d.id]]}` : '—'}</span></div>)}
+              <div className="py-1.5 flex justify-between gap-3"><span className="text-gray-700">Stade déclaré (minimum des six)</span><span className="font-semibold">{stadeDeclare === null ? '—' : `${stadeDeclare} · ${CW_MATURITE_STADES[stadeDeclare]}`}</span></div>
+              <div className="py-1.5 flex justify-between gap-3"><span className="text-gray-700">Plafond observé{etab ? '' : ' (établissement non choisi)'}</span><span className="font-semibold">{obs.plafond} <span className="text-gray-500 font-normal">· {obs.motif}</span></span></div>
+              <div className="py-2 flex justify-between gap-3 text-base"><span className="font-semibold text-gray-900">Stade global</span><span className="font-bold text-teal-800">{stadeGlobal === null ? '—' : `${stadeGlobal} · ${CW_MATURITE_STADES[stadeGlobal]}`}</span></div>
+            </div>
+            <div className="flex flex-wrap gap-2 mt-4">
+              <Button variant="outline" icon={FileText} onClick={exporter} disabled={!complet}>Télécharger le résultat (CSV)</Button>
+              <Button variant="outline" onClick={() => { if (window.confirm('Effacer les réponses conservées sur cet appareil ?')) setNiveaux({}); }}>Effacer</Button>
+              <Button variant="outline" onClick={() => setView('barometre')}>Ouvrir le baromètre</Button>
+            </div>
+          </Card>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // Périmètre, état des modules et cadre de qualité : ce qui existe, ce qui est en démonstration, ce qui est prévu.
 function EtatProjetPage() {
   const { setView } = useApp();
@@ -10145,6 +10298,7 @@ function EtatProjetPage() {
     ['Tableau de bord par établissement', 'Indicateurs par service et par motif, sans texte libre', 'Prévu'],
     ['Rapport annuel aux autorités cantonales', 'Indicateurs stratifiés, recommandations', 'Prévu'],
     ['Actualités et veille', 'Annonces de l’équipe et titres relevés automatiquement', 'Opérationnel'],
+    ['Maturité en équité des soins', 'Grille en six dimensions et cinq stades, autoévaluation, plafond fixé par les données mesurées', 'Alpha'],
   ];
   const complementaires = [
     ['Signalement par les professionnel·le·s', 'Canal indépendant de l’employeur, détails généralisés', 'Opérationnel'],
@@ -10186,7 +10340,8 @@ function EtatProjetPage() {
       <Card className="p-5 mb-4">
         <h3 className="font-semibold text-gray-900 mb-2">Mesure systématique</h3>
         <p className="text-sm text-gray-700 mb-2">Trois sources alimentent les mêmes indicateurs : les signalements, les retours positifs et le baromètre d’expérience, ouvert à toute personne soignée, avec ou sans incident. Les sept questions de l’échelle DMS (Discrimination in Medical Settings) sont posées dans les trois cas, ce qui rend les résultats comparables entre établissements et dans le temps.</p>
-        <p className="text-sm text-gray-700">L’indice d’équité par établissement combine le ressenti moyen (70 %) et la part de retours positifs (30 %), sur témoignages vérifiés, publié dès cinq témoignages. <button onClick={() => setView('methodology')} className="text-teal-700 underline">Méthodologie</button></p>
+        <p className="text-sm text-gray-700 mb-2">L’indice d’équité par établissement combine le ressenti moyen (70 %) et la part de retours positifs (30 %), sur témoignages vérifiés, publié dès cinq témoignages. <button onClick={() => setView('methodology')} className="text-teal-700 underline">Méthodologie</button></p>
+        <p className="text-sm text-gray-700">Pour les établissements, une grille de maturité en six dimensions et cinq stades relie leur organisation aux résultats mesurés. <button onClick={() => setView('maturite')} className="text-teal-700 underline">Grille et autoévaluation</button></p>
       </Card>
 
       <Card className="p-5 mb-4">
@@ -11700,6 +11855,14 @@ function PublicPage() {
     );
   }
 
+  if (view === 'maturite' || view === 'maturite-public') {
+    return (
+      <div className="min-h-screen bg-white">
+        <div className="max-w-3xl mx-auto p-4 md:p-8"><BackButton /></div>
+        <MaturitePage />
+      </div>
+    );
+  }
   if (view === 'etat' || view === 'etat-public') {
     return (
       <div className="min-h-screen bg-white">
