@@ -2695,6 +2695,33 @@ function InstitutionModal({ institution: inst, onClose }) {
           </div>
         )}
 
+        {/* Ressenti par service (démonstration) */}
+        {showDemo && (() => {
+          const graine = String(inst.id || inst.name).split('').reduce((a, c) => (a * 31 + c.charCodeAt(0)) % 9973, 7);
+          const al = (k) => ((graine * (k + 3) * 7919) % 1000) / 1000;
+          const services = ['Urgences', 'Consultation externe', 'Médecine interne', 'Chirurgie', 'Maternité', 'Pédiatrie', 'Psychiatrie', 'Accueil et admissions']
+            .map((svc, k) => ({ svc, n: 12 + Math.round(al(k) * 140), r: 0.06 + al(k + 11) * 0.32 }))
+            .filter((_, k) => al(k + 23) > 0.3).slice(0, 6).sort((a, b) => a.r - b.r);
+          if (services.length < 3) return null;
+          return (
+            <div className="bg-amber-50 border border-amber-100 rounded-xl p-4">
+              <p className="text-xs text-amber-800 mb-1">Exemple fictif, affiché parce que les données de démonstration sont activées.</p>
+              <h4 className="font-semibold text-gray-900 mb-3">Ressenti de discrimination par service, du plus bas au plus élevé</h4>
+              <div className="text-sm text-gray-800 space-y-1.5">
+                {services.map((x, i) => (
+                  <div key={x.svc} className="flex items-center gap-3">
+                    <span className="text-xs text-gray-500 flex-shrink-0" style={{ width: 16 }}>{i + 1}</span>
+                    <span className="truncate flex-shrink-0" style={{ width: 168 }}>{x.svc}</span>
+                    <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden"><div className={`h-full rounded-full ${x.r < 0.15 ? 'bg-emerald-500' : x.r < 0.25 ? 'bg-teal-500' : x.r < 0.3 ? 'bg-amber-500' : 'bg-rose-500'}`} style={{ width: `${Math.round(x.r * 100)}%` }} /></div>
+                    <span className="text-right text-xs text-gray-600 flex-shrink-0 whitespace-nowrap" style={{ width: 140 }}>{Math.round(x.r * 100)} % · {x.n} réponses</span>
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-gray-600 mt-3">0 % jamais, 100 % toujours, sur l’échelle DMS. Avec de vraies données, ce détail par service apparaît dès cinq témoignages vérifiés pour l’établissement, et trois par service.</p>
+            </div>
+          );
+        })()}
+
         {/* Dernière inspection (démonstration) */}
         {showDemo && inst.lastInspection && (
           <div className="bg-indigo-50 rounded-xl p-4">
@@ -5825,7 +5852,7 @@ function BarometreExperience() {
       {etape < 3 && (
         <div className="mt-4">
           {erreur && <p className="text-sm text-rose-700 mb-2">{erreur}</p>}
-          {manque().length > 0 && <p className="text-xs text-gray-500 mb-2">Il manque : {manque().join(', ')}.</p>}
+          {manque().length > 0 && <p className="text-xs text-rose-700 mb-2">Il manque : {manque().join(', ')}.</p>}
           <div className="flex justify-between gap-2">
             <Button variant="outline" onClick={() => etape === 0 ? setView('patient-home') : setEtape(etape - 1)}>{etape === 0 ? 'Annuler' : 'Précédent'}</Button>
             {etape < 2 ? <Button onClick={() => setEtape(etape + 1)} disabled={manque().length > 0}>Suivant</Button> : <Button onClick={envoyer} disabled={busy}>{busy ? 'Envoi…' : 'Envoyer'}</Button>}
