@@ -2318,6 +2318,8 @@ function Landing() {
       </section>
       )}
 
+      <BoutonsFlottants temoigner={() => { setLoginType('patient'); setShowLogin(true); }} libelle="Témoigner" />
+
       {/* ===== FOOTER ===== */}
       <footer className="bg-gray-100 text-gray-600 border-t border-gray-200 py-10 px-6">
         <div className="max-w-4xl mx-auto">
@@ -3023,7 +3025,7 @@ function AppShell() {
 
       {/* Institution modal — accessible from any view */}
       {selectedInstitution && <InstitutionModal institution={selectedInstitution} onClose={() => setSelectedInstitution(null)} />}
-      {userType !== 'admin' && <SortieRapide />}
+      {userType !== 'admin' && <BoutonsFlottants temoigner={() => setView('new-report')} libelle={userType === 'professional' ? 'Signaler' : 'Témoigner'} />}
     </div>
   );
 }
@@ -5655,17 +5657,26 @@ function AdminQuestions({ signaler }) {
 }
 
 // Sortie rapide : quitte le site vers une page neutre et remplace l'entrée d'historique.
-function SortieRapide() {
+// Boutons flottants : retour en haut de page, témoigner, quitter le site (touche Échap).
+function BoutonsFlottants({ temoigner, libelle }) {
+  const [haut, setHaut] = useState(false);
   const quitter = () => { try { sessionStorage.clear(); } catch (e) {} window.location.replace('https://www.meteosuisse.admin.ch/'); };
+  const conteneurs = () => [window, ...document.querySelectorAll('main, .overflow-y-auto')];
+  const remonter = () => { conteneurs().forEach(c => { try { c.scrollTo({ top: 0, behavior: 'smooth' }); } catch (e) { if (c.scrollTop !== undefined) c.scrollTop = 0; } }); };
   useEffect(() => {
-    const h = (e) => { if (e.key === 'Escape' && !e.defaultPrevented) { const t = e.target; const saisie = t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT'); if (!saisie) quitter(); } };
-    window.addEventListener('keydown', h);
-    return () => window.removeEventListener('keydown', h);
+    const mesurer = () => { const y = Math.max(window.scrollY || 0, ...[...document.querySelectorAll('main, .overflow-y-auto')].map(e => e.scrollTop || 0)); setHaut(y > 400); };
+    const touche = (e) => { if (e.key === 'Escape' && !e.defaultPrevented) { const t = e.target; const saisie = t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT'); if (!saisie) quitter(); } };
+    document.addEventListener('scroll', mesurer, true);
+    window.addEventListener('keydown', touche);
+    mesurer();
+    return () => { document.removeEventListener('scroll', mesurer, true); window.removeEventListener('keydown', touche); };
   }, []);
   return (
-    <button type="button" onClick={quitter} title="Quitter rapidement le site (touche Échap)" className="fixed z-40 right-3 rounded-full bg-gray-900 text-white text-xs font-semibold px-3 py-2 shadow-lg" style={{ bottom: 88 }}>
-      Quitter le site (Échap)
-    </button>
+    <div className="fixed z-40 right-3 flex flex-col items-end gap-2" style={{ bottom: 88 }}>
+      {haut && <button type="button" onClick={remonter} title="Retour en haut de la page" aria-label="Retour en haut" className="w-10 h-10 rounded-full bg-white border border-gray-300 text-gray-700 shadow-lg flex items-center justify-center text-lg font-bold">↑</button>}
+      {temoigner && <button type="button" onClick={temoigner} className="rounded-full bg-teal-600 hover:bg-teal-700 text-white text-xs font-semibold px-4 py-2 shadow-lg">{libelle || 'Témoigner'}</button>}
+      <button type="button" onClick={quitter} title="Quitter rapidement le site (touche Échap)" className="rounded-full bg-gray-900 text-white text-xs font-semibold px-3 py-2 shadow-lg">Quitter le site (Échap)</button>
+    </div>
   );
 }
 
