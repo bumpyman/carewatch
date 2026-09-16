@@ -5620,7 +5620,7 @@ function QuestionsPage() {
           <div className="flex items-start gap-2"><Lock className="w-4 h-4 text-teal-700 flex-shrink-0 mt-0.5" /><span><span className="font-semibold">Vous restez anonyme.</span> Ni compte, ni adresse e-mail, ni adresse IP conservée avec votre question. Seuls le texte et le profil choisi sont enregistrés.</span></div>
           <div className="flex items-start gap-2"><Shield className="w-4 h-4 text-teal-700 flex-shrink-0 mt-0.5" /><span><span className="font-semibold">Une relecture avant publication.</span> Noms, lieux précis et dates sont retirés ou généralisés ; aucun cas individuel n’est traité en public.</span></div>
           <div className="flex items-start gap-2"><Users className="w-4 h-4 text-teal-700 flex-shrink-0 mt-0.5" /><span><span className="font-semibold">Des personnes répondent.</span> L’équipe CareWatch, avec ses partenaires juridiques et associatifs, sous dix jours ouvrables.</span></div>
-          <div className="flex items-start gap-2"><X className="w-4 h-4 text-teal-700 flex-shrink-0 mt-0.5" /><span><span className="font-semibold">Vous pouvez effacer vos traces.</span> Le bouton « Quitter le site » remplace la page par la météo ; une fenêtre de navigation privée ne garde rien après fermeture. <button onClick={() => setView('privacy-public')} className="underline">Confidentialité</button></span></div>
+          <div className="flex items-start gap-2"><X className="w-4 h-4 text-teal-700 flex-shrink-0 mt-0.5" /><span><span className="font-semibold">Vous pouvez effacer vos traces.</span> Le bouton « Quitter le site » remplace immédiatement cette page par celle de la météo. Si vous ouvrez CareWatch dans une fenêtre de navigation privée, votre navigateur oublie la visite dès que vous fermez la fenêtre. <button onClick={() => setView('privacy-public')} className="underline">Confidentialité</button></span></div>
         </div>
       </Card>
 
@@ -10216,6 +10216,26 @@ function AdminDashboard() {
           </div>
         </Card>
       </div>
+      {/* Ressenti par service (démonstration) */}
+      {!reel && (
+      <Card className="p-4">
+        <h3 className="font-medium mb-1 flex items-center gap-2">
+          <TrendingUp className="w-5 h-5 text-emerald-500" />
+          Services du moins au plus discriminant
+        </h3>
+        <p className="text-xs text-gray-500 mb-3">Ressenti moyen de discrimination sur l’échelle DMS, tous établissements confondus. Données fictives.</p>
+        <div className="space-y-2">
+          {[['Maternité', 412, 0.09], ['Pédiatrie', 268, 0.11], ['Oncologie', 187, 0.13], ['Chirurgie', 305, 0.17], ['Consultation externe', 640, 0.19], ['Médecine interne', 351, 0.24], ['Psychiatrie', 142, 0.27], ['Urgences adultes', 1024, 0.31], ['Accueil et admissions', 288, 0.34]].map(([svc, n, r], i) => (
+            <div key={svc} className="flex items-center gap-3 text-sm">
+              <span className="text-xs text-gray-500 flex-shrink-0" style={{ width: 16 }}>{i + 1}</span>
+              <span className="truncate flex-shrink-0 text-gray-800" style={{ width: 168 }}>{svc}</span>
+              <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden"><div className={`h-full rounded-full ${r < 0.15 ? 'bg-emerald-500' : r < 0.25 ? 'bg-teal-500' : r < 0.3 ? 'bg-amber-500' : 'bg-rose-500'}`} style={{ width: `${Math.round(r * 100)}%` }} /></div>
+              <span className="text-right text-xs text-gray-600 flex-shrink-0 whitespace-nowrap" style={{ width: 140 }}>{Math.round(r * 100)} % · {n} réponses</span>
+            </div>
+          ))}
+        </div>
+      </Card>
+      )}
 
       <div className="grid md:grid-cols-2 gap-6 mb-6">
         {/* Établissements à surveiller */}
