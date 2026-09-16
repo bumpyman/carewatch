@@ -65,11 +65,17 @@
           .cw-tableau td[data-label]::before { content: attr(data-label) " : "; color: #6b7280; font-size: 0.8125rem; }
           .cw-tableau td[colspan] { padding: 0.75rem 0 !important; }
           .cw-legende { display: none; }
+          .cw-soutiens > * { flex-basis: calc(33.333% - 16px) !important; height: 48px !important; }
           .cw-defile { max-height: none !important; overflow-y: visible !important; }
           .cw-detail { white-space: normal !important; overflow: visible !important; text-overflow: clip !important; }
           .cw-activite { flex-wrap: wrap; }
           .cw-activite > div { flex-basis: 100%; }
         }
+
+        /* Soutiens : cinq logos par ligne, lignes centrées */
+        .cw-soutiens { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 20px 28px; }
+        .cw-soutiens > * { flex: 0 0 calc(20% - 28px); height: 60px; display: flex; align-items: center; justify-content: center; text-align: center; }
+        .cw-soutiens img { max-height: 100%; max-width: 100%; width: auto; height: auto; }
 
         /* Card padding boost — p-3 and p-4 are too tight */
         /* Only boost inside main content area, not nav/badges */
@@ -1876,11 +1882,11 @@ const CW_SOUTIENS = [
 function LogoSoutien({ soutien }) {
   const [etat, setEtat] = useState('svg'); // svg → png → nom
   const contenu = etat === 'nom'
-    ? <span className="px-3 py-1.5 rounded-full text-sm bg-gray-50 border border-gray-200 text-gray-800">{soutien.nom}</span>
-    : <img src={`logos/${soutien.id}.${etat}`} alt={soutien.nom} title={soutien.nom} style={{ height: 44, maxWidth: 160, objectFit: 'contain' }} onError={() => setEtat(etat === 'svg' ? 'png' : 'nom')} />;
+    ? <span className="px-3 py-1.5 rounded-full text-xs bg-gray-50 border border-gray-200 text-gray-800">{soutien.nom}</span>
+    : <img src={`logos/${soutien.id}.${etat}`} alt={soutien.nom} title={soutien.nom} style={{ objectFit: 'contain' }} onError={() => setEtat(etat === 'svg' ? 'png' : 'nom')} />;
   return soutien.url
-    ? <a href={soutien.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center hover:opacity-80" title={soutien.nom}>{contenu}</a>
-    : <span className="inline-flex items-center">{contenu}</span>;
+    ? <a href={soutien.url} target="_blank" rel="noopener noreferrer" className="hover:opacity-80" title={soutien.nom}>{contenu}</a>
+    : <span>{contenu}</span>;
 }
 
 function Landing() {
@@ -2305,9 +2311,9 @@ function Landing() {
 
       {/* ===== SOUTIENS ===== */}
       <section className="bg-white border-b border-gray-200">
-        <div className="max-w-3xl mx-auto px-6 py-10">
-          <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-4">Avec le soutien de</p>
-          <div className="flex flex-wrap items-center gap-3">
+        <div className="max-w-4xl mx-auto px-6 py-10">
+          <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-5 text-center">Avec le soutien de</p>
+          <div className="cw-soutiens">
             {CW_SOUTIENS.map(x => <LogoSoutien key={x.id} soutien={x} />)}
           </div>
         </div>
