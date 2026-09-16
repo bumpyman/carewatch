@@ -5709,7 +5709,7 @@ function BarometreExperience() {
           <p className="text-xs text-amber-800 mb-2">Exemple fictif de ce que le baromètre produit pour un établissement, affiché parce que les données de démonstration sont activées.</p>
           <div className="text-sm text-gray-800 space-y-1">
             {[['Urgences adultes', 142, 0.31], ['Maternité', 88, 0.12], ['Consultation externe', 64, 0.19], ['Médecine interne', 51, 0.24]].map(([svc, n, r]) => (
-              <div key={svc} className="flex items-center gap-3"><span className="w-44 truncate">{svc}</span><div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden"><div className="h-full bg-teal-500 rounded-full" style={{ width: `${Math.round(r * 100)}%` }} /></div><span className="w-28 text-right text-xs text-gray-600">{n} réponses · {Math.round(r * 100)} %</span></div>
+              <div key={svc} className="flex items-center gap-3"><span className="truncate" style={{ width: 176 }}>{svc}</span><div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden"><div className="h-full bg-teal-500 rounded-full" style={{ width: `${Math.round(r * 100)}%` }} /></div><span className="text-right text-xs text-gray-600" style={{ width: 112 }}>{n} réponses · {Math.round(r * 100)} %</span></div>
             ))}
           </div>
           <p className="text-xs text-gray-600 mt-2">Le pourcentage est le ressenti moyen de discrimination : 0 % jamais, 100 % toujours.</p>
