@@ -5745,13 +5745,19 @@ function BarometreExperience() {
       <p className="text-gray-600 mb-5">Sept questions sur la façon dont vous avez été traité·e lors d’un épisode de soins, avec ou sans incident. Deux minutes, sans récit, anonyme.</p>
       {showDemo && etape === 0 && (
         <Card className="p-4 mb-4 bg-amber-50 border-amber-100">
-          <p className="text-xs text-amber-800 mb-2">Exemple fictif de ce que le baromètre produit pour un établissement, affiché parce que les données de démonstration sont activées.</p>
-          <div className="text-sm text-gray-800 space-y-1">
-            {[['Urgences adultes', 142, 0.31], ['Maternité', 88, 0.12], ['Consultation externe', 64, 0.19], ['Médecine interne', 51, 0.24]].map(([svc, n, r]) => (
-              <div key={svc} className="flex items-center gap-3"><span className="truncate flex-shrink-0" style={{ width: 176 }}>{svc}</span><div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden"><div className="h-full bg-teal-500 rounded-full" style={{ width: `${Math.round(r * 100)}%` }} /></div><span className="text-right text-xs text-gray-600 flex-shrink-0 whitespace-nowrap" style={{ width: 140 }}>{n} réponses · {Math.round(r * 100)} %</span></div>
+          <p className="text-xs text-amber-800 mb-1">Exemple fictif, affiché parce que les données de démonstration sont activées.</p>
+          <p className="text-sm font-semibold text-gray-900 mb-3">Ce que le baromètre permettra de lire, tous établissements confondus : le ressenti de discrimination par type de service, du plus bas au plus élevé.</p>
+          <div className="text-sm text-gray-800 space-y-1.5">
+            {[['Maternité', 412, 0.09], ['Pédiatrie', 268, 0.11], ['Oncologie', 187, 0.13], ['Chirurgie', 305, 0.17], ['Consultation externe', 640, 0.19], ['Médecine interne', 351, 0.24], ['Psychiatrie', 142, 0.27], ['Urgences adultes', 1024, 0.31], ['Accueil et admissions', 288, 0.34]].map(([svc, n, r], i) => (
+              <div key={svc} className="flex items-center gap-3">
+                <span className="text-xs text-gray-500 flex-shrink-0" style={{ width: 16 }}>{i + 1}</span>
+                <span className="truncate flex-shrink-0" style={{ width: 168 }}>{svc}</span>
+                <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden"><div className={`h-full rounded-full ${r < 0.15 ? 'bg-emerald-500' : r < 0.25 ? 'bg-teal-500' : r < 0.3 ? 'bg-amber-500' : 'bg-rose-500'}`} style={{ width: `${Math.round(r * 100)}%` }} /></div>
+                <span className="text-right text-xs text-gray-600 flex-shrink-0 whitespace-nowrap" style={{ width: 140 }}>{Math.round(r * 100)} % · {n} réponses</span>
+              </div>
             ))}
           </div>
-          <p className="text-xs text-gray-600 mt-2">Le pourcentage est le ressenti moyen de discrimination : 0 % jamais, 100 % toujours.</p>
+          <p className="text-xs text-gray-600 mt-3">Le pourcentage est le ressenti moyen de discrimination sur l’échelle DMS : 0 % jamais, 100 % toujours. Avec de vraies données, la même lecture existera par établissement, par motif et dans le temps, dès cinq témoignages vérifiés par établissement.</p>
         </Card>
       )}
       {etape < 3 && <p className="text-xs text-gray-500 mb-4">Étape {etape + 1} sur 3</p>}
