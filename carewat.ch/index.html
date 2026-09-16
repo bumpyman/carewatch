@@ -5527,14 +5527,21 @@ function SituationsPage() {
 }
 
 // Questions et réponses : question anonyme, réponse de l'équipe publiée après réécriture.
+const CW_QUESTIONS_DEMO = [
+  { id: 'd1', profil: 'patient', repondu_le: '2026-02-03', question: 'Aux urgences, on m’a demandé mon permis de séjour avant de m’examiner. Est-ce normal ?', reponse: 'Les soins d’urgence sont dus à toute personne, quel que soit son statut. L’établissement peut demander une pièce d’identité pour la facturation, mais après la prise en charge, pas comme condition pour être vu·e. Notez la date, le service et ce qui a été dit ; vous pouvez le signaler ici et, si des soins ont été refusés, saisir le médecin cantonal ou le Centre LAVI de votre canton.' },
+  { id: 'd2', profil: 'proche', repondu_le: '2026-01-21', question: 'Ma mère ne parle pas français. L’hôpital a refusé de faire venir un·e interprète et m’a demandé de traduire moi-même.', reponse: 'Comprendre son diagnostic et son traitement fait partie du consentement : l’établissement doit rendre l’information compréhensible, au besoin avec un·e interprète professionnel·le. Un proche n’en tient pas lieu, surtout pour des décisions importantes. Demandez l’interprète par écrit avant la prochaine consultation ; Interpret et les services cantonaux de médiation interculturelle peuvent vous orienter.' },
+  { id: 'd3', profil: 'professionnel', repondu_le: '2026-01-09', question: 'Un patient a refusé que je le soigne à cause de ma couleur de peau. Ma cheffe me dit de ne pas en faire une histoire.', reponse: 'Votre employeur doit protéger votre personnalité, ce qui inclut la discrimination venant de patient·e·s. Consignez les faits avec date et témoins, sans données de patient·e·s, et utilisez le canal interne si vous lui faites confiance. CareWatch est indépendant de l’employeur ; l’APSR-GE et les syndicats accompagnent ce type de situation.' },
+  { id: 'd4', profil: 'patient', repondu_le: '2025-12-12', question: 'Si je signale, l’hôpital peut-il retrouver qui a écrit ?', reponse: 'Le texte libre reste dans la base et n’est jamais transmis à l’établissement. Celui-ci reçoit des indicateurs par service et par motif, à partir de cinq témoignages. Une fiche résumée n’est publiée qu’avec votre accord, après retrait des dates précises et des détails rares. Vous pouvez la retirer à tout moment avec votre numéro et votre code.' },
+];
 function QuestionsPage() {
-  const { setView } = useApp();
+  const { setView, showDemo } = useApp();
   const [liste, setListe] = useState(null);
   const [q, setQ] = useState({ texte: '', profil: 'patient', accord: false, busy: false, envoye: false, erreur: '' });
   const [recherche, setRecherche] = useState('');
   const [filtreProfil, setFiltreProfil] = useState('');
-  useEffect(() => { (async () => { try { const { data } = await window.cwDb.rpc('questions_publiees'); setListe(Array.isArray(data) ? data : []); } catch (e) { setListe([]); } })(); }, []);
+  useEffect(() => { if (showDemo) { setListe(CW_QUESTIONS_DEMO); return; } (async () => { try { const { data } = await window.cwDb.rpc('questions_publiees'); setListe(Array.isArray(data) ? data : []); } catch (e) { setListe([]); } })(); }, [showDemo]);
   const envoyer = async () => {
+    if (showDemo) { setQ(p => ({ ...p, erreur: 'Données de démonstration affichées : désactivez-les pour poser une vraie question.' })); return; }
     if (q.texte.trim().length < 15) { setQ(p => ({ ...p, erreur: 'Quelques mots de plus, pour que l’équipe comprenne la situation.' })); return; }
     setQ(p => ({ ...p, busy: true, erreur: '' }));
     let data = null, error = null;
@@ -5579,7 +5586,9 @@ function QuestionsPage() {
         )}
       </Card>
 
-      <h3 className="font-semibold text-gray-900 mb-3">Questions et réponses publiques</h3>
+      <h3 className="font-semibold text-gray-900 mb-1">Questions et réponses publiques</h3>
+      {showDemo && <p className="text-xs text-amber-800 bg-amber-50 border border-amber-100 rounded-lg px-3 py-2 mb-3">Exemples fictifs, affichés parce que les données de démonstration sont activées.</p>}
+      {!showDemo && <div className="mb-3" />}
       {liste && liste.length > 0 && (
         <div className="flex flex-col sm:flex-row gap-2 mb-3">
           <input type="search" value={recherche} onChange={e => setRecherche(e.target.value)} placeholder="Rechercher dans les questions" className="flex-1 px-3 py-2 rounded-xl border-2 border-gray-200 focus:border-teal-500 focus:outline-none text-sm" />
@@ -5662,7 +5671,7 @@ function SortieRapide() {
 
 // Baromètre d'expérience : mesure systématique de l'expérience de traitement, avec ou sans incident, sans récit.
 function BarometreExperience() {
-  const { DB, setView, ref } = useApp();
+  const { DB, setView, ref, showDemo } = useApp();
   const [etape, setEtape] = useState(0);
   const [d, setD] = useState({ canton: '', institution: '', service: '', periode: '', role: 'patient', vecu: false, dms: {}, motifs: [], renoncement: '', confiance: 0 });
   const [busy, setBusy] = useState(false);
@@ -5695,6 +5704,17 @@ function BarometreExperience() {
     <div className="p-4 md:p-8 max-w-2xl mx-auto">
       <div className="flex items-center gap-2 mb-1"><h2 className="text-xl font-bold">Baromètre d’expérience</h2><span className="px-2 py-0.5 rounded text-xs bg-amber-100 text-amber-800">alpha</span></div>
       <p className="text-gray-600 mb-5">Sept questions sur la façon dont vous avez été traité·e lors d’un épisode de soins, avec ou sans incident. Deux minutes, sans récit, anonyme.</p>
+      {showDemo && etape === 0 && (
+        <Card className="p-4 mb-4 bg-amber-50 border-amber-100">
+          <p className="text-xs text-amber-800 mb-2">Exemple fictif de ce que le baromètre produit pour un établissement, affiché parce que les données de démonstration sont activées.</p>
+          <div className="text-sm text-gray-800 space-y-1">
+            {[['Urgences adultes', 142, 0.31], ['Maternité', 88, 0.12], ['Consultation externe', 64, 0.19], ['Médecine interne', 51, 0.24]].map(([svc, n, r]) => (
+              <div key={svc} className="flex items-center gap-3"><span className="w-44 truncate">{svc}</span><div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden"><div className="h-full bg-teal-500 rounded-full" style={{ width: `${Math.round(r * 100)}%` }} /></div><span className="w-28 text-right text-xs text-gray-600">{n} réponses · {Math.round(r * 100)} %</span></div>
+            ))}
+          </div>
+          <p className="text-xs text-gray-600 mt-2">Le pourcentage est le ressenti moyen de discrimination : 0 % jamais, 100 % toujours.</p>
+        </Card>
+      )}
       {etape < 3 && <p className="text-xs text-gray-500 mb-4">Étape {etape + 1} sur 3</p>}
       {etape === 0 && (
         <Card className="p-5 space-y-4">
