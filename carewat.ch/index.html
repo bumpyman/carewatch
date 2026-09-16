@@ -1970,7 +1970,7 @@ function Landing() {
       {/* ===== HERO ===== */}
       <section className="bg-gradient-to-b from-teal-50/80 to-white">
         <div className="max-w-3xl mx-auto px-6 pt-12 pb-10 md:pt-20 md:pb-14 text-center">
-          <p className="text-xs font-semibold uppercase tracking-wider text-teal-700 mb-4">Observatoire participatif · Soutenu par la HEG-Genève, Unisanté, les HUG et leurs partenaires</p>
+          <p className="text-xs font-semibold uppercase tracking-wider text-teal-700 mb-4">Observatoire participatif · Suisse romande</p>
           <h2 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-gray-900 leading-[1.08] tracking-tight mb-5">
             L’équité des soins,<br className="sm:hidden" /> documentée par celles et ceux qui la vivent.
           </h2>
@@ -2265,7 +2265,7 @@ function Landing() {
           <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-8">Cadre scientifique et éthique</h3>
           <div className="grid sm:grid-cols-2 gap-4">
             {[
-              { title: 'Soutiens', desc: 'HEG-Genève (HES-SO), Unisanté, Hôpitaux universitaires de Genève, Berner Fachhochschule, Centre LAVI Vaud, Fondation PROFA, FAANG, APSR-GE, Avenir Syndical. Coordination technique et scientifique par le Convivens Lab.', action: ['Partenaires', 'partners'] },
+              { title: 'Soutiens', desc: 'HEG-Genève (HES-SO), Unisanté, Hôpitaux universitaires de Genève, Berner Fachhochschule, Centre LAVI Vaud, Fondation PROFA, FAANG, APSR-GE, Avenir Syndical, KimboCare, Swiss Health Network for Equity. Coordination technique et scientifique par le Convivens Lab.', action: ['Partenaires', 'partners'] },
               { title: 'Protection des données', desc: 'Témoignages anonymes, hébergement en Suisse, données réduites au strict nécessaire. Les textes publiés sont vérifiés et dé-identifiés.', action: ['Confidentialité', 'privacy-public'] },
               { title: 'Science ouverte', desc: 'Code source publié sous licence AGPL-3.0. Données ouvertes dé-identifiées sous licence CC BY-NC-SA 4.0, avec une interface de programmation documentée.', lien: ['Dépôt GitHub', 'https://github.com/bumpyman/carewatch'] },
               { title: 'Statut', desc: `Version ${CW_VERSION}, alpha fermée sur invitation. Modules opérationnels, en essai, en démonstration ou prévus.`, action: ['État du projet', 'etat'] },
@@ -2277,6 +2277,16 @@ function Landing() {
                 {x.lien && <a href={x.lien[1]} target="_blank" rel="noopener noreferrer" className="text-sm text-teal-700 underline hover:text-teal-700">{x.lien[0]}</a>}
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ===== SOUTIENS ===== */}
+      <section className="bg-white border-b border-gray-200">
+        <div className="max-w-3xl mx-auto px-6 py-10">
+          <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-3">Avec le soutien de</p>
+          <div className="flex flex-wrap gap-2">
+            {['HEG-Genève (HES-SO)', 'Unisanté', 'Hôpitaux universitaires de Genève', 'Berner Fachhochschule', 'Centre LAVI Vaud', 'Fondation PROFA', 'FAANG', 'APSR-GE', 'Avenir Syndical', 'KimboCare', 'Swiss Health Network for Equity'].map(n => <span key={n} className="px-3 py-1.5 rounded-full text-sm bg-gray-50 border border-gray-200 text-gray-800">{n}</span>)}
           </div>
         </div>
       </section>
@@ -11108,7 +11118,7 @@ function FAQPage() {
 function PartnersPage() {
   const { setView } = useApp();
   const partners = [
-    { cat: 'Soutiens du projet', items: ['HEG-Genève (HES-SO)', 'Unisanté', 'Hôpitaux universitaires de Genève (HUG)', 'Berner Fachhochschule (BFH)', 'Centre LAVI Vaud', 'Fondation PROFA', 'FAANG — Fédération des associations afrodescendantes et noires de Genève', 'APSR-GE — Association des professionnel·le·s de santé racisé·e·s', 'Avenir Syndical'] },
+    { cat: 'Soutiens du projet', items: ['HEG-Genève (HES-SO)', 'Unisanté', 'Hôpitaux universitaires de Genève (HUG)', 'Berner Fachhochschule (BFH)', 'Centre LAVI Vaud', 'Fondation PROFA', 'FAANG — Fédération des associations afrodescendantes et noires de Genève', 'APSR-GE — Association des professionnel·le·s de santé racisé·e·s', 'Avenir Syndical', 'KimboCare', 'Swiss Health Network for Equity'] },
     { cat: 'Institutions', items: [
       'HEG-Genève (HES-SO) — Convivens Lab, coordination technique et scientifique',
       'Unisanté — Centre universitaire de médecine générale et santé publique, Lausanne',
@@ -12849,7 +12859,7 @@ function PublicPage() {
 
   if (view === 'partners-public' || view === 'partners') {
     const partners = [
-      { cat: 'Soutiens du projet', items: ['HEG-Genève (HES-SO)', 'Unisanté', 'Hôpitaux universitaires de Genève (HUG)', 'Berner Fachhochschule (BFH)', 'Centre LAVI Vaud', 'Fondation PROFA', 'FAANG — Fédération des associations afrodescendantes et noires de Genève', 'APSR-GE — Association des professionnel·le·s de santé racisé·e·s', 'Avenir Syndical'] },
+      { cat: 'Soutiens du projet', items: ['HEG-Genève (HES-SO)', 'Unisanté', 'Hôpitaux universitaires de Genève (HUG)', 'Berner Fachhochschule (BFH)', 'Centre LAVI Vaud', 'Fondation PROFA', 'FAANG — Fédération des associations afrodescendantes et noires de Genève', 'APSR-GE — Association des professionnel·le·s de santé racisé·e·s', 'Avenir Syndical', 'KimboCare', 'Swiss Health Network for Equity'] },
       { cat: 'Institutions', items: ['HEG-Genève (HES-SO) — Convivens Lab, coordination technique et scientifique', 'Unisanté — Centre universitaire de médecine générale et santé publique, Lausanne', 'HUG — Hôpitaux universitaires de Genève, division des sciences de l\'information médicale (SIMED)'] },
       { cat: 'Membres fondateurs', items: ['Convivens Lab (HES-SO Genève) — Coordination technique & scientifique', 'APSR-GE — Réseau de professionnels de santé racisés', 'Association Suisse de la Drépanocytose — Expertise patient & advocacy', 'KimboCare / Resilia — Navigation santé'] },
       { cat: 'Organisations ressources', items: ['FAANG — Médiation interculturelle', 'Centre LAVI — Accompagnement juridique aux victimes', 'Appartenances — Consultations transculturelles', 'Pluriels — Psychiatrie transculturelle', 'Afro-Cité — Forum de dialogue et mobilisation citoyenne'] },
