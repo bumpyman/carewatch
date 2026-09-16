@@ -3166,7 +3166,7 @@ function ProfessionalHome() {
       <div className="grid grid-cols-2 gap-3">
         {[
           { icon: ClipboardList, label: 'Mes témoignages', desc: 'Suivre et modifier', v: 'my-reports', color: 'teal' },
-          { icon: Users, label: 'Pair-aidance', desc: 'Soutien entre pairs ASPR-GE', v: 'peer-support', color: 'amber' },
+          { icon: Users, label: 'Pair-aidance', desc: 'Soutien entre pairs', v: 'peer-support', color: 'amber' },
           { icon: GraduationCap, label: 'Formations', desc: 'Équité et non-discrimination', v: 'formations', color: 'indigo' },
           { icon: TrendingUp, label: 'Maturité en équité', desc: 'Grille et autoévaluation pour votre établissement', v: 'maturite', color: 'teal' },
           { icon: Building, label: 'Établissements', desc: 'Consulter les évaluations', v: 'institutions', color: 'teal' },
@@ -9294,11 +9294,11 @@ function PeerSupportView() {
 
   const supporters = !showDemo ? [] : [
     { id: 1, name: 'Aïcha Traoré', role: 'Médiatrice interculturelle', org: 'FAANG', available: true, languages: ['FR', 'Bambara', 'EN'], specialties: ['Médiation', 'Accompagnement administratif'], bio: 'Médiatrice expérimentée, j\'accompagne les personnes dans leurs démarches de santé depuis 8 ans.', nextSlot: 'Lun 3 fév, 14h' },
-    { id: 2, name: 'Marc Koné', role: 'Pair aidant certifié', org: 'APSR-GE', available: true, languages: ['FR', 'EN'], specialties: ['Discrimination au travail', 'Burn-out'], bio: 'Infirmier aux HUG pendant 12 ans, j\'ai vécu des situations de discrimination et je suis formé pour accompagner mes pairs.', nextSlot: 'Mar 4 fév, 10h' },
+    { id: 2, name: 'Marc Koné', role: 'Pair aidant certifié', org: 'Réseau de pairs (fictif)', available: true, languages: ['FR', 'EN'], specialties: ['Discrimination au travail', 'Burn-out'], bio: 'Infirmier aux HUG pendant 12 ans, j\'ai vécu des situations de discrimination et je suis formé pour accompagner mes pairs.', nextSlot: 'Mar 4 fév, 10h' },
     { id: 3, name: 'Dr. Claudine Mbeki', role: 'Psychologue transculturelle', org: 'HUG', available: true, languages: ['FR', 'Lingala', 'EN', 'PT'], specialties: ['Trauma', 'Santé mentale', 'Approche transculturelle'], bio: 'Psychologue spécialisée dans l\'accompagnement des personnes migrantes et victimes de discrimination.', nextSlot: 'Mer 5 fév, 16h' },
     { id: 4, name: 'Fatou Diallo', role: 'Patiente experte drépanocytose', org: 'Suisse Drépano', available: true, languages: ['FR', 'Wolof', 'EN'], specialties: ['Drépanocytose', 'Parcours de soins', 'Advocacy'], bio: 'Vivant avec la drépanocytose depuis ma naissance, je partage mon expérience pour aider d\'autres patient·e·s.', nextSlot: 'Jeu 6 fév, 11h' },
     { id: 5, name: 'Ibrahim Sanogo', role: 'Médiateur santé', org: 'Appartenances', available: false, languages: ['FR', 'Soninké', 'Arabe'], specialties: ['Interprétariat', 'Médiation culturelle'], bio: 'Interprète communautaire et médiateur santé, je facilite la communication entre patient·e·s et soignant·e·s.', nextSlot: null },
-    { id: 6, name: 'Dr. Aminata Sy', role: 'Médecin généraliste', org: 'APSR-GE', available: true, languages: ['FR', 'Peul', 'EN'], specialties: ['Médecine générale', 'Santé des femmes'], bio: 'Médecin engagée pour l\'équité des soins, je propose des consultations de soutien pour les professionnel·le·s.', nextSlot: 'Ven 7 fév, 9h' },
+    { id: 6, name: 'Dr. Aminata Sy', role: 'Médecin généraliste', org: 'Réseau de pairs (fictif)', available: true, languages: ['FR', 'Peul', 'EN'], specialties: ['Médecine générale', 'Santé des femmes'], bio: 'Médecin engagée pour l\'équité des soins, je propose des consultations de soutien pour les professionnel·le·s.', nextSlot: 'Ven 7 fév, 9h' },
   ];
 
   const allLanguages = [...new Set(supporters.flatMap(s => s.languages))].sort();
@@ -9438,7 +9438,7 @@ function PeerSupportView() {
 
           <Card className="p-4 mt-4">
             <h3 className="font-medium mb-2">Formation certifiante</h3>
-            <p className="text-sm text-gray-600 mb-3">La formation est dispensée par l'APSR-GE en partenariat avec la HES-SO. Elle couvre l'écoute active, la gestion des émotions et les ressources disponibles.</p>
+            <p className="text-sm text-gray-600 mb-3">La formation est dispensée par des pair·e·s aidant·e·s formé·e·s, en partenariat avec la HES-SO. Elle couvre l'écoute active, la gestion des émotions et les ressources disponibles.</p>
             <p className="text-sm text-amber-600 font-medium">Prochaine session : 15-16 mars 2026</p>
           </Card>
         </div>
@@ -9507,7 +9507,7 @@ function FormationsView() {
   const [filterProvider, setFilterProvider] = useState('');
   
   const formations = [
-    { id: 1, title: 'Sensibilisation aux biais inconscients', duration: '2h', provider: 'APSR-GE', date: '15 mars 2026', spots: 12, spotsLeft: 5, level: 'Débutant', format: 'En ligne', price: 'Gratuit', desc: 'Identifier et comprendre ses propres biais pour améliorer la relation soignant-soigné.', objectives: ['Comprendre les mécanismes des biais inconscients', 'Identifier ses propres biais', 'Développer des stratégies pour les contrer'], audience: 'Tout·e professionnel·le de santé', certificate: true },
+    { id: 1, title: 'Sensibilisation aux biais inconscients', duration: '2h', provider: 'Partenaire associatif', date: '15 mars 2026', spots: 12, spotsLeft: 5, level: 'Débutant', format: 'En ligne', price: 'Gratuit', desc: 'Identifier et comprendre ses propres biais pour améliorer la relation soignant-soigné.', objectives: ['Comprendre les mécanismes des biais inconscients', 'Identifier ses propres biais', 'Développer des stratégies pour les contrer'], audience: 'Tout·e professionnel·le de santé', certificate: true },
     { id: 2, title: 'Communication interculturelle en santé', duration: '4h', provider: 'HES-SO', date: '22 mars 2026', spots: 20, spotsLeft: 8, level: 'Intermédiaire', format: 'Présentiel', price: 'CHF 50', desc: 'Techniques de communication adaptées aux contextes multiculturels.', objectives: ['Adapter sa communication aux différents contextes culturels', 'Utiliser des techniques d\'écoute active', 'Gérer les malentendus interculturels'], audience: 'Soignant·e·s avec expérience clinique', certificate: true },
     { id: 3, title: 'Drépanocytose : comprendre et accompagner', duration: '3h', provider: 'Suisse Drépano', date: '8 avril 2026', spots: 15, spotsLeft: 15, level: 'Tous niveaux', format: 'Hybride', price: 'Gratuit', desc: 'Comprendre la maladie et ses implications pour un meilleur accompagnement des patient·e·s.', objectives: ['Connaître la physiopathologie de la drépanocytose', 'Comprendre le vécu des patient·e·s', 'Adapter la prise en charge aux spécificités de la maladie'], audience: 'Tout·e professionnel·le de santé', certificate: true },
     { id: 4, title: 'Gestion des micro-agressions', duration: '2h', provider: 'FAANG', date: '15 avril 2026', spots: 10, spotsLeft: 3, level: 'Intermédiaire', format: 'En ligne', price: 'Gratuit', desc: 'Reconnaître et répondre aux micro-agressions en milieu de soins.', objectives: ['Définir et reconnaître les micro-agressions', 'Comprendre leur impact sur la santé', 'Développer des réponses appropriées'], audience: 'Tout·e professionnel·le de santé', certificate: false },
@@ -10593,7 +10593,6 @@ function AboutPage() {
               { name: 'Convivens Lab', org: 'HES-SO / HEG-Genève', desc: 'Coordination technique et scientifique', color: 'teal' },
               { name: 'Unisanté', org: 'Centre universitaire de médecine générale et santé publique, Lausanne', desc: 'Partenaire institutionnel', color: 'indigo' },
               { name: 'HUG', org: 'Hôpitaux universitaires de Genève', desc: 'Partenaire institutionnel', color: 'amber' },
-              { name: 'APSR-GE', desc: 'Réseau de professionnel·le·s de santé racisé·e·s, pair-aidance', color: 'indigo' },
               { name: 'Association Suisse de la Drépanocytose', org: 'Suisse Drépano', desc: 'Expertise patient·e et advocacy pour les maladies rares', color: 'amber' },
               { name: 'KimboCare / Resilia', desc: 'Navigation santé — aide les patient·e·s à s\'orienter dans le système suisse', color: 'teal' },
             ].map(m => (
@@ -11175,7 +11174,6 @@ function PartnersPage() {
     ]},
     { cat: 'Membres fondateurs', items: [
       'Convivens Lab (HES-SO Genève) — Coordination technique & scientifique',
-      'APSR-GE — Réseau de professionnels de santé racisés',
       'Association Suisse de la Drépanocytose (Suisse Drépano) — Expertise patient & advocacy',
       'KimboCare/Resilia — Navigation santé'
     ]},
@@ -12357,7 +12355,6 @@ function PublicPage() {
                 { name: 'Convivens Lab', role: 'Coordination technique & scientifique', org: 'HES-SO / HEG-Genève' },
                 { name: 'Unisanté', role: 'Partenaire institutionnel', org: 'Centre universitaire de médecine générale et santé publique, Lausanne' },
                 { name: 'HUG', role: 'Partenaire institutionnel', org: 'Hôpitaux universitaires de Genève' },
-                { name: 'APSR-GE', role: 'Réseau de professionnels de santé racisés', org: 'Association' },
                 { name: 'Suisse Drépano', role: 'Expertise patient & advocacy', org: 'Association' },
                 { name: 'KimboCare / Resilia', role: 'Navigation santé', org: 'Plateforme' },
               ].map(p => (
@@ -12910,7 +12907,7 @@ function PublicPage() {
     const partners = [
       { cat: 'Soutiens du projet', items: ['HEG-Genève (HES-SO)', 'Unisanté', 'Hôpitaux universitaires de Genève (HUG)', 'Berner Fachhochschule (BFH)', 'Centre LAVI Vaud', 'Fondation PROFA', 'FAANG — Fédération des associations afrodescendantes et noires de Genève', 'KimboCare', 'Swiss Health Network for Equity'] },
       { cat: 'Institutions', items: ['HEG-Genève (HES-SO) — Convivens Lab, coordination technique et scientifique', 'Unisanté — Centre universitaire de médecine générale et santé publique, Lausanne', 'HUG — Hôpitaux universitaires de Genève, division des sciences de l\'information médicale (SIMED)'] },
-      { cat: 'Membres fondateurs', items: ['Convivens Lab (HES-SO Genève) — Coordination technique & scientifique', 'APSR-GE — Réseau de professionnels de santé racisés', 'Association Suisse de la Drépanocytose — Expertise patient & advocacy', 'KimboCare / Resilia — Navigation santé'] },
+      { cat: 'Membres fondateurs', items: ['Convivens Lab (HES-SO Genève) — Coordination technique & scientifique', 'Association Suisse de la Drépanocytose — Expertise patient & advocacy', 'KimboCare / Resilia — Navigation santé'] },
       { cat: 'Organisations ressources', items: ['FAANG — Médiation interculturelle', 'Centre LAVI — Accompagnement juridique aux victimes', 'Appartenances — Consultations transculturelles', 'Pluriels — Psychiatrie transculturelle', 'Afro-Cité — Forum de dialogue et mobilisation citoyenne'] },
       { cat: 'Partenaires institutionnels', items: ['BAG/OFSP — Soutien institutionnel', 'OBSAN — Partenariat données', 'Swiss Health Network for Equity — Expertise méthodologique', 'Cantons romands (médecins cantonaux)'] },
     ];
