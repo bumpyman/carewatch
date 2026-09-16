@@ -363,7 +363,7 @@ function useVeille() {
   return { ...etat, visibles, masquer };
 } // notification par courriel, hébergée sur Infomaniak (remplace FormSubmit)
 const VUE_TITRES = {
-  'barometre': 'Baromètre d’expérience', 'etat': 'État du projet', 'maturite': 'Maturité en équité',
+  'barometre': 'Baromètre d’expérience', 'etat': 'État du projet', 'maturite': 'Maturité en équité', 'questions': 'Questions et réponses', 'admin-questions': 'Questions',
   'patient-home': 'Accueil', 'professional-home': 'Accueil', 'new-report': 'Signalement', 'positive-report': 'Expérience positive',
   'my-reports': 'Mes témoignages', 'institutions': 'Établissements', 'access-care': 'Accès aux soins', 'directory': 'Annuaire',
   'legal-guide': 'Guide juridique', 'plafa-doc': 'PLAFA', 'dossier-analysis': 'Analyse de dossier', 'news': 'Actualités', 'help': 'Aide et ressources',
@@ -2312,9 +2312,9 @@ function Landing() {
               <div>
                 <p className="text-sm font-semibold text-teal-700 mb-2">En savoir plus</p>
                 <div className="space-y-1.5 text-sm">
-                  {['about','etat','maturite','faq','methodology','partners','opendata'].map(v => (
+                  {['about','questions','etat','maturite','faq','methodology','partners','opendata'].map(v => (
                     <button key={v} onClick={() => setView(v)} className="block hover:text-teal-700">
-                      {{about:'À propos',etat:'État du projet',maturite:'Maturité en équité',faq:'FAQ',methodology:'Méthodologie',partners:'Partenaires',opendata:'Open Data & API'}[v]}
+                      {{about:'À propos',questions:'Questions et réponses',etat:'État du projet',maturite:'Maturité en équité',faq:'FAQ',methodology:'Méthodologie',partners:'Partenaires',opendata:'Open Data & API'}[v]}
                 </button>
               ))}
               <a
@@ -2533,9 +2533,22 @@ function LoginModal() {
 }
 
 function InstitutionModal({ institution: inst, onClose }) {
-  const { DB, setView, setUserType, setSelectedInstitution } = useApp();
+  const { DB, setView, setUserType, setSelectedInstitution, showDemo } = useApp();
+  const [fiches, setFiches] = useState(null);
+  useEffect(() => {
+    if (showDemo || !inst || !window.cwDb) { setFiches([]); return; }
+    let actif = true;
+    (async () => {
+      try {
+        const { data } = await window.cwDb.from('recits_publics').select('*').eq('etablissement_nom', inst.fullName).order('numero', { ascending: false }).limit(30);
+        if (actif) setFiches(Array.isArray(data) ? data : []);
+      } catch (e) { if (actif) setFiches([]); }
+    })();
+    return () => { actif = false; };
+  }, [inst && inst.id, showDemo]);
   if (!inst || !inst.rating) { onClose(); return null; }
   const r = DB.ratings[inst.rating] || { label: '?', color: 'gray', stars: 0, desc: '' };
+  const total = (inst.reports || 0) + (inst.positiveReports || 0) + (inst.enquetes || 0);
 
   const handleReport = () => {
     onClose();
@@ -2558,13 +2571,22 @@ function InstitutionModal({ institution: inst, onClose }) {
           <div className="flex flex-wrap items-center gap-3 p-4 rounded-xl bg-gray-50">
             <RatingBadge rating={inst.rating} size="md" />
             <Stars rating={inst.rating} />
-            <span className="text-sm text-gray-500 ml-auto">
-              {inst.trend === 'up' ? '↑ En amélioration' : inst.trend === 'down' ? '↓ En baisse' : '→ Stable'}
-            </span>
+            {showDemo ? <span className="text-sm text-gray-500 ml-auto">{inst.trend === 'up' ? '↑ En amélioration' : inst.trend === 'down' ? '↓ En baisse' : '→ Stable'}</span>
+              : <span className="text-sm text-gray-700 ml-auto">{inst.indice != null ? `Indice d’équité ${inst.indice}/100` : 'Indice publié dès 5 témoignages vérifiés'}</span>}
           </div>
         </div>
 
         {/* Stats */}
+        {!showDemo && (
+          <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
+            <div className="text-center p-3 rounded-xl bg-gray-50"><p className="text-lg font-bold text-gray-800">{total}</p><p className="text-sm text-gray-600">Témoignages</p></div>
+            <div className="text-center p-3 rounded-xl bg-teal-50"><p className="text-lg font-bold text-teal-700">{inst.reports || 0}</p><p className="text-sm text-teal-600">Signalements</p></div>
+            <div className="text-center p-3 rounded-xl bg-emerald-50"><p className="text-lg font-bold text-emerald-700">{inst.positiveReports || 0}</p><p className="text-sm text-emerald-600">Retours positifs</p></div>
+            <div className="text-center p-3 rounded-xl bg-indigo-50"><p className="text-lg font-bold text-indigo-700">{inst.enquetes || 0}</p><p className="text-sm text-indigo-600">Baromètre</p></div>
+            <div className="text-center p-3 rounded-xl bg-blue-50"><p className="text-lg font-bold text-blue-700">{inst.verified || 0}</p><p className="text-sm text-blue-600">Vérifiés</p></div>
+          </div>
+        )}
+        {showDemo && (
         <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
           <div className="text-center p-3 rounded-xl bg-teal-50">
             <p className="text-lg font-bold text-teal-700">{inst.reports}</p>
@@ -2587,6 +2609,27 @@ function InstitutionModal({ institution: inst, onClose }) {
             <p className="text-sm text-indigo-600">Fiabilité</p>
           </div>
         </div>
+        )}
+
+        {/* Fiches publiées et réponses de l'établissement (données réelles) */}
+        {!showDemo && (
+          <div className="bg-gray-50 rounded-xl p-4">
+            <h4 className="font-semibold text-gray-900 mb-1">Fiches publiées</h4>
+            <p className="text-xs text-gray-500 mb-3">Résumés dé-identifiés publiés avec l’accord des personnes, après vérification. La réponse de l’établissement, s’il y en a une, accompagne chaque fiche.</p>
+            {fiches === null && <p className="text-sm text-gray-500">Chargement…</p>}
+            {fiches && fiches.length === 0 && <p className="text-sm text-gray-500">Aucune fiche publiée pour cet établissement pour l’instant.</p>}
+            {fiches && fiches.length > 0 && (
+              <div className="divide-y">
+                {fiches.map(x => (
+                  <div key={x.numero} className="py-2 text-sm">
+                    <p className="text-gray-800"><span className="font-mono text-teal-700">{x.numero}</span> · {cwTypeLibelle(x.type)} · {x.annee}{x.service ? ` · ${x.service}` : ''}{x.type_incident ? ` · ${x.type_incident}` : ''}{x.dms_score != null && x.dms_max ? ` · ressenti ${Math.round(100 * x.dms_score / x.dms_max)} %` : ''}</p>
+                    {x.reponse_etablissement && <p className="text-gray-700 mt-1 border-l-2 border-teal-500" style={{ paddingLeft: 12 }}><span className="font-medium">Réponse de l’établissement</span>{x.reponse_mois ? ` (${x.reponse_mois})` : ''} : {x.reponse_etablissement}</p>}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Positive ratio indicator */}
         {(inst.positiveReports > 0) && (
@@ -2601,8 +2644,8 @@ function InstitutionModal({ institution: inst, onClose }) {
           </div>
         )}
 
-        {/* Dernière inspection */}
-        {inst.lastInspection && (
+        {/* Dernière inspection (démonstration) */}
+        {showDemo && inst.lastInspection && (
           <div className="bg-indigo-50 rounded-xl p-4">
             <div className="flex items-center gap-3">
               <ClipboardList className="w-6 h-6 text-indigo-600" />
@@ -2692,8 +2735,11 @@ function InstitutionModal({ institution: inst, onClose }) {
           );
         })()}
 
+        {!showDemo && <p className="text-xs text-gray-500">Indice d’équité : 70 % ressenti de traitement (échelle DMS), 30 % part de retours positifs, sur témoignages vérifiés, publié dès cinq. <button onClick={() => { onClose(); setView('methodology'); }} className="underline text-teal-700">Méthodologie</button></p>}
+
         {/* Actions */}
-        <div className="flex gap-3">
+        <div className="flex flex-col sm:flex-row gap-3">
+          {!showDemo && <Button variant="outline" onClick={() => { onClose(); setUserType('patient'); setView('barometre'); }} className="flex-1">Répondre au baromètre</Button>}
           <Button variant="secondary" onClick={handlePositive} icon={Heart} className="flex-1 !bg-emerald-50 !text-emerald-700 !border-emerald-200 hover:!bg-emerald-100">Partager une bonne expérience</Button>
           <Button onClick={handleReport} className="flex-1">Signaler un incident</Button>
         </div>
@@ -2776,6 +2822,7 @@ function AppShell() {
   ] : [
     { icon: BarChart3, label: 'Tableau de bord', v: 'dashboard' },
     { icon: ClipboardList, label: 'Signalements', v: 'admin-reports' },
+    { icon: HelpCircle, label: 'Questions', v: 'admin-questions' },
     ...(user && user.role === 'admin' ? [
       { icon: Building, label: 'Référentiels', v: 'institutions' },
       { icon: Users, label: 'Accès et comptes', v: 'users' },
@@ -2820,6 +2867,8 @@ function AppShell() {
       case 'barometre': return <BarometreExperience />;
       case 'etat': return <EtatProjetPage />;
       case 'maturite': return <MaturitePage />;
+      case 'questions': return <QuestionsPage />;
+      case 'admin-questions': return adminReel ? <ModerationPage integre="questions" /> : <QuestionsPage />;
       case 'about': return <AboutPage />;
       case 'methodology': return <MethodologyPage />;
       case 'faq': return <FAQPage />;
@@ -2951,6 +3000,7 @@ function AppShell() {
 
       {/* Institution modal — accessible from any view */}
       {selectedInstitution && <InstitutionModal institution={selectedInstitution} onClose={() => setSelectedInstitution(null)} />}
+      {userType !== 'admin' && <SortieRapide />}
     </div>
   );
 }
@@ -3004,6 +3054,7 @@ function PatientHome() {
       <div className="grid grid-cols-2 gap-3">
         {[
           { icon: TrendingUp, label: 'Baromètre', desc: 'Évaluer une expérience de soins en deux minutes', v: 'barometre', color: 'teal' },
+          { icon: HelpCircle, label: 'Poser une question', desc: 'Anonyme, réponse publiée', v: 'questions', color: 'indigo' },
           { icon: ClipboardList, label: 'Mes témoignages', desc: 'Suivre et modifier', v: 'my-reports', color: 'teal' },
           { icon: FileSearch, label: 'Analyse de dossier', desc: 'Démonstration', v: 'dossier-analysis', color: 'purple' },
           { icon: Building, label: 'Établissements', desc: 'Consulter les évaluations', v: 'institutions', color: 'indigo' },
@@ -5247,6 +5298,112 @@ function VerificationPro({ numero, code }) {
         </>
       )}
     </div>
+  );
+}
+
+// Questions et réponses : question anonyme, réponse de l'équipe publiée après réécriture.
+function QuestionsPage() {
+  const { setView } = useApp();
+  const [liste, setListe] = useState(null);
+  const [q, setQ] = useState({ texte: '', profil: 'patient', busy: false, envoye: false, erreur: '' });
+  useEffect(() => { (async () => { try { const { data } = await window.cwDb.rpc('questions_publiees'); setListe(Array.isArray(data) ? data : []); } catch (e) { setListe([]); } })(); }, []);
+  const envoyer = async () => {
+    if (q.texte.trim().length < 15) { setQ(p => ({ ...p, erreur: 'Quelques mots de plus, pour que l’équipe comprenne la situation.' })); return; }
+    setQ(p => ({ ...p, busy: true, erreur: '' }));
+    let data = null, error = null;
+    try { ({ data, error } = await window.cwDb.rpc('poser_question', { p_question: q.texte.trim(), p_profil: q.profil })); } catch (ex) { error = ex; }
+    if (error || !data || !data.ok) { const m = (error && error.message) || (data && data.erreur) || ''; setQ(p => ({ ...p, busy: false, erreur: /Trop de demandes/i.test(m) ? 'Trois questions par jour au plus depuis une même connexion.' : /schema cache/i.test(m) ? 'Cette rubrique sera ouverte après la prochaine mise à jour de la base.' : (m || 'Envoi impossible pour l’instant.') })); return; }
+    setQ(p => ({ ...p, busy: false, envoye: true }));
+  };
+  const profils = { patient: 'Patient·e', proche: 'Proche', professionnel: 'Professionnel·le', autre: 'Autre' };
+  return (
+    <div className="p-4 md:p-8 max-w-3xl mx-auto">
+      <div className="flex items-center gap-2 mb-1"><h2 className="text-2xl font-bold">Questions et réponses</h2><span className="px-2 py-0.5 rounded text-xs bg-amber-100 text-amber-800">alpha</span></div>
+      <p className="text-gray-600 mb-5">Une question sur vos droits, sur une situation vécue dans les soins, sur la marche à suivre ? Posez-la sans vous identifier. L’équipe répond dans les dix jours ouvrables et publie la réponse, réécrite pour que personne ne soit reconnaissable. Pour une urgence, appelez le 144 ; pour une aide personnelle, le Centre LAVI de votre canton.</p>
+
+      <Card className="p-5 mb-6">
+        <h3 className="font-semibold text-gray-900 mb-3">Poser une question</h3>
+        {q.envoye ? (
+          <p className="text-sm text-teal-800">Question transmise. La réponse paraîtra ici, sans nom ni détail permettant de vous reconnaître.</p>
+        ) : (
+          <div className="space-y-3">
+            <div className="flex flex-wrap gap-2">{Object.entries(profils).map(([v, l]) => <button key={v} onClick={() => setQ(p => ({ ...p, profil: v }))} className={`px-3 py-1.5 rounded-full text-xs border ${q.profil === v ? 'bg-teal-500 text-white border-teal-500' : 'bg-white text-gray-700 border-gray-200'}`}>{l}</button>)}</div>
+            <textarea value={q.texte} onChange={e => setQ(p => ({ ...p, texte: e.target.value, erreur: '' }))} maxLength={1000} rows={4} placeholder="Votre question, sans nom de personne ni date précise." className="w-full px-3 py-2.5 rounded-xl border-2 border-gray-200 focus:border-teal-500 focus:outline-none text-sm" />
+            {q.erreur && <p className="text-sm text-rose-700">{q.erreur}</p>}
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-xs text-gray-500">Rien d’autre n’est enregistré que le texte et le profil choisi.</p>
+              <Button onClick={envoyer} disabled={q.busy}>{q.busy ? 'Envoi…' : 'Envoyer'}</Button>
+            </div>
+          </div>
+        )}
+      </Card>
+
+      <h3 className="font-semibold text-gray-900 mb-3">Réponses publiées</h3>
+      {liste === null && <p className="text-sm text-gray-500">Chargement…</p>}
+      {liste && liste.length === 0 && <p className="text-sm text-gray-500">Les premières réponses paraîtront ici.</p>}
+      <div className="space-y-3">
+        {(liste || []).map(x => (
+          <Card key={x.id} className="p-4">
+            <p className="text-xs text-gray-500 mb-1">{profils[x.profil] || 'Question'}{x.repondu_le ? ` · réponse du ${cwDateCourte(x.repondu_le)}` : ''}</p>
+            <p className="font-medium text-gray-900 mb-2">{x.question}</p>
+            <p className="text-sm text-gray-700 whitespace-pre-wrap">{x.reponse}</p>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// Équipe : répondre aux questions, publier, archiver
+function AdminQuestions({ signaler }) {
+  const [liste, setListe] = useState(null);
+  const [brouillons, setBrouillons] = useState({});
+  const [busy, setBusy] = useState(false);
+  const charger = async () => { const { data, error } = await window.cwDb.rpc('admin_questions_lire'); if (error) { signaler('Questions indisponibles : ' + (error.message || '')); return; } setListe(Array.isArray(data) ? data : []); };
+  useEffect(() => { charger(); }, []);
+  const ecrire = async (id, op, p) => {
+    setBusy(true);
+    const { data, error } = await window.cwDb.rpc('admin_question_ecrire', { p_id: id, p_op: op, p: p || {} });
+    setBusy(false);
+    if (error || !data || !data.ok) { signaler('Refusé : ' + ((error && error.message) || '')); return; }
+    charger();
+  };
+  if (liste === null) return <p className="text-sm text-gray-500">Chargement…</p>;
+  const enAttente = liste.filter(x => !x.reponse), repondues = liste.filter(x => x.reponse);
+  const Bloc = ({ x }) => {
+    const b = brouillons[x.id] || { question: x.question, reponse: x.reponse || '', publie: x.publie };
+    const maj = (k, v) => setBrouillons(p => ({ ...p, [x.id]: { ...b, [k]: v } }));
+    return (
+      <Card className="p-4">
+        <p className="text-xs text-gray-500 mb-1">{x.profil || 'profil non précisé'} · reçue le {cwDateCourte(String(x.cree_le).slice(0, 10))}{x.publie ? ' · publiée' : ''}</p>
+        <label className="block text-xs font-semibold text-gray-500 mb-1">Question (réécrite si besoin, sans élément identifiant)</label>
+        <textarea value={b.question} onChange={e => maj('question', e.target.value)} rows={2} className="w-full px-3 py-2 rounded-xl border-2 border-gray-200 focus:border-teal-500 focus:outline-none text-sm mb-2" />
+        <label className="block text-xs font-semibold text-gray-500 mb-1">Réponse</label>
+        <textarea value={b.reponse} onChange={e => maj('reponse', e.target.value)} rows={4} placeholder="Réponse générale, sans traiter de cas individuel ; orientez vers la ressource compétente." className="w-full px-3 py-2 rounded-xl border-2 border-gray-200 focus:border-teal-500 focus:outline-none text-sm mb-2" />
+        <div className="flex flex-wrap items-center gap-2">
+          <label className="flex items-center gap-2 text-sm text-gray-700"><input type="checkbox" checked={!!b.publie} onChange={e => maj('publie', e.target.checked)} /> Publier</label>
+          <Button size="sm" onClick={() => ecrire(x.id, 'repondre', { question: b.question, reponse: b.reponse, publie: b.publie })} disabled={busy}>Enregistrer</Button>
+          <Button size="sm" variant="secondary" onClick={() => { if (window.confirm('Archiver cette question ? Elle disparaît de la liste et du site.')) ecrire(x.id, 'archiver'); }} disabled={busy}>Archiver</Button>
+        </div>
+      </Card>
+    );
+  };
+  return (
+    <div className="space-y-4">
+      <h2 className="font-semibold">Questions reçues{enAttente.length ? ` (${enAttente.length} sans réponse)` : ''}</h2>
+      {enAttente.length === 0 && <p className="text-sm text-gray-500">Aucune question en attente.</p>}
+      {enAttente.map(x => <Bloc key={x.id} x={x} />)}
+      {repondues.length > 0 && <><h2 className="font-semibold mt-6">Répondues</h2>{repondues.map(x => <Bloc key={x.id} x={x} />)}</>}
+    </div>
+  );
+}
+
+// Sortie rapide : quitte le site vers une page neutre et remplace l'entrée d'historique.
+function SortieRapide() {
+  return (
+    <button type="button" onClick={() => { try { sessionStorage.clear(); } catch (e) {} window.location.replace('https://www.meteosuisse.admin.ch/'); }} title="Quitter rapidement le site" className="fixed z-40 right-3 rounded-full bg-gray-900 text-white text-xs font-semibold px-3 py-2 shadow-lg" style={{ bottom: 88 }}>
+      Quitter le site
+    </button>
   );
 }
 
@@ -10478,9 +10635,11 @@ function EtatProjetPage() {
     ['Rapport annuel aux autorités cantonales', 'Indicateurs stratifiés, recommandations', 'Prévu'],
     ['Actualités et veille', 'Annonces de l’équipe et titres relevés automatiquement', 'Opérationnel'],
     ['Maturité en équité des soins', 'Grille en six dimensions et cinq stades, autoévaluation, plafond fixé par les données mesurées', 'Alpha'],
+    ['Fiche publique par établissement', 'Indice, témoignages, fiches résumées et réponses de l’établissement', 'Opérationnel'],
   ];
   const complementaires = [
     ['Signalement par les professionnel·le·s', 'Canal indépendant de l’employeur, détails généralisés, vérification facultative de l’adresse professionnelle', 'Opérationnel'],
+    ['Questions et réponses', 'Question anonyme, réponse de l’équipe publiée après réécriture', 'Alpha'],
     ['Accès aux soins spécialisés', 'Cartographie par établissement, référentiel géré par l’équipe', 'Alpha'],
     ['Orientation juridique et courriers', 'Générateurs de documents, relecture juridique en cours, bandeau d’avertissement', 'Alpha'],
     ['Accompagnement PLAFA', 'Notes conservées sur l’appareil, sans horodatage certifié', 'Démonstration'],
@@ -11577,6 +11736,7 @@ function ModerationPage({ integre }) {
   if (integre === 'compte') return cadre(<>{carteCompte}{estAdmin && carteNda}</>, true);
   if (integre === 'tableau') return cadre(<TableauDeBord recits={tousRecits} stats={realStats} dateFr={dateFr} ouvrir={(n) => { setView('admin-reports'); }} />, true);
   if (integre === 'referentiels') return cadre(estAdmin ? <AdminReferentiels signaler={setMsg} /> : <p className="text-sm text-gray-600">Réservé aux administrateur·rice·s.</p>, true);
+  if (integre === 'questions') return cadre(<AdminQuestions signaler={setMsg} />, true);
   if (integre === 'acces') return cadre(estAdmin ? <><AdminAcces signaler={setMsg} dateFr={dateFr} />{carteNda}</> : <p className="text-sm text-gray-600">Réservé aux administrateur·rice·s.</p>, true);
   if (integre === 'moderation') return cadre(panneauModeration, true);
   if (integre) return cadre(<p className="text-sm text-gray-600">Section inconnue.</p>, true);
@@ -11585,13 +11745,14 @@ function ModerationPage({ integre }) {
     <>
     {carteCompte}
     <div className="flex flex-wrap gap-1.5 mb-4">
-      {[['tableau', 'Tableau de bord'], ['moderation', 'Modération'], ...(estAdmin ? [['referentiels', 'Référentiels'], ['acces', 'Accès et comptes']] : [])].map(([v, l]) => (
+      {[['tableau', 'Tableau de bord'], ['moderation', 'Modération'], ['questions', 'Questions'], ...(estAdmin ? [['referentiels', 'Référentiels'], ['acces', 'Accès et comptes']] : [])].map(([v, l]) => (
         <button key={v} onClick={() => setOnglet(v)} className={`px-3 py-1.5 rounded-full text-sm font-medium ${onglet === v ? 'bg-gray-800 text-white' : 'bg-gray-100 text-gray-700'}`}>{l}{v === 'moderation' && tousRecits ? ` · ${tousRecits.filter(r => !['verifie', 'publie', 'rejete', 'retire'].includes(r.statut)).length} à relire` : ''}</button>
       ))}
     </div>
     {onglet === 'tableau' && <TableauDeBord recits={tousRecits} stats={realStats} dateFr={dateFr} ouvrir={(n) => { setOnglet('moderation'); setFiltre(''); ouvrir(n); }} />}
     {estAdmin && onglet === 'referentiels' && <AdminReferentiels signaler={setMsg} />}
     {estAdmin && onglet === 'acces' && <><AdminAcces signaler={setMsg} dateFr={dateFr} />{carteNda}</>}
+    {onglet === 'questions' && <AdminQuestions signaler={setMsg} />}
     {onglet === 'moderation' && (<>
     {!estAdmin && carteNda}
     {panneauModeration}
@@ -12064,6 +12225,14 @@ function PublicPage() {
     );
   }
 
+  if (view === 'questions' || view === 'questions-public') {
+    return (
+      <div className="min-h-screen bg-white">
+        <div className="max-w-3xl mx-auto p-4 md:p-8"><BackButton /></div>
+        <QuestionsPage />
+      </div>
+    );
+  }
   if (view === 'maturite' || view === 'maturite-public') {
     return (
       <div className="min-h-screen bg-white">
