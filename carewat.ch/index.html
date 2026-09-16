@@ -363,7 +363,7 @@ function useVeille() {
   return { ...etat, visibles, masquer };
 } // notification par courriel, hébergée sur Infomaniak (remplace FormSubmit)
 const VUE_TITRES = {
-  'barometre': 'Baromètre d’expérience', 'etat': 'État du projet', 'maturite': 'Maturité en équité', 'questions': 'Questions et réponses', 'admin-questions': 'Questions', 'situations': 'Votre situation',
+  'barometre': 'Baromètre d’expérience', 'etat': 'État du projet', 'maturite': 'Maturité en équité', 'questions': 'Poser une question', 'admin-questions': 'Questions', 'situations': 'Votre situation', 'aide': 'Trouver de l’aide',
   'patient-home': 'Accueil', 'professional-home': 'Accueil', 'new-report': 'Signalement', 'positive-report': 'Expérience positive',
   'my-reports': 'Mes témoignages', 'institutions': 'Établissements', 'access-care': 'Accès aux soins', 'directory': 'Annuaire',
   'legal-guide': 'Guide juridique', 'plafa-doc': 'PLAFA', 'dossier-analysis': 'Analyse de dossier', 'news': 'Actualités', 'help': 'Aide et ressources',
@@ -2062,7 +2062,7 @@ function Landing() {
       <section className="bg-white border-b border-gray-200">
         <div className="max-w-3xl mx-auto px-6 py-14 md:py-16">
           <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">Votre situation</h3>
-          <p className="text-gray-600 mb-6">Droits, marche à suivre et ressources selon ce que vous vivez.</p>
+          <p className="text-gray-600 mb-6">Droits, marche à suivre et ressources selon ce que vous vivez. <button onClick={() => setView('aide')} className="text-teal-700 underline">Trouver de l’aide près de chez vous</button></p>
           <div className="flex flex-wrap gap-2">
             {CW_SITUATIONS.map(x => <button key={x.id} onClick={() => setView('situations')} className="px-3 py-2 rounded-full text-sm border border-gray-200 bg-white text-gray-800 hover:border-teal-400 hover:bg-teal-50">{x.titre}</button>)}
           </div>
@@ -2323,9 +2323,9 @@ function Landing() {
               <div>
                 <p className="text-sm font-semibold text-teal-700 mb-2">En savoir plus</p>
                 <div className="space-y-1.5 text-sm">
-                  {['situations','questions','about','etat','maturite','faq','methodology','partners','opendata'].map(v => (
+                  {['aide','situations','questions','about','etat','maturite','faq','methodology','partners','opendata'].map(v => (
                     <button key={v} onClick={() => setView(v)} className="block hover:text-teal-700">
-                      {{situations:'Votre situation',about:'À propos',questions:'Questions et réponses',etat:'État du projet',maturite:'Maturité en équité',faq:'FAQ',methodology:'Méthodologie',partners:'Partenaires',opendata:'Open Data & API'}[v]}
+                      {{aide:'Trouver de l’aide',situations:'Votre situation',about:'À propos',questions:'Poser une question',etat:'État du projet',maturite:'Maturité en équité',faq:'FAQ',methodology:'Méthodologie',partners:'Partenaires',opendata:'Open Data & API'}[v]}
                 </button>
               ))}
               <a
@@ -2797,13 +2797,14 @@ function AppShell() {
       { icon: ClipboardList, label: 'Mes témoignages', v: 'my-reports' },
       { icon: Building, label: 'Établissements', v: 'institutions' },
       { icon: Users, label: 'Votre situation', v: 'situations' },
-      { icon: HelpCircle, label: 'Questions', v: 'questions' },
+      { icon: HelpCircle, label: 'Poser une question', v: 'questions' },
       { icon: Stethoscope, label: 'Accès aux soins', v: 'access-care' },
       { icon: Users, label: 'Annuaire', v: 'directory' },
       { icon: Scale, label: 'Guide juridique', v: 'legal-guide' },
       { icon: AlertTriangle, label: 'PLAFA', v: 'plafa-doc' },
       { icon: FileSearch, label: 'Analyse dossier', v: 'dossier-analysis' },
       { icon: BookOpen, label: 'Actualités', v: 'news' },
+      { icon: MapPin, label: 'Trouver de l’aide', v: 'aide' },
       { icon: HelpCircle, label: 'Aide & Ressources', v: 'help' },
     ],
     professional: [
@@ -2816,10 +2817,11 @@ function AppShell() {
       { icon: TrendingUp, label: 'Maturité en équité', v: 'maturite' },
       { icon: Building, label: 'Établissements', v: 'institutions' },
       { icon: Users, label: 'Votre situation', v: 'situations' },
-      { icon: HelpCircle, label: 'Questions', v: 'questions' },
+      { icon: HelpCircle, label: 'Poser une question', v: 'questions' },
       { icon: Stethoscope, label: 'Accès aux soins', v: 'access-care' },
       { icon: Users, label: 'Annuaire', v: 'directory' },
       { icon: BookOpen, label: 'Actualités', v: 'news' },
+      { icon: MapPin, label: 'Trouver de l’aide', v: 'aide' },
       { icon: HelpCircle, label: 'Aide', v: 'help' },
     ],
     admin: [
@@ -2886,6 +2888,7 @@ function AppShell() {
       case 'maturite': return <MaturitePage />;
       case 'questions': return <QuestionsPage />;
       case 'situations': return <SituationsPage />;
+      case 'aide': return <TrouverAidePage />;
       case 'admin-questions': return adminReel ? <ModerationPage integre="questions" /> : <QuestionsPage />;
       case 'about': return <AboutPage />;
       case 'methodology': return <MethodologyPage />;
@@ -3074,6 +3077,7 @@ function PatientHome() {
           { icon: TrendingUp, label: 'Baromètre', desc: 'Évaluer une expérience de soins en deux minutes', v: 'barometre', color: 'teal' },
           { icon: HelpCircle, label: 'Poser une question', desc: 'Anonyme, réponse publiée', v: 'questions', color: 'indigo' },
           { icon: Users, label: 'Votre situation', desc: 'Droits et ressources selon ce que vous vivez', v: 'situations', color: 'amber' },
+          { icon: MapPin, label: 'Trouver de l’aide', desc: 'Organisations par canton, situation et type d’aide', v: 'aide', color: 'rose' },
           { icon: ClipboardList, label: 'Mes témoignages', desc: 'Suivre et modifier', v: 'my-reports', color: 'teal' },
           { icon: FileSearch, label: 'Analyse de dossier', desc: 'Démonstration', v: 'dossier-analysis', color: 'purple' },
           { icon: Building, label: 'Établissements', desc: 'Consulter les évaluations', v: 'institutions', color: 'indigo' },
@@ -5320,6 +5324,100 @@ function VerificationPro({ numero, code }) {
   );
 }
 
+// Trouver de l'aide : organisations réelles, filtrées par canton, situation et type d'aide.
+// Les centres LAVI, médiations et voies de plainte cantonales viennent du référentiel géré par l'équipe.
+const CW_TYPES_AIDE = {
+  ecoute: 'Écoute et conseil', juridique: 'Conseil juridique', lavi: 'Aide aux victimes (LAVI)', mediation: 'Médiation et plaintes santé',
+  interpretariat: 'Interprétariat, médiation interculturelle', pair: 'Pair-aidance, communautés', social: 'Aide sociale, assurance', psy: 'Soutien psychologique',
+};
+const CW_AIDE = [
+  { nom: 'La Main Tendue', canton: 'CH', types: ['ecoute', 'psy'], situations: [], desc: 'Écoute anonyme, 24 heures sur 24.', tel: '143', url: 'https://www.143.ch' },
+  { nom: 'Pro Juventute', canton: 'CH', types: ['ecoute'], situations: [], desc: 'Conseil pour les enfants et les jeunes, 24 heures sur 24.', tel: '147', url: 'https://www.147.ch' },
+  { nom: 'Inclusion Handicap', canton: 'CH', types: ['juridique'], situations: ['handicap'], desc: 'Service juridique de la faîtière des organisations de personnes handicapées.', url: 'https://www.inclusion-handicap.ch' },
+  { nom: 'Pro Infirmis', canton: 'CH', types: ['social', 'juridique'], situations: ['handicap'], desc: 'Conseil social et juridique, antennes dans chaque canton.', url: 'https://www.proinfirmis.ch' },
+  { nom: 'Pro Mente Sana', canton: 'CH', types: ['juridique', 'psy', 'ecoute'], situations: ['psy'], desc: 'Conseil juridique et psychosocial en santé mentale, permanence téléphonique.', url: 'https://www.promentesana.org' },
+  { nom: 'Pro Senectute', canton: 'CH', types: ['social', 'ecoute'], situations: ['age'], desc: 'Conseil aux personnes âgées et à leurs proches, directives anticipées.', url: 'https://www.prosenectute.ch' },
+  { nom: 'Alter Ego', canton: 'CH', types: ['ecoute', 'juridique'], situations: ['age'], desc: 'Prévention de la maltraitance envers les personnes âgées, permanence romande.', url: 'https://www.alter-ego.ch' },
+  { nom: 'Interpret', canton: 'CH', types: ['interpretariat'], situations: ['langue'], desc: 'Association suisse pour l’interprétariat communautaire et la médiation interculturelle ; services régionaux.', url: 'https://www.inter-pret.ch' },
+  { nom: 'ProRaris', canton: 'CH', types: ['pair', 'ecoute'], situations: ['maladie'], desc: 'Alliance maladies rares Suisse, orientation et associations de patient·e·s.', url: 'https://www.proraris.ch' },
+  { nom: 'Ombudsman de l’assurance-maladie', canton: 'CH', types: ['social', 'mediation'], situations: ['precarite'], desc: 'Médiation gratuite entre assuré·e·s et assureurs.', url: 'https://www.om-kv.ch' },
+  { nom: 'Organisation suisse des patients', canton: 'CH', types: ['juridique', 'ecoute'], situations: [], desc: 'Conseil aux patient·e·s sur leurs droits et les recours.', url: 'https://www.spo.ch' },
+  { nom: 'Transgender Network Switzerland', canton: 'CH', types: ['juridique', 'pair'], situations: ['lgbtiqa'], desc: 'Conseil et soutien aux personnes trans et non binaires.', url: 'https://www.tgns.ch' },
+  { nom: 'Commission fédérale contre le racisme', canton: 'CH', types: ['juridique'], situations: ['langue'], desc: 'Information sur les droits et orientation vers les centres de conseil pour victimes de racisme.', url: 'https://www.ekr.admin.ch' },
+  { nom: 'Suisse Drépano', canton: 'CH', types: ['pair', 'ecoute'], situations: ['maladie', 'langue'], desc: 'Association de patient·e·s, expertise et accompagnement pour la drépanocytose.' },
+  { nom: 'Checkpoint Genève', canton: 'GE', types: ['psy', 'pair'], situations: ['lgbtiqa'], desc: 'Centre de santé communautaire pour les hommes gays et bisexuels et les personnes trans.', url: 'https://www.checkpoint-ge.ch' },
+  { nom: 'Dialogai', canton: 'GE', types: ['pair', 'ecoute'], situations: ['lgbtiqa'], desc: 'Association gaie genevoise, santé communautaire et soutien.', url: 'https://www.dialogai.org' },
+  { nom: 'Centre social protestant Genève', canton: 'GE', types: ['social', 'juridique'], situations: ['precarite', 'langue'], desc: 'Consultations sociales et juridiques gratuites.', url: 'https://csp.ch' },
+  { nom: 'Caritas Genève', canton: 'GE', types: ['social'], situations: ['precarite'], desc: 'Aide sociale, dettes, accès aux droits.', url: 'https://www.caritas-geneve.ch' },
+  { nom: 'Camarada', canton: 'GE', types: ['interpretariat', 'social'], situations: ['langue'], desc: 'Accueil et formation des femmes migrantes, orientation santé.', url: 'https://camarada.ch' },
+  { nom: 'APSR-GE', canton: 'GE', types: ['pair'], situations: ['soignant'], desc: 'Réseau de professionnel·le·s de santé racisé·e·s, pair-aidance et accompagnement.' },
+  { nom: 'Checkpoint Vaud', canton: 'VD', types: ['psy', 'pair'], situations: ['lgbtiqa'], desc: 'Centre de santé communautaire, Lausanne.', url: 'https://www.mycheckpoint.ch' },
+  { nom: 'Vogay', canton: 'VD', types: ['pair', 'ecoute'], situations: ['lgbtiqa'], desc: 'Association vaudoise pour la diversité sexuelle et de genre.', url: 'https://www.vogay.ch' },
+  { nom: 'Appartenances', canton: 'VD', types: ['interpretariat', 'psy'], situations: ['langue'], desc: 'Consultations psychothérapeutiques pour personnes migrantes, interprétariat communautaire.', url: 'https://www.appartenances.ch' },
+  { nom: 'GRAAP', canton: 'VD', types: ['pair', 'ecoute'], situations: ['psy'], desc: 'Groupe d’accueil et d’action psychiatrique, patient·e·s et proches.', url: 'https://www.graap.ch' },
+  { nom: 'Centre social protestant Vaud', canton: 'VD', types: ['social', 'juridique'], situations: ['precarite', 'langue'], desc: 'Consultations sociales et juridiques gratuites.', url: 'https://csp.ch' },
+  { nom: 'Caritas Vaud', canton: 'VD', types: ['social'], situations: ['precarite'], desc: 'Aide sociale, dettes, accès aux droits.', url: 'https://www.caritas-vaud.ch' },
+  { nom: 'Alpagai', canton: 'VS', types: ['pair', 'ecoute'], situations: ['lgbtiqa'], desc: 'Association valaisanne LGBTIQ+.', url: 'https://www.alpagai.ch' },
+  { nom: 'Sarigai', canton: 'FR', types: ['pair', 'ecoute'], situations: ['lgbtiqa'], desc: 'Association fribourgeoise LGBTIQ+.', url: 'https://www.sarigai.ch' },
+  { nom: 'Togayther', canton: 'NE', types: ['pair', 'ecoute'], situations: ['lgbtiqa'], desc: 'Association neuchâteloise LGBTIQ+.', url: 'https://www.togayther.ch' },
+];
+function TrouverAidePage() {
+  const { DB, ref, setView } = useApp();
+  const [canton, setCanton] = useState('');
+  const [situation, setSituation] = useState('');
+  const [types, setTypes] = useState([]);
+  const cantonaux = (ref && Array.isArray(ref.ressources_cantonales) ? ref.ressources_cantonales : []).filter(r => r.actif !== false).map(r => ({
+    nom: r.nom, canton: r.canton, types: [r.type === 'lavi' ? 'lavi' : 'mediation'], situations: [], desc: r.description || (r.type === 'lavi' ? 'Centre de consultation LAVI : aide gratuite et confidentielle aux victimes d’infractions.' : r.type === 'mediation' ? 'Médiation en matière de santé.' : 'Voie de plainte cantonale.'),
+    tel: r.telephone, url: r.url, email: r.email, adresse: r.adresse, ref: true,
+  }));
+  const tout = [...cantonaux, ...CW_AIDE];
+  const resultat = tout.filter(x => (!canton || x.canton === canton || x.canton === 'CH') && (!situation || x.situations.length === 0 && x.types.some(t => ['lavi', 'mediation', 'ecoute'].includes(t)) || x.situations.includes(situation)) && (types.length === 0 || types.some(t => x.types.includes(t))));
+  const ordreCantons = [canton, ...DB.cantons.filter(c => c !== canton), 'CH'].filter(Boolean);
+  const groupes = ordreCantons.map(c => [c, resultat.filter(x => x.canton === c)]).filter(([, l]) => l.length);
+  const basculer = (t) => setTypes(p => p.includes(t) ? p.filter(x => x !== t) : [...p, t]);
+  return (
+    <div className="p-4 md:p-8 max-w-3xl mx-auto">
+      <p className="text-sm text-rose-800 bg-rose-50 border border-rose-100 rounded-xl px-3 py-2 mb-4">En cas d’urgence : ambulance 144 · police 117 · La Main Tendue 143.</p>
+      <h2 className="text-2xl font-bold mb-2">Trouver de l’aide</h2>
+      <p className="text-gray-600 mb-5">Des organisations qui écoutent, conseillent et accompagnent, près de chez vous. Consulter cette page ne laisse aucune trace chez elles ni chez nous.</p>
+      <Card className="p-4 mb-5 space-y-3">
+        <div className="grid sm:grid-cols-2 gap-3">
+          <Select label="Canton" value={canton} onChange={setCanton} options={DB.cantons.map(c => ({ value: c, label: DB.cantonNames[c] }))} placeholder="Tous les cantons" />
+          <Select label="Votre situation" value={situation} onChange={setSituation} options={CW_SITUATIONS.map(x => ({ value: x.id, label: x.titre }))} placeholder="Toutes les situations" />
+        </div>
+        <div>
+          <p className="text-sm font-medium text-gray-700 mb-2">Type d’aide</p>
+          <div className="flex flex-wrap gap-2">{Object.entries(CW_TYPES_AIDE).map(([k, l]) => <button key={k} onClick={() => basculer(k)} className={`px-3 py-1.5 rounded-full text-xs border ${types.includes(k) ? 'bg-teal-500 text-white border-teal-500' : 'bg-white text-gray-700 border-gray-200'}`}>{l}</button>)}</div>
+        </div>
+      </Card>
+      {groupes.length === 0 && <Card className="p-6 text-center text-gray-500">Rien ne correspond à ces filtres. Élargissez la recherche, ou <button onClick={() => setView('questions')} className="underline text-teal-700">posez votre question</button>.</Card>}
+      {groupes.map(([c, l]) => (
+        <div key={c} className="mb-6">
+          <h3 className="font-semibold text-gray-900 mb-2">{c === 'CH' ? 'Toute la Suisse' : DB.cantonNames[c] || c}</h3>
+          <div className="space-y-2">
+            {l.map((x, i) => (
+              <Card key={c + i} className="p-4">
+                <div className="flex flex-wrap items-start justify-between gap-2">
+                  <p className="font-semibold text-gray-900">{x.nom}</p>
+                  <div className="flex flex-wrap gap-1">{x.types.map(t => <span key={t} className="px-2 py-0.5 rounded text-xs bg-gray-100 text-gray-700">{CW_TYPES_AIDE[t] || t}</span>)}</div>
+                </div>
+                {x.desc && <p className="text-sm text-gray-600 mt-1">{x.desc}</p>}
+                <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm mt-2">
+                  {x.adresse && <span className="text-gray-700">{x.adresse}</span>}
+                  {x.tel && <a href={'tel:' + String(x.tel).replace(/\s/g, '')} className="text-teal-700 underline">{x.tel}</a>}
+                  {x.email && <a href={'mailto:' + x.email} className="text-teal-700 underline">{x.email}</a>}
+                  {x.url && <a href={x.url} target="_blank" rel="noopener noreferrer" className="text-teal-700 underline">{x.url.replace(/^https?:\/\/(www\.)?/, '')}</a>}
+                </div>
+              </Card>
+            ))}
+          </div>
+        </div>
+      ))}
+      <p className="text-xs text-gray-500 mt-4">Liste tenue par l’équipe et ses partenaires ; une organisation manque ou a changé ? <button onClick={() => setView('questions')} className="underline">Dites-le nous</button>.</p>
+    </div>
+  );
+}
+
 // Entrées par situation : droits, marche à suivre et ressources, selon ce que la personne vit.
 const CW_SITUATIONS = [
   { id: 'langue', titre: 'Migration, langue, statut de séjour', resume: 'Vous comprenez mal ce qu’on vous dit, on vous a refusé un·e interprète, ou votre statut a pesé sur l’accueil.',
@@ -5417,7 +5515,7 @@ function SituationsPage() {
               ? <Button onClick={() => aller('new-report', 'professional')}>Signaler en tant que soignant·e</Button>
               : <><Button onClick={() => aller('new-report', 'patient')}>Signaler</Button><Button variant="outline" onClick={() => aller('barometre', 'patient')}>Répondre au baromètre</Button></>}
             <Button variant="outline" onClick={() => aller('rights', userType || 'patient')}>Guide juridique</Button>
-            <Button variant="outline" onClick={() => aller('help', userType || 'patient')}>Aide et ressources</Button>
+            <Button variant="outline" onClick={() => aller('aide')}>Trouver de l’aide</Button>
             <Button variant="outline" onClick={() => aller('questions')}>Poser une question</Button>
           </div>
         </div>
@@ -5430,7 +5528,9 @@ function SituationsPage() {
 function QuestionsPage() {
   const { setView } = useApp();
   const [liste, setListe] = useState(null);
-  const [q, setQ] = useState({ texte: '', profil: 'patient', busy: false, envoye: false, erreur: '' });
+  const [q, setQ] = useState({ texte: '', profil: 'patient', accord: false, busy: false, envoye: false, erreur: '' });
+  const [recherche, setRecherche] = useState('');
+  const [filtreProfil, setFiltreProfil] = useState('');
   useEffect(() => { (async () => { try { const { data } = await window.cwDb.rpc('questions_publiees'); setListe(Array.isArray(data) ? data : []); } catch (e) { setListe([]); } })(); }, []);
   const envoyer = async () => {
     if (q.texte.trim().length < 15) { setQ(p => ({ ...p, erreur: 'Quelques mots de plus, pour que l’équipe comprenne la situation.' })); return; }
@@ -5443,31 +5543,51 @@ function QuestionsPage() {
   const profils = { patient: 'Patient·e', proche: 'Proche', professionnel: 'Professionnel·le', autre: 'Autre' };
   return (
     <div className="p-4 md:p-8 max-w-3xl mx-auto">
-      <div className="flex items-center gap-2 mb-1"><h2 className="text-2xl font-bold">Questions et réponses</h2><span className="px-2 py-0.5 rounded text-xs bg-amber-100 text-amber-800">alpha</span></div>
-      <p className="text-gray-600 mb-5">Une question sur vos droits, sur une situation vécue dans les soins, sur la marche à suivre ? Posez-la sans vous identifier. L’équipe répond dans les dix jours ouvrables et publie la réponse, réécrite pour que personne ne soit reconnaissable. Pour une urgence, appelez le 144 ; pour une aide personnelle, le Centre LAVI de votre canton.</p>
+      <p className="text-sm text-rose-800 bg-rose-50 border border-rose-100 rounded-xl px-3 py-2 mb-4">En cas d’urgence : ambulance 144 · police 117 · La Main Tendue 143.</p>
+      <div className="flex items-center gap-2 mb-1"><h2 className="text-2xl font-bold">Posez vos questions</h2><span className="px-2 py-0.5 rounded text-xs bg-amber-100 text-amber-800">alpha</span></div>
+      <p className="text-gray-600 mb-2">Vous avez été traité·e différemment dans un lieu de soins, ou vous n’êtes pas sûr·e de ce qui s’est passé ? Une information vous manque sur vos droits, sur la marche à suivre, sur ce que CareWatch fait de votre témoignage ? Écrivez-le ici, sans vous identifier.</p>
+      <p className="text-gray-600 mb-5">Des membres de l’équipe, formé·e·s à l’équité des soins et au droit des patient·e·s, répondent dans les dix jours ouvrables. Comme il n’y a ni compte ni adresse, la réponse est publiée sur cette page, réécrite pour que personne ne soit reconnaissable. Pour une situation personnelle et urgente, le Centre LAVI de votre canton reçoit gratuitement et confidentiellement.</p>
+
+      <Card className="p-5 mb-6 bg-teal-50 border-teal-100">
+        <h3 className="font-semibold text-teal-900 mb-3">Vos garanties</h3>
+        <div className="grid sm:grid-cols-2 gap-3 text-sm text-teal-900">
+          <div className="flex items-start gap-2"><Lock className="w-4 h-4 text-teal-700 flex-shrink-0 mt-0.5" /><span><span className="font-semibold">Vous restez anonyme.</span> Ni compte, ni adresse e-mail, ni adresse IP conservée avec votre question. Seuls le texte et le profil choisi sont enregistrés.</span></div>
+          <div className="flex items-start gap-2"><Shield className="w-4 h-4 text-teal-700 flex-shrink-0 mt-0.5" /><span><span className="font-semibold">Une relecture avant publication.</span> Noms, lieux précis et dates sont retirés ou généralisés ; aucun cas individuel n’est traité en public.</span></div>
+          <div className="flex items-start gap-2"><Users className="w-4 h-4 text-teal-700 flex-shrink-0 mt-0.5" /><span><span className="font-semibold">Des personnes répondent.</span> L’équipe CareWatch, avec ses partenaires juridiques et associatifs, sous dix jours ouvrables.</span></div>
+          <div className="flex items-start gap-2"><X className="w-4 h-4 text-teal-700 flex-shrink-0 mt-0.5" /><span><span className="font-semibold">Vous pouvez effacer vos traces.</span> Le bouton « Quitter le site » remplace la page par la météo ; une fenêtre de navigation privée ne garde rien après fermeture. <button onClick={() => setView('privacy-public')} className="underline">Confidentialité</button></span></div>
+        </div>
+      </Card>
 
       <Card className="p-5 mb-6">
-        <h3 className="font-semibold text-gray-900 mb-3">Poser une question</h3>
+        <h3 className="font-semibold text-gray-900 mb-3">Votre question</h3>
         {q.envoye ? (
-          <p className="text-sm text-teal-800">Question transmise. La réponse paraîtra ici, sans nom ni détail permettant de vous reconnaître.</p>
+          <p className="text-sm text-teal-800">Question transmise. La réponse paraîtra sur cette page, sans nom ni détail permettant de vous reconnaître. Revenez la consulter d’ici une dizaine de jours.</p>
         ) : (
           <div className="space-y-3">
+            <p className="text-sm font-medium text-gray-700">Vous écrivez en tant que</p>
             <div className="flex flex-wrap gap-2">{Object.entries(profils).map(([v, l]) => <button key={v} onClick={() => setQ(p => ({ ...p, profil: v }))} className={`px-3 py-1.5 rounded-full text-xs border ${q.profil === v ? 'bg-teal-500 text-white border-teal-500' : 'bg-white text-gray-700 border-gray-200'}`}>{l}</button>)}</div>
-            <textarea value={q.texte} onChange={e => setQ(p => ({ ...p, texte: e.target.value, erreur: '' }))} maxLength={1000} rows={4} placeholder="Votre question, sans nom de personne ni date précise." className="w-full px-3 py-2.5 rounded-xl border-2 border-gray-200 focus:border-teal-500 focus:outline-none text-sm" />
+            <textarea value={q.texte} onChange={e => setQ(p => ({ ...p, texte: e.target.value, erreur: '' }))} maxLength={1000} rows={5} placeholder="Décrivez la situation ou posez votre question, sans nom de personne ni date précise. Mille caractères au plus." className="w-full px-3 py-2.5 rounded-xl border-2 border-gray-200 focus:border-teal-500 focus:outline-none text-sm" />
+            <label className="flex items-start gap-3 text-sm text-gray-700 cursor-pointer"><input type="checkbox" checked={!!q.accord} onChange={e => setQ(p => ({ ...p, accord: e.target.checked, erreur: '' }))} className="mt-1" /> J’ai compris que la réponse sera publiée sur cette page, après réécriture, et qu’aucune réponse personnelle ne peut m’être envoyée.</label>
             {q.erreur && <p className="text-sm text-rose-700">{q.erreur}</p>}
             <div className="flex items-center justify-between gap-3">
-              <p className="text-xs text-gray-500">Rien d’autre n’est enregistré que le texte et le profil choisi.</p>
-              <Button onClick={envoyer} disabled={q.busy}>{q.busy ? 'Envoi…' : 'Envoyer'}</Button>
+              <p className="text-xs text-gray-500">Trois questions par jour au plus depuis une même connexion.</p>
+              <Button onClick={envoyer} disabled={q.busy || !q.accord}>{q.busy ? 'Envoi…' : 'Envoyer ma question'}</Button>
             </div>
           </div>
         )}
       </Card>
 
-      <h3 className="font-semibold text-gray-900 mb-3">Réponses publiées</h3>
+      <h3 className="font-semibold text-gray-900 mb-3">Questions et réponses publiques</h3>
+      {liste && liste.length > 0 && (
+        <div className="flex flex-col sm:flex-row gap-2 mb-3">
+          <input type="search" value={recherche} onChange={e => setRecherche(e.target.value)} placeholder="Rechercher dans les questions" className="flex-1 px-3 py-2 rounded-xl border-2 border-gray-200 focus:border-teal-500 focus:outline-none text-sm" />
+          <div className="flex flex-wrap gap-1.5">{[['', 'Tous'], ...Object.entries(profils)].map(([v, l]) => <button key={v} onClick={() => setFiltreProfil(v)} className={`px-3 py-1.5 rounded-full text-xs border ${filtreProfil === v ? 'bg-gray-800 text-white border-gray-800' : 'bg-white text-gray-700 border-gray-200'}`}>{l}</button>)}</div>
+        </div>
+      )}
       {liste === null && <p className="text-sm text-gray-500">Chargement…</p>}
       {liste && liste.length === 0 && <p className="text-sm text-gray-500">Les premières réponses paraîtront ici.</p>}
       <div className="space-y-3">
-        {(liste || []).map(x => (
+        {(liste || []).filter(x => (!filtreProfil || x.profil === filtreProfil) && (!recherche.trim() || (x.question + ' ' + x.reponse).toLowerCase().includes(recherche.trim().toLowerCase()))).map(x => (
           <Card key={x.id} className="p-4">
             <p className="text-xs text-gray-500 mb-1">{profils[x.profil] || 'Question'}{x.repondu_le ? ` · réponse du ${cwDateCourte(x.repondu_le)}` : ''}</p>
             <p className="font-medium text-gray-900 mb-2">{x.question}</p>
@@ -5525,9 +5645,15 @@ function AdminQuestions({ signaler }) {
 
 // Sortie rapide : quitte le site vers une page neutre et remplace l'entrée d'historique.
 function SortieRapide() {
+  const quitter = () => { try { sessionStorage.clear(); } catch (e) {} window.location.replace('https://www.meteosuisse.admin.ch/'); };
+  useEffect(() => {
+    const h = (e) => { if (e.key === 'Escape' && !e.defaultPrevented) { const t = e.target; const saisie = t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT'); if (!saisie) quitter(); } };
+    window.addEventListener('keydown', h);
+    return () => window.removeEventListener('keydown', h);
+  }, []);
   return (
-    <button type="button" onClick={() => { try { sessionStorage.clear(); } catch (e) {} window.location.replace('https://www.meteosuisse.admin.ch/'); }} title="Quitter rapidement le site" className="fixed z-40 right-3 rounded-full bg-gray-900 text-white text-xs font-semibold px-3 py-2 shadow-lg" style={{ bottom: 88 }}>
-      Quitter le site
+    <button type="button" onClick={quitter} title="Quitter rapidement le site (touche Échap)" className="fixed z-40 right-3 rounded-full bg-gray-900 text-white text-xs font-semibold px-3 py-2 shadow-lg" style={{ bottom: 88 }}>
+      Quitter le site (Échap)
     </button>
   );
 }
@@ -10764,8 +10890,9 @@ function EtatProjetPage() {
   ];
   const complementaires = [
     ['Signalement par les professionnel·le·s', 'Canal indépendant de l’employeur, détails généralisés, vérification facultative de l’adresse professionnelle', 'Opérationnel'],
-    ['Questions et réponses', 'Question anonyme, réponse de l’équipe publiée après réécriture', 'Alpha'],
+    ['Poser une question', 'Question anonyme, réponse de l’équipe publiée après réécriture, garanties affichées', 'Alpha'],
     ['Entrées par situation', 'Huit situations : droits, marche à suivre, ressources', 'Alpha'],
+    ['Trouver de l’aide', 'Organisations par canton, situation et type d’aide, centres LAVI et médiations du référentiel', 'Alpha'],
     ['Accès aux soins spécialisés', 'Cartographie par établissement, référentiel géré par l’équipe', 'Alpha'],
     ['Orientation juridique et courriers', 'Générateurs de documents, relecture juridique en cours, bandeau d’avertissement', 'Alpha'],
     ['Accompagnement PLAFA', 'Notes conservées sur l’appareil, sans horodatage certifié', 'Démonstration'],
@@ -12351,6 +12478,14 @@ function PublicPage() {
     );
   }
 
+  if (view === 'aide' || view === 'aide-public') {
+    return (
+      <div className="min-h-screen bg-white">
+        <div className="max-w-3xl mx-auto p-4 md:p-8"><BackButton /></div>
+        <TrouverAidePage />
+      </div>
+    );
+  }
   if (view === 'situations' || view === 'situations-public') {
     return (
       <div className="min-h-screen bg-white">
