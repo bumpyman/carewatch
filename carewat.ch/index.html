@@ -1867,7 +1867,6 @@ const CW_SOUTIENS = [
   { id: 'unisante', nom: 'Unisanté', url: 'https://www.unisante.ch' },
   { id: 'hug', nom: 'Hôpitaux universitaires de Genève', url: 'https://www.hug.ch' },
   { id: 'bfh', nom: 'Berner Fachhochschule', url: 'https://www.bfh.ch' },
-  { id: 'lavi-vaud', nom: 'Centre LAVI Vaud', url: 'https://www.profa.ch' },
   { id: 'profa', nom: 'Fondation PROFA', url: 'https://www.profa.ch' },
   { id: 'faang', nom: 'FAANG', url: 'https://www.faang.ch' },
   { id: 'avenir', nom: 'Avenir Syndical', url: 'https://www.avenirsyndical.ch' },
@@ -11167,7 +11166,7 @@ function FAQPage() {
 function PartnersPage() {
   const { setView } = useApp();
   const partners = [
-    { cat: 'Soutiens du projet', items: ['HEG-Genève (HES-SO)', 'Unisanté', 'Hôpitaux universitaires de Genève (HUG)', 'Berner Fachhochschule (BFH)', 'Centre LAVI Vaud', 'Fondation PROFA', 'FAANG — Fédération des associations afrodescendantes et noires de Genève', 'Avenir Syndical', 'KimboCare', 'Swiss Health Network for Equity'] },
+    { cat: 'Soutiens du projet', items: ['HEG-Genève (HES-SO)', 'Unisanté', 'Hôpitaux universitaires de Genève (HUG)', 'Berner Fachhochschule (BFH)', 'Fondation PROFA (dont le Centre LAVI Vaud)', 'FAANG — Fédération des associations afrodescendantes et noires de Genève', 'Avenir Syndical', 'KimboCare', 'Swiss Health Network for Equity'] },
     { cat: 'Institutions', items: [
       'HEG-Genève (HES-SO) — Convivens Lab, coordination technique et scientifique',
       'Unisanté — Centre universitaire de médecine générale et santé publique, Lausanne',
@@ -12906,7 +12905,7 @@ function PublicPage() {
 
   if (view === 'partners-public' || view === 'partners') {
     const partners = [
-      { cat: 'Soutiens du projet', items: ['HEG-Genève (HES-SO)', 'Unisanté', 'Hôpitaux universitaires de Genève (HUG)', 'Berner Fachhochschule (BFH)', 'Centre LAVI Vaud', 'Fondation PROFA', 'FAANG — Fédération des associations afrodescendantes et noires de Genève', 'Avenir Syndical', 'KimboCare', 'Swiss Health Network for Equity'] },
+      { cat: 'Soutiens du projet', items: ['HEG-Genève (HES-SO)', 'Unisanté', 'Hôpitaux universitaires de Genève (HUG)', 'Berner Fachhochschule (BFH)', 'Fondation PROFA (dont le Centre LAVI Vaud)', 'FAANG — Fédération des associations afrodescendantes et noires de Genève', 'Avenir Syndical', 'KimboCare', 'Swiss Health Network for Equity'] },
       { cat: 'Institutions', items: ['HEG-Genève (HES-SO) — Convivens Lab, coordination technique et scientifique', 'Unisanté — Centre universitaire de médecine générale et santé publique, Lausanne', 'HUG — Hôpitaux universitaires de Genève, division des sciences de l\'information médicale (SIMED)'] },
       { cat: 'Membres fondateurs', items: ['Convivens Lab (HES-SO Genève) — Coordination technique & scientifique', 'Association Suisse de la Drépanocytose — Expertise patient & advocacy', 'KimboCare / Resilia — Navigation santé'] },
       { cat: 'Organisations ressources', items: ['FAANG — Médiation interculturelle', 'Centre LAVI — Accompagnement juridique aux victimes', 'Appartenances — Consultations transculturelles', 'Pluriels — Psychiatrie transculturelle', 'Afro-Cité — Forum de dialogue et mobilisation citoyenne'] },
