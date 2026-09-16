@@ -363,7 +363,7 @@ function useVeille() {
   return { ...etat, visibles, masquer };
 } // notification par courriel, hébergée sur Infomaniak (remplace FormSubmit)
 const VUE_TITRES = {
-  'barometre': 'Baromètre d’expérience', 'etat': 'État du projet', 'maturite': 'Maturité en équité', 'questions': 'Questions et réponses', 'admin-questions': 'Questions',
+  'barometre': 'Baromètre d’expérience', 'etat': 'État du projet', 'maturite': 'Maturité en équité', 'questions': 'Questions et réponses', 'admin-questions': 'Questions', 'situations': 'Votre situation',
   'patient-home': 'Accueil', 'professional-home': 'Accueil', 'new-report': 'Signalement', 'positive-report': 'Expérience positive',
   'my-reports': 'Mes témoignages', 'institutions': 'Établissements', 'access-care': 'Accès aux soins', 'directory': 'Annuaire',
   'legal-guide': 'Guide juridique', 'plafa-doc': 'PLAFA', 'dossier-analysis': 'Analyse de dossier', 'news': 'Actualités', 'help': 'Aide et ressources',
@@ -2058,6 +2058,17 @@ function Landing() {
         </div>
       </section>
 
+      {/* ===== SITUATIONS ===== */}
+      <section className="bg-white border-b border-gray-200">
+        <div className="max-w-3xl mx-auto px-6 py-14 md:py-16">
+          <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">Votre situation</h3>
+          <p className="text-gray-600 mb-6">Droits, marche à suivre et ressources selon ce que vous vivez.</p>
+          <div className="flex flex-wrap gap-2">
+            {CW_SITUATIONS.map(x => <button key={x.id} onClick={() => setView('situations')} className="px-3 py-2 rounded-full text-sm border border-gray-200 bg-white text-gray-800 hover:border-teal-400 hover:bg-teal-50">{x.titre}</button>)}
+          </div>
+        </div>
+      </section>
+
       {/* ===== 2 CTA CARDS ===== */}
       <section className="bg-gradient-to-b from-gray-50 to-white border-b border-gray-200">
         <div className="max-w-3xl mx-auto px-6 py-14 md:py-16 text-center">
@@ -2312,9 +2323,9 @@ function Landing() {
               <div>
                 <p className="text-sm font-semibold text-teal-700 mb-2">En savoir plus</p>
                 <div className="space-y-1.5 text-sm">
-                  {['about','questions','etat','maturite','faq','methodology','partners','opendata'].map(v => (
+                  {['situations','questions','about','etat','maturite','faq','methodology','partners','opendata'].map(v => (
                     <button key={v} onClick={() => setView(v)} className="block hover:text-teal-700">
-                      {{about:'À propos',questions:'Questions et réponses',etat:'État du projet',maturite:'Maturité en équité',faq:'FAQ',methodology:'Méthodologie',partners:'Partenaires',opendata:'Open Data & API'}[v]}
+                      {{situations:'Votre situation',about:'À propos',questions:'Questions et réponses',etat:'État du projet',maturite:'Maturité en équité',faq:'FAQ',methodology:'Méthodologie',partners:'Partenaires',opendata:'Open Data & API'}[v]}
                 </button>
               ))}
               <a
@@ -2868,6 +2879,7 @@ function AppShell() {
       case 'etat': return <EtatProjetPage />;
       case 'maturite': return <MaturitePage />;
       case 'questions': return <QuestionsPage />;
+      case 'situations': return <SituationsPage />;
       case 'admin-questions': return adminReel ? <ModerationPage integre="questions" /> : <QuestionsPage />;
       case 'about': return <AboutPage />;
       case 'methodology': return <MethodologyPage />;
@@ -3055,6 +3067,7 @@ function PatientHome() {
         {[
           { icon: TrendingUp, label: 'Baromètre', desc: 'Évaluer une expérience de soins en deux minutes', v: 'barometre', color: 'teal' },
           { icon: HelpCircle, label: 'Poser une question', desc: 'Anonyme, réponse publiée', v: 'questions', color: 'indigo' },
+          { icon: Users, label: 'Votre situation', desc: 'Droits et ressources selon ce que vous vivez', v: 'situations', color: 'amber' },
           { icon: ClipboardList, label: 'Mes témoignages', desc: 'Suivre et modifier', v: 'my-reports', color: 'teal' },
           { icon: FileSearch, label: 'Analyse de dossier', desc: 'Démonstration', v: 'dossier-analysis', color: 'purple' },
           { icon: Building, label: 'Établissements', desc: 'Consulter les évaluations', v: 'institutions', color: 'indigo' },
@@ -5296,6 +5309,112 @@ function VerificationPro({ numero, code }) {
           {etape === 'code' && <div className="flex flex-col sm:flex-row gap-2"><input type="text" inputMode="numeric" value={codeV} onChange={e => setCodeV(e.target.value)} placeholder="Code à 6 chiffres" className="flex-1 px-3 py-2 rounded-xl border-2 border-gray-200 focus:border-teal-500 focus:outline-none text-sm" /><Button size="sm" onClick={confirmer} disabled={busy}>{busy ? 'Vérification…' : 'Confirmer'}</Button></div>}
           {msg && <p className="text-sm text-rose-700 mt-2">{msg}</p>}
         </>
+      )}
+    </div>
+  );
+}
+
+// Entrées par situation : droits, marche à suivre et ressources, selon ce que la personne vit.
+const CW_SITUATIONS = [
+  { id: 'langue', titre: 'Migration, langue, statut de séjour', resume: 'Vous comprenez mal ce qu’on vous dit, on vous a refusé un·e interprète, ou votre statut a pesé sur l’accueil.',
+    droits: [
+      'Comprendre son diagnostic et son traitement fait partie du consentement éclairé : l’établissement doit rendre l’information compréhensible, au besoin avec un·e interprète professionnel·le.',
+      'Les soins d’urgence sont dus à toute personne, quel que soit son statut de séjour ou son assurance.',
+      'Toute personne domiciliée en Suisse doit être assurée ; les cantons ont des dispositifs pour les personnes sans assurance ou sans statut.' ],
+    faire: ['Demandez un·e interprète professionnel·le avant la consultation, par écrit si possible ; un proche n’est pas un interprète.', 'Notez la date, le service et ce qui a été dit ou refusé.', 'Signalez la situation ici : l’accès à l’interprétariat est un indicateur suivi par établissement.'],
+    ressources: ['Interpret, service national d’interprétariat communautaire', 'Appartenances (Vaud) et associations de médiation interculturelle', 'Consultations pour personnes sans assurance ou sans statut, selon le canton (voir Accès aux soins)'] },
+  { id: 'handicap', titre: 'Handicap', resume: 'Accès physique, communication adaptée, décisions prises à votre place.',
+    droits: [
+      'La Constitution interdit la discrimination fondée sur une déficience ; la loi sur l’égalité pour les personnes handicapées vise l’accès aux prestations.',
+      'Vous décidez pour vous-même ; un·e représentant·e n’intervient que dans les cas prévus par la loi et le code civil.',
+      'L’information doit être donnée sous une forme que vous pouvez comprendre (langue des signes, facile à lire, supports adaptés).' ],
+    faire: ['Annoncez vos besoins avant le rendez-vous et demandez la trace écrite de la réponse.', 'En cas de refus d’aménagement, demandez le motif par écrit.', 'Signalez : les motifs « handicap » et « santé mentale » sont suivis séparément dans les indicateurs.'],
+    ressources: ['Inclusion Handicap, service juridique', 'Pro Infirmis, conseil social et juridique', 'Organisations cantonales de personnes concernées (voir Aide et ressources)'] },
+  { id: 'lgbtiqa', titre: 'Orientation sexuelle, identité de genre', resume: 'Propos déplacés, prénom ou pronom ignorés, examens ou questions sans rapport avec le motif de consultation.',
+    droits: [
+      'Le respect de la dignité et de la vie privée s’applique à la relation de soin ; votre orientation ou votre identité n’a à être connue que si elle est utile aux soins.',
+      'Le changement de prénom et de sexe à l’état civil est une déclaration simple depuis 2022 ; le prénom d’usage peut être demandé dans le dossier.',
+      'Le partenaire ou la partenaire, marié·e ou non, peut être désigné·e comme personne de confiance.' ],
+    faire: ['Indiquez le prénom et les pronoms à utiliser, et demandez qu’ils figurent au dossier.', 'Notez les propos et le contexte.', 'Signalez : le motif « orientation sexuelle » ou « identité de genre » est suivi.'],
+    ressources: ['Checkpoint (Genève, Vaud), santé communautaire', 'Dialogai (Genève), Vogay (Vaud)', 'Association 360, Épicène, associations trans et non binaires'] },
+  { id: 'psy', titre: 'Santé mentale, hospitalisation sous contrainte', resume: 'Vos symptômes physiques sont attribués à votre état psychique, ou vous êtes hospitalisé·e sans votre accord.',
+    droits: [
+      'Un placement à des fins d’assistance obéit à des conditions strictes du code civil ; vous pouvez le contester devant le juge dans les dix jours.',
+      'Le traitement sans consentement suppose une décision écrite et motivée, que vous avez le droit de recevoir.',
+      'Une personne de confiance peut vous assister pendant toute la durée du placement.' ],
+    faire: ['Demandez la décision écrite et la mention des voies de recours.', 'Contactez la personne de confiance ou une association de défense des patient·e·s.', 'Le module PLAFA de CareWatch aide à documenter les étapes et les délais.'],
+    ressources: ['Pro Mente Sana, conseil juridique et psychosocial', 'Associations de patient·e·s et de proches en psychiatrie (GRAAP, Le Relais, selon le canton)', 'Module PLAFA (accompagnement, version d’essai)'] },
+  { id: 'precarite', titre: 'Précarité, assurance, dettes', resume: 'Franchise élevée, primes impayées, soins reportés faute de moyens, accueil différent selon l’assurance.',
+    droits: [
+      'L’assurance de base couvre les mêmes prestations pour tous ; le type d’assurance ne justifie pas une différence de qualité des soins.',
+      'Les primes impayées ne suspendent pas les soins d’urgence ; les cantons prennent en charge une partie des arriérés.',
+      'Les subsides cantonaux aux primes existent pour les revenus modestes ; la demande se fait auprès du canton.' ],
+    faire: ['Demandez au service social de l’hôpital ou au canton un rendez-vous pour les subsides et les arriérés.', 'Conservez les décomptes et les courriers de l’assureur.', 'Signalez toute différence de traitement liée à l’assurance ou à la situation sociale.'],
+    ressources: ['Services sociaux hospitaliers', 'Centres sociaux protestants, Caritas, selon le canton', 'Ombudsman de l’assurance-maladie'] },
+  { id: 'maladie', titre: 'Maladie rare ou chronique', resume: 'Douleur sous-estimée, méconnaissance de votre maladie, parcours de soins fragmenté.',
+    droits: [
+      'Le droit à un traitement adéquat de la douleur découle de l’obligation de soins conformes aux règles de l’art.',
+      'Vous avez accès à votre dossier et pouvez en demander une copie.',
+      'Un plan de soins écrit et une personne de référence peuvent être demandés à l’établissement.' ],
+    faire: ['Gardez sur vous un résumé de votre maladie et de votre traitement habituel, utile aux urgences.', 'Demandez qu’un·e spécialiste de votre maladie soit contacté·e.', 'Signalez : le motif « maladie chronique ou rare » et le service concerné sont suivis.'],
+    ressources: ['Suisse Drépano, pour la drépanocytose', 'ProRaris, alliance maladies rares Suisse', 'Consultations spécialisées par établissement (voir Accès aux soins)'] },
+  { id: 'age', titre: 'Âge', resume: 'Décisions prises sans vous, ton infantilisant, soins jugés « pas la peine à votre âge ».',
+    droits: [
+      'L’âge ne justifie ni un refus de soins ni une information tronquée ; le consentement reste le vôtre tant que vous êtes capable de discernement.',
+      'Vos directives anticipées et votre représentant·e thérapeutique doivent être respectés.',
+      'Les proches ne décident pas à votre place sans base légale.' ],
+    faire: ['Rédigez ou mettez à jour vos directives anticipées et désignez un·e représentant·e.', 'Demandez à être informé·e directement, sans passer par les proches.', 'Signalez : le motif « âge » est suivi.'],
+    ressources: ['Pro Senectute, conseil et directives anticipées', 'Alter Ego, prévention de la maltraitance envers les personnes âgées', 'Services de médiation cantonaux'] },
+  { id: 'soignant', titre: 'Vous êtes soignant·e', resume: 'Discrimination de la part de patient·e·s, de collègues ou de la hiérarchie, ou témoin d’une situation.',
+    droits: [
+      'L’employeur doit protéger la personnalité du personnel, y compris contre la discrimination et le harcèlement.',
+      'Signaler de bonne foi un dysfonctionnement ne peut pas justifier une sanction.',
+      'Vous pouvez être assisté·e par un syndicat ou une association professionnelle.' ],
+    faire: ['Consignez les faits par écrit, avec dates et témoins, sans données de patient·e·s.', 'Utilisez le canal interne si vous lui faites confiance, et CareWatch en parallèle : il est indépendant de l’employeur.', 'La vérification de votre adresse professionnelle, facultative, renforce la crédibilité du signalement sans révéler votre identité.'],
+    ressources: ['APSR-GE, réseau de professionnel·le·s de santé racisé·e·s, pair-aidance', 'Syndicats et associations professionnelles (Avenir Syndical, ASI, VPOD)', 'Formations et ressources de l’espace professionnel'] },
+];
+
+function SituationsPage() {
+  const { setView, setUserType, userType } = useApp();
+  const [ouverte, setOuverte] = useState(null);
+  const aller = (v, type) => { if (type) setUserType(type); setView(v); };
+  const sit = CW_SITUATIONS.find(x => x.id === ouverte);
+  return (
+    <div className="p-4 md:p-8 max-w-3xl mx-auto">
+      <h2 className="text-2xl font-bold mb-2">Votre situation</h2>
+      <p className="text-gray-600 mb-6">Choisissez ce qui vous concerne : trois droits à connaître, la marche à suivre, les ressources compétentes. Ces repères sont généraux ; pour un cas précis, adressez-vous à une permanence juridique ou au Centre LAVI de votre canton.</p>
+      {!sit && (
+        <div className="grid sm:grid-cols-2 gap-3">
+          {CW_SITUATIONS.map(x => (
+            <Card key={x.id} className="p-4" onClick={() => setOuverte(x.id)}>
+              <p className="font-semibold text-gray-900 mb-1">{x.titre}</p>
+              <p className="text-sm text-gray-600">{x.resume}</p>
+            </Card>
+          ))}
+        </div>
+      )}
+      {sit && (
+        <div className="space-y-4">
+          <button onClick={() => setOuverte(null)} className="text-sm text-teal-700 underline">Toutes les situations</button>
+          <Card className="p-5">
+            <h3 className="text-xl font-bold text-gray-900 mb-1">{sit.titre}</h3>
+            <p className="text-gray-600 mb-4">{sit.resume}</p>
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Vos droits</p>
+            <ul className="list-disc pl-6 text-sm text-gray-700 space-y-1 mb-4">{sit.droits.map((d, i) => <li key={i}>{d}</li>)}</ul>
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Marche à suivre</p>
+            <ol className="list-disc pl-6 text-sm text-gray-700 space-y-1 mb-4">{sit.faire.map((d, i) => <li key={i}>{d}</li>)}</ol>
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Ressources</p>
+            <ul className="list-disc pl-6 text-sm text-gray-700 space-y-1">{sit.ressources.map((d, i) => <li key={i}>{d}</li>)}</ul>
+          </Card>
+          <div className="flex flex-wrap gap-2">
+            {sit.id === 'soignant'
+              ? <Button onClick={() => aller('new-report', 'professional')}>Signaler en tant que soignant·e</Button>
+              : <><Button onClick={() => aller('new-report', 'patient')}>Signaler</Button><Button variant="outline" onClick={() => aller('barometre', 'patient')}>Répondre au baromètre</Button></>}
+            <Button variant="outline" onClick={() => aller('rights', userType || 'patient')}>Guide juridique</Button>
+            <Button variant="outline" onClick={() => aller('help', userType || 'patient')}>Aide et ressources</Button>
+            <Button variant="outline" onClick={() => aller('questions')}>Poser une question</Button>
+          </div>
+        </div>
       )}
     </div>
   );
@@ -10640,6 +10759,7 @@ function EtatProjetPage() {
   const complementaires = [
     ['Signalement par les professionnel·le·s', 'Canal indépendant de l’employeur, détails généralisés, vérification facultative de l’adresse professionnelle', 'Opérationnel'],
     ['Questions et réponses', 'Question anonyme, réponse de l’équipe publiée après réécriture', 'Alpha'],
+    ['Entrées par situation', 'Huit situations : droits, marche à suivre, ressources', 'Alpha'],
     ['Accès aux soins spécialisés', 'Cartographie par établissement, référentiel géré par l’équipe', 'Alpha'],
     ['Orientation juridique et courriers', 'Générateurs de documents, relecture juridique en cours, bandeau d’avertissement', 'Alpha'],
     ['Accompagnement PLAFA', 'Notes conservées sur l’appareil, sans horodatage certifié', 'Démonstration'],
@@ -12225,6 +12345,14 @@ function PublicPage() {
     );
   }
 
+  if (view === 'situations' || view === 'situations-public') {
+    return (
+      <div className="min-h-screen bg-white">
+        <div className="max-w-3xl mx-auto p-4 md:p-8"><BackButton /></div>
+        <SituationsPage />
+      </div>
+    );
+  }
   if (view === 'questions' || view === 'questions-public') {
     return (
       <div className="min-h-screen bg-white">
