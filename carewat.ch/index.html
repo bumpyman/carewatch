@@ -1861,6 +1861,30 @@ function CareWatch() {
 // LANDING PAGE
 // ============================================
 
+// Soutiens : logo dans carewat.ch/logos/<id>.(svg|png), lien vers le site. Sans fichier, le nom s'affiche.
+const CW_SOUTIENS = [
+  { id: 'heg', nom: 'HEG-Genève (HES-SO)', url: 'https://www.hesge.ch/heg' },
+  { id: 'unisante', nom: 'Unisanté', url: 'https://www.unisante.ch' },
+  { id: 'hug', nom: 'Hôpitaux universitaires de Genève', url: 'https://www.hug.ch' },
+  { id: 'bfh', nom: 'Berner Fachhochschule', url: 'https://www.bfh.ch' },
+  { id: 'lavi-vaud', nom: 'Centre LAVI Vaud', url: 'https://www.profa.ch' },
+  { id: 'profa', nom: 'Fondation PROFA', url: 'https://www.profa.ch' },
+  { id: 'faang', nom: 'FAANG', url: 'https://www.faang.ch' },
+  { id: 'apsr', nom: 'APSR-GE', url: '' },
+  { id: 'avenir-syndical', nom: 'Avenir Syndical', url: 'https://www.avenirsyndical.ch' },
+  { id: 'kimbocare', nom: 'KimboCare', url: 'https://www.kimbocare.com' },
+  { id: 'shne', nom: 'Swiss Health Network for Equity', url: '' },
+];
+function LogoSoutien({ soutien }) {
+  const [etat, setEtat] = useState('svg'); // svg → png → nom
+  const contenu = etat === 'nom'
+    ? <span className="px-3 py-1.5 rounded-full text-sm bg-gray-50 border border-gray-200 text-gray-800">{soutien.nom}</span>
+    : <img src={`logos/${soutien.id}.${etat}`} alt={soutien.nom} title={soutien.nom} style={{ height: 44, maxWidth: 160, objectFit: 'contain' }} onError={() => setEtat(etat === 'svg' ? 'png' : 'nom')} />;
+  return soutien.url
+    ? <a href={soutien.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center hover:opacity-80" title={soutien.nom}>{contenu}</a>
+    : <span className="inline-flex items-center">{contenu}</span>;
+}
+
 function Landing() {
   const { realStats, showDemo, setShowDemo, setView, setShowLogin, setLoginType, stats, DB, searchQuery, setSearchQuery, selectedCanton, setSelectedCanton, selectedInstitution, setSelectedInstitution , ref } = useApp();
   const veille = useVeille();
@@ -2265,7 +2289,7 @@ function Landing() {
           <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-8">Cadre scientifique et éthique</h3>
           <div className="grid sm:grid-cols-2 gap-4">
             {[
-              { title: 'Soutiens', desc: 'HEG-Genève (HES-SO), Unisanté, Hôpitaux universitaires de Genève, Berner Fachhochschule, Centre LAVI Vaud, Fondation PROFA, FAANG, APSR-GE, Avenir Syndical, KimboCare, Swiss Health Network for Equity. Coordination technique et scientifique par le Convivens Lab.', action: ['Partenaires', 'partners'] },
+              { title: 'Institutions', desc: 'Haute école de gestion de Genève (HES-SO), Unisanté et Hôpitaux universitaires de Genève. Coordination technique et scientifique par le Convivens Lab.', action: ['Partenaires', 'partners'] },
               { title: 'Protection des données', desc: 'Témoignages anonymes, hébergement en Suisse, données réduites au strict nécessaire. Les textes publiés sont vérifiés et dé-identifiés.', action: ['Confidentialité', 'privacy-public'] },
               { title: 'Science ouverte', desc: 'Code source publié sous licence AGPL-3.0. Données ouvertes dé-identifiées sous licence CC BY-NC-SA 4.0, avec une interface de programmation documentée.', lien: ['Dépôt GitHub', 'https://github.com/bumpyman/carewatch'] },
               { title: 'Statut', desc: `Version ${CW_VERSION}, alpha fermée sur invitation. Modules opérationnels, en essai, en démonstration ou prévus.`, action: ['État du projet', 'etat'] },
@@ -2284,9 +2308,9 @@ function Landing() {
       {/* ===== SOUTIENS ===== */}
       <section className="bg-white border-b border-gray-200">
         <div className="max-w-3xl mx-auto px-6 py-10">
-          <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-3">Avec le soutien de</p>
-          <div className="flex flex-wrap gap-2">
-            {['HEG-Genève (HES-SO)', 'Unisanté', 'Hôpitaux universitaires de Genève', 'Berner Fachhochschule', 'Centre LAVI Vaud', 'Fondation PROFA', 'FAANG', 'APSR-GE', 'Avenir Syndical', 'KimboCare', 'Swiss Health Network for Equity'].map(n => <span key={n} className="px-3 py-1.5 rounded-full text-sm bg-gray-50 border border-gray-200 text-gray-800">{n}</span>)}
+          <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-4">Avec le soutien de</p>
+          <div className="flex flex-wrap items-center gap-3">
+            {CW_SOUTIENS.map(x => <LogoSoutien key={x.id} soutien={x} />)}
           </div>
         </div>
       </section>
