@@ -2582,7 +2582,10 @@ function LoginModal() {
                 <Input label="Code d’accès" value={codeAccesAdmin} onChange={v => setCodeAccesAdmin(v.toUpperCase())} placeholder="8 caractères" />
               </>
             ) : etatEmail === 'compte_sans_mdp' ? null : (
-              <Input label="Mot de passe" type="password" value={password} onChange={setPassword} placeholder="••••••••" />
+              <>
+                <Input label="Mot de passe" type="password" value={password} onChange={setPassword} placeholder="••••••••" />
+                {!estDemo && <button type="button" onClick={() => { setEtatEmail('autorise'); setPassword(''); }} className="text-sm text-teal-700 underline w-full text-left">Première connexion : j’ai reçu un code d’accès</button>}
+              </>
             )}
             <Button onClick={validerAdmin} disabled={busyAdmin || !email.trim() || (etatEmail === 'autorise' ? !codeAccesAdmin.trim() : etatEmail === 'compte_sans_mdp' ? false : !password)} className="w-full" icon={Lock}>{busyAdmin ? 'Connexion…' : etatEmail === 'compte_sans_mdp' ? 'Recevoir un code de connexion' : 'Se connecter'}</Button>
             {estDemo && <p className="text-xs text-gray-500 text-center">Ce compte ouvre l’interface de démonstration, avec des données fictives.</p>}
