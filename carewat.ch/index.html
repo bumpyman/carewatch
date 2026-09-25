@@ -2471,9 +2471,19 @@ function LoginModal() {
     try {
       if (etatEmail === 'autorise') {
         const { data: v, error: e0 } = await window.cwDb.rpc('moderateur_verifier_code', { p_email: email.trim(), p_code: codeAccesAdmin.trim() });
-        if (e0 || !v || !v.ok) { setError((v && v.raison === 'expire') ? 'Ce code d’accès a expiré, demandez-en un nouveau.' : 'E-mail ou code d’accès incorrect.'); return; }
+        if (e0 || !v || !v.ok) {
+          const m = (e0 && e0.message) || '';
+          setError(/Trop de demandes/i.test(m) ? 'Trop de tentatives depuis cette connexion : attendez une heure avant de réessayer.' : m ? 'Vérification impossible : ' + m : (v && v.raison === 'expire') ? 'Ce code d’accès a expiré, demandez-en un nouveau à l’équipe.' : (v && v.raison === 'inconnu') ? 'Aucun code d’accès en attente pour cette adresse. Demandez-en un à l’équipe.' : 'Code d’accès incorrect. Il compte 8 lettres et chiffres, sans espace.');
+          return;
+        }
         const { error: e1 } = await window.cwDb.auth.signInWithOtp({ email: email.trim(), options: { emailRedirectTo: window.location.origin + '/?m=moderation', shouldCreateUser: true } });
         if (e1) { setError('Envoi du code impossible : ' + (e1.message || '')); return; }
+        versEtapeSuivante('email');
+        return;
+      }
+      if (etatEmail === 'compte_sans_mdp') {
+        const { error: e3 } = await window.cwDb.auth.signInWithOtp({ email: email.trim(), options: { emailRedirectTo: window.location.origin + '/?m=moderation', shouldCreateUser: false } });
+        if (e3) { setError('Envoi du code impossible : ' + (e3.message || '')); return; }
         versEtapeSuivante('email');
         return;
       }
@@ -2563,17 +2573,20 @@ function LoginModal() {
         {loginType === 'admin' && (
           <div className="space-y-4" onKeyDown={e => { if (e.key === 'Enter') validerAdmin(); }}>
             <Input label="E-mail" type="email" value={email} onChange={setEmail} placeholder="prenom@carewat.ch" />
+            {etatEmail === 'compte_sans_mdp' && (
+              <div className="p-3 rounded-xl bg-teal-50 border border-teal-100 text-sm text-teal-900"><strong>Compte inscrit, mot de passe pas encore choisi.</strong> Cliquez sur « Se connecter » : un code de connexion vous est envoyé par e-mail, puis vous choisirez votre mot de passe.</div>
+            )}
             {etatEmail === 'autorise' ? (
               <>
                 <div className="p-3 rounded-xl bg-teal-50 border border-teal-100 text-sm text-teal-900"><strong>Première connexion.</strong> Saisissez le code d’accès reçu par e-mail ; vous choisirez ensuite votre mot de passe.</div>
                 <Input label="Code d’accès" value={codeAccesAdmin} onChange={v => setCodeAccesAdmin(v.toUpperCase())} placeholder="8 caractères" />
               </>
-            ) : (
+            ) : etatEmail === 'compte_sans_mdp' ? null : (
               <Input label="Mot de passe" type="password" value={password} onChange={setPassword} placeholder="••••••••" />
             )}
-            <Button onClick={validerAdmin} disabled={busyAdmin || !email.trim() || (etatEmail === 'autorise' ? !codeAccesAdmin.trim() : !password)} className="w-full" icon={Lock}>{busyAdmin ? 'Connexion…' : 'Se connecter'}</Button>
+            <Button onClick={validerAdmin} disabled={busyAdmin || !email.trim() || (etatEmail === 'autorise' ? !codeAccesAdmin.trim() : etatEmail === 'compte_sans_mdp' ? false : !password)} className="w-full" icon={Lock}>{busyAdmin ? 'Connexion…' : etatEmail === 'compte_sans_mdp' ? 'Recevoir un code de connexion' : 'Se connecter'}</Button>
             {estDemo && <p className="text-xs text-gray-500 text-center">Ce compte ouvre l’interface de démonstration, avec des données fictives.</p>}
-            {!estDemo && etatEmail !== 'autorise' && <button onClick={motDePasseOublie} disabled={busyAdmin} className="text-sm text-teal-700 underline w-full text-right">Mot de passe oublié ?</button>}
+            {!estDemo && etatEmail !== 'autorise' && etatEmail !== 'compte_sans_mdp' && <button onClick={motDePasseOublie} disabled={busyAdmin} className="text-sm text-teal-700 underline w-full text-right">Mot de passe oublié ?</button>}
 
             <p className="text-sm text-gray-600 text-center">Accès réservé aux administrateurs. Contactez <a href="mailto:contact@carewat.ch" className="text-gray-600 underline">contact@carewat.ch</a> pour obtenir vos identifiants.</p>
           </div>
@@ -11611,7 +11624,7 @@ function AdminAcces({ signaler, dateFr }) {
             const { data: r, error } = await window.cwDb.rpc('admin_autoriser_moderateur', { p_email: nvMod.email, p_nom: nvMod.nom, p_role: nvMod.role, p_etablissement: nvMod.role === 'etablissement' ? nvMod.etablissement : null });
             setBusy(false);
             if (error || !r || !r.ok) { signaler('Refusé : ' + ((error && error.message) || '')); return; }
-            if (r.etat === 'inscrit') { signaler('Compte existant : inscrit immédiatement.'); setDernierAcces(null); }
+            if (r.etat === 'inscrit') { signaler('Cette personne a déjà un compte et s’est déjà connectée : elle est inscrite immédiatement, sans code. Elle se connecte avec son mot de passe habituel.'); setDernierAcces(null); }
             else {
               let envoye = false;
               try {
@@ -11746,7 +11759,7 @@ function ModerationPage({ integre }) {
     if (e0 || !v || !v.ok) {
       setBusy(false);
       const r = v && v.raison;
-      setMsg(r === 'expire' ? 'Ce code d’accès a expiré : demandez-en un nouveau à l’équipe.' : (e0 && /Trop de demandes/i.test(e0.message || '')) ? 'Trop de tentatives, réessayez dans une heure.' : 'E-mail ou code d’accès incorrect.');
+      setMsg(r === 'expire' ? 'Ce code d’accès a expiré : demandez-en un nouveau à l’équipe.' : (e0 && /Trop de demandes/i.test(e0.message || '')) ? 'Trop de tentatives, réessayez dans une heure.' : r === 'inconnu' ? 'Aucun code d’accès en attente pour cette adresse.' : 'E-mail ou code d’accès incorrect.');
       return;
     }
     const { error } = await auth.signInWithOtp({ email: email.trim(), options: { emailRedirectTo: window.location.origin + '/?m=moderation', shouldCreateUser: true } });
