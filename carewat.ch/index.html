@@ -11793,7 +11793,8 @@ function ModerationPage({ integre }) {
   const traduire = (m) =>
     /Invalid login/i.test(m) ? 'E-mail ou mot de passe incorrect.' :
     /Accès refusé|permission denied/i.test(m) ? 'Ce compte n’est pas autorisé pour la modération, ou le second facteur n’est pas validé.' :
-    /Invalid TOTP|invalid code|expired/i.test(m) ? 'Code à 6 chiffres incorrect ou expiré.' :
+    /Invalid TOTP/i.test(m) ? 'Code de l’application incorrect ou expiré : attendez le code suivant et réessayez.' :
+    /invalid code|expired|Token has expired/i.test(m) ? 'Code incorrect ou expiré. Seul le dernier code reçu par e-mail est valable ; s’il date de plus d’une heure, demandez-en un nouveau.' :
     /Email not confirmed/i.test(m) ? 'Compte non confirmé : cochez « Auto Confirm User » dans Supabase.' :
     /friendly name .* already exists/i.test(m) ? 'Une activation précédente du second facteur est restée inachevée. Rechargez la page pour recommencer.' :
     /sub claim|does not exist/i.test(m) ? 'Ce compte a été supprimé ou recréé. Rechargez la page et reconnectez-vous.' : m;

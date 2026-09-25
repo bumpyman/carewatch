@@ -1,0 +1,10 @@
+# CareWatch : la page principale n'est jamais servie depuis un cache navigateur ou intermédiaire
+<FilesMatch "\.(html)$">
+  Header set Cache-Control "no-cache, no-store, must-revalidate"
+  Header set Pragma "no-cache"
+  Header set Expires "0"
+</FilesMatch>
+# Bibliothèques et images : un jour
+<FilesMatch "\.(js|css|png|jpg|jpeg|svg|ico|woff2?)$">
+  Header set Cache-Control "public, max-age=86400"
+</FilesMatch>
