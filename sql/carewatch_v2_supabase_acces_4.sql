@@ -27,8 +27,8 @@ begin
     v_etab := null;
   end if;
 
-  -- Compte existant ET déjà connecté au moins une fois : inscription immédiate, la personne a un mot de passe
-  select id into v_uid from auth.users where lower(email) = v_email and last_sign_in_at is not null;
+  -- Compte existant AVEC un mot de passe : inscription immédiate. Un compte créé par un simple code e-mail n'en a pas.
+  select id into v_uid from auth.users where lower(email) = v_email and coalesce(encrypted_password, '') <> '';
   if v_uid is not null then
     insert into public.moderateurs (user_id, nom, role, etablissement_id) values (v_uid, p_nom, p_role, v_etab)
     on conflict (user_id) do update set nom = excluded.nom, role = excluded.role, etablissement_id = excluded.etablissement_id;
@@ -47,8 +47,8 @@ revoke execute on function public.admin_autoriser_moderateur(text, text, text, t
 grant  execute on function public.admin_autoriser_moderateur(text, text, text, text) to authenticated;
 
 -- État d'une adresse pour l'écran de connexion
---   'compte'          : inscrit·e et déjà connecté·e → mot de passe
---   'compte_sans_mdp' : inscrit·e mais jamais connecté·e → code de connexion par e-mail
+--   'compte'          : inscrit·e avec un mot de passe → mot de passe
+--   'compte_sans_mdp' : inscrit·e sans mot de passe (connexion par code e-mail seulement) → code de connexion par e-mail
 --   'autorise'        : code d'accès remis, en attente → code d'accès
 --   'inconnu'         : rien
 create or replace function public.moderateur_etat(p_email text)
@@ -65,7 +65,7 @@ begin
   if exists (select 1 from public.moderateurs_autorises where email = v_email and code_hash is not null and (expire_le is null or expire_le > now())) then
     return jsonb_build_object('etat', 'autorise');
   end if;
-  select u.id, u.last_sign_in_at is not null into v_uid, v_deja
+  select u.id, coalesce(u.encrypted_password, '') <> '' into v_uid, v_deja
   from auth.users u join public.moderateurs m on m.user_id = u.id where lower(u.email) = v_email;
   if v_uid is not null then return jsonb_build_object('etat', case when v_deja then 'compte' else 'compte_sans_mdp' end); end if;
   return jsonb_build_object('etat', 'inconnu');
@@ -75,5 +75,5 @@ grant execute on function public.moderateur_etat(text) to anon, authenticated;
 -- Contrôle : autorisations en attente et comptes inscrits
 select 'autorise' as source, email, nom, role, expire_le, code_hash is not null as code_remis from public.moderateurs_autorises
 union all
-select 'inscrit', u.email, m.nom, m.role, null, u.last_sign_in_at is not null from public.moderateurs m join auth.users u on u.id = m.user_id
+select 'inscrit', u.email, m.nom, m.role, null, coalesce(u.encrypted_password, '') <> '' as a_un_mot_de_passe from public.moderateurs m join auth.users u on u.id = m.user_id
 order by 1, 2;
