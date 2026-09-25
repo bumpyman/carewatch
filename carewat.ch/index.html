@@ -11805,9 +11805,10 @@ function ModerationPage({ integre }) {
     const totp = f && f.totp && f.totp.find(x => x.status === 'verified');
     if (totp) { setFacteur(totp); setEtape('mfa-code'); return; }
     // Un facteur commencé mais jamais validé (fenêtre fermée, code non saisi) bloque toute nouvelle inscription : on le retire
-    for (const x of ((f && f.totp) || []).filter(x => x.status !== 'verified')) { try { await auth.mfa.unenroll({ factorId: x.id }); } catch (e) {} }
-    // Premier accès : création du second facteur
-    const { data: enr, error } = await auth.mfa.enroll({ factorType: 'totp', issuer: 'CareWatch', friendlyName: 'CareWatch modération ' + new Date().toISOString().slice(0, 10) });
+    // (listFactors().totp ne liste que les facteurs validés : les inachevés sont dans .all)
+    for (const x of ((f && f.all) || []).filter(x => x.factor_type === 'totp' && x.status !== 'verified')) { try { await auth.mfa.unenroll({ factorId: x.id }); } catch (e) {} }
+    // Premier accès : création du second facteur, nom unique
+    const { data: enr, error } = await auth.mfa.enroll({ factorType: 'totp', issuer: 'CareWatch', friendlyName: 'CareWatch ' + Date.now().toString(36) });
     if (error) { erreur(error, 'Impossible de préparer le second facteur.'); setEtape('connexion'); return; }
     setFacteur({ id: enr.id });
     setQr(enr.totp);
