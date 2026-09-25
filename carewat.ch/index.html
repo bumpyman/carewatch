@@ -11753,7 +11753,7 @@ function ModerationPage({ integre }) {
     setBusy(false);
     if (error) { erreur(error, 'Envoi impossible.'); return; }
     setOtpAttendu('email'); setOtpCode('');
-    setMsg('Un e-mail vient de partir vers ' + email.trim() + '. Saisissez ci-dessous le code à 6 chiffres qu’il contient. Le lien du même e-mail fonctionne aussi, une seule fois.');
+    setMsg('Un e-mail vient de partir vers ' + email.trim() + '. Saisissez ci-dessous le code chiffré qu’il contient. Le lien du même e-mail fonctionne aussi, une seule fois.');
   };
   const chargerNda = async () => {
     const { data, error } = await window.cwDb.rpc('admin_lister_nda');
@@ -11928,7 +11928,7 @@ function ModerationPage({ integre }) {
   if (etape === 'connexion' && otpAttendu) return cadre(
     <Card className="p-5 space-y-4">
       <p className="text-sm text-gray-700"><strong>Code envoyé à {email.trim()}.</strong> Il est valable quelques minutes.</p>
-      <Input label="Code à 6 chiffres reçu par e-mail" value={otpCode} onChange={v => setOtpCode(v.replace(/\D/g, '').slice(0, 6))} placeholder="123456" />
+      <Input label="Code reçu par e-mail (6 à 10 chiffres)" value={otpCode} onChange={v => setOtpCode(v.replace(/\D/g, '').slice(0, 10))} placeholder="12345678" />
       <Button onClick={validerOtp} disabled={busy || otpCode.length < 6} className="w-full">Valider</Button>
       <button onClick={() => { setOtpAttendu(null); setOtpCode(''); setMsg(''); setLoginType('admin'); setShowLogin(true); setView('landing'); }} className="text-sm text-teal-700 underline w-full text-center">Revenir à la connexion</button>
     </Card>

@@ -314,10 +314,11 @@ if (isset($donnees['_mode']) && $donnees['_mode'] === 'acces') {
     $corps .= "Valable 14 jours.\r\n\r\n";
     $corps .= "Pour l'activer :\r\n";
     $corps .= "1. Ouvrez https://carewat.ch, entrez avec votre code d'invitation si la porte le demande.\r\n";
-    $corps .= "2. Cliquez sur l'icône d'administration du bandeau, puis « Espace de modération sécurisé ».\r\n";
-    $corps .= "3. Choisissez « Première connexion », saisissez cette adresse e-mail et le code ci-dessus.\r\n";
-    $corps .= "4. Vous recevrez un lien de connexion, puis vous choisirez votre mot de passe et activerez\r\n";
-    $corps .= "   le second facteur avec une application d'authentification.\r\n\r\n";
+    $corps .= "2. Cliquez sur l'icône d'administration (roue dentée) en haut de la page.\r\n";
+    $corps .= "3. Saisissez cette adresse e-mail : le champ « Code d'accès » apparaît. Entrez le code ci-dessus.\r\n";
+    $corps .= "4. Un second e-mail arrive, envoyé par la plateforme, avec un code chiffré à saisir.\r\n";
+    $corps .= "5. Vous activez ensuite le second facteur avec une application d'authentification\r\n";
+    $corps .= "   (Aegis, FreeOTP, Google Authenticator), puis choisissez votre mot de passe.\r\n\r\n";
     $corps .= "Si vous n'attendiez pas cet accès, ignorez ce message et prévenez contact@carewat.ch.\r\n\r\n";
     $corps .= "L'équipe CareWatch(TM)\r\n";
 
