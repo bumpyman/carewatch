@@ -11778,7 +11778,8 @@ function ModerationPage({ integre }) {
     /Invalid login/i.test(m) ? 'E-mail ou mot de passe incorrect.' :
     /Accès refusé|permission denied/i.test(m) ? 'Ce compte n’est pas autorisé pour la modération, ou le second facteur n’est pas validé.' :
     /Invalid TOTP|invalid code|expired/i.test(m) ? 'Code à 6 chiffres incorrect ou expiré.' :
-    /Email not confirmed/i.test(m) ? 'Compte non confirmé : cochez « Auto Confirm User » dans Supabase.' : m;
+    /Email not confirmed/i.test(m) ? 'Compte non confirmé : cochez « Auto Confirm User » dans Supabase.' :
+    /friendly name .* already exists/i.test(m) ? 'Une activation précédente du second facteur est restée inachevée. Rechargez la page pour recommencer.' : m;
   const erreur = (e, defaut) => setMsg(e && e.message ? traduire(e.message) : defaut);
 
   const verifierNiveau = async () => {
@@ -11796,8 +11797,10 @@ function ModerationPage({ integre }) {
     const { data: f } = await auth.mfa.listFactors();
     const totp = f && f.totp && f.totp.find(x => x.status === 'verified');
     if (totp) { setFacteur(totp); setEtape('mfa-code'); return; }
+    // Un facteur commencé mais jamais validé (fenêtre fermée, code non saisi) bloque toute nouvelle inscription : on le retire
+    for (const x of ((f && f.totp) || []).filter(x => x.status !== 'verified')) { try { await auth.mfa.unenroll({ factorId: x.id }); } catch (e) {} }
     // Premier accès : création du second facteur
-    const { data: enr, error } = await auth.mfa.enroll({ factorType: 'totp', issuer: 'CareWatch', friendlyName: 'CareWatch modération' });
+    const { data: enr, error } = await auth.mfa.enroll({ factorType: 'totp', issuer: 'CareWatch', friendlyName: 'CareWatch modération ' + new Date().toISOString().slice(0, 10) });
     if (error) { erreur(error, 'Impossible de préparer le second facteur.'); setEtape('connexion'); return; }
     setFacteur({ id: enr.id });
     setQr(enr.totp);
