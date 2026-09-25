@@ -11731,6 +11731,19 @@ function ModerationPage({ integre }) {
     if (etape === 'connexion' && !otpAttendu && !integre) { setLoginType('admin'); setShowLogin(true); setView('landing'); }
   }, [etape, otpAttendu]);
   const [otpCode, setOtpCode] = useState('');
+  const [otpEnvoyeA, setOtpEnvoyeA] = useState(() => (otpDemande ? Date.now() : 0));
+  const [maintenant, setMaintenant] = useState(Date.now());
+  useEffect(() => { if (!otpAttendu) return; const t = setInterval(() => setMaintenant(Date.now()), 1000); return () => clearInterval(t); }, [otpAttendu]);
+  const attenteRenvoi = Math.max(0, 90 - Math.floor((maintenant - otpEnvoyeA) / 1000));
+  const renvoyerOtp = async () => {
+    if (attenteRenvoi > 0) return;
+    setBusy(true); setMsg('');
+    const { error } = await auth.signInWithOtp({ email: email.trim(), options: { emailRedirectTo: window.location.origin + '/?m=moderation', shouldCreateUser: true } });
+    setBusy(false);
+    if (error) { erreur(error, 'Envoi impossible.'); return; }
+    setOtpEnvoyeA(Date.now()); setOtpCode('');
+    setMsg('Nouveau code envoyé. Seul le dernier code reçu est valable ; les précédents ne fonctionnent plus.');
+  };
   const validerOtp = async () => {
     setBusy(true); setMsg('');
     const { error } = await auth.verifyOtp({ email: email.trim(), token: otpCode.trim(), type: otpAttendu });
@@ -11768,8 +11781,8 @@ function ModerationPage({ integre }) {
     const { error } = await auth.signInWithOtp({ email: email.trim(), options: { emailRedirectTo: window.location.origin + '/?m=moderation', shouldCreateUser: true } });
     setBusy(false);
     if (error) { erreur(error, 'Envoi impossible.'); return; }
-    setOtpAttendu('email'); setOtpCode('');
-    setMsg('Un e-mail vient de partir vers ' + email.trim() + '. Saisissez ci-dessous le code chiffré qu’il contient. Le lien du même e-mail fonctionne aussi, une seule fois.');
+    setOtpAttendu('email'); setOtpCode(''); setOtpEnvoyeA(Date.now());
+    setMsg('Un e-mail vient de partir vers ' + email.trim() + '. Saisissez ci-dessous le code chiffré qu’il contient.');
   };
   const chargerNda = async () => {
     const { data, error } = await window.cwDb.rpc('admin_lister_nda');
@@ -11954,9 +11967,10 @@ function ModerationPage({ integre }) {
 
   if (etape === 'connexion' && otpAttendu) return cadre(
     <Card className="p-5 space-y-4">
-      <p className="text-sm text-gray-700"><strong>Code envoyé à {email.trim()}.</strong> Il est valable quelques minutes.</p>
+      <p className="text-sm text-gray-700"><strong>Code envoyé à {email.trim()}.</strong> Il peut mettre une à deux minutes à arriver ; regardez aussi les courriers indésirables. Si vous avez reçu plusieurs e-mails, seul le dernier compte.</p>
       <Input label="Code reçu par e-mail (6 à 10 chiffres)" value={otpCode} onChange={v => setOtpCode(v.replace(/\D/g, '').slice(0, 10))} placeholder="12345678" />
       <Button onClick={validerOtp} disabled={busy || otpCode.length < 6} className="w-full">Valider</Button>
+      <button onClick={renvoyerOtp} disabled={busy || attenteRenvoi > 0} className={`text-sm w-full text-center ${attenteRenvoi > 0 ? 'text-gray-400' : 'text-teal-700 underline'}`}>{attenteRenvoi > 0 ? `Renvoyer un code possible dans ${attenteRenvoi} s` : 'Renvoyer un code'}</button>
       <button onClick={() => { setOtpAttendu(null); setOtpCode(''); setMsg(''); setLoginType('admin'); setShowLogin(true); setView('landing'); }} className="text-sm text-teal-700 underline w-full text-center">Revenir à la connexion</button>
     </Card>
   );
