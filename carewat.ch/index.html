@@ -11833,7 +11833,7 @@ function ModerationPage({ integre }) {
   useEffect(() => {
     const h = window.location.hash || '';
     if (/error_code=otp_expired|error=access_denied/.test(h)) {
-      setMsg('Ce lien a expiré ou a déjà été utilisé, souvent parce que votre messagerie l’a ouvert avant vous pour le vérifier. Saisissez votre e-mail et recommencez : le code à 6 chiffres reçu par e-mail suffit, sans cliquer sur le lien.');
+      setMsg('Ce lien a expiré ou a déjà été utilisé, souvent parce que votre messagerie l’a ouvert avant vous pour le vérifier. Saisissez votre e-mail et recommencez : le code chiffres reçu par e-mail suffit, sans cliquer sur le lien.');
       try { history.replaceState(null, '', window.location.pathname + '?m=moderation'); } catch (e) {}
     }
     verifierNiveau().catch(() => setEtape('connexion'));
@@ -11889,7 +11889,7 @@ function ModerationPage({ integre }) {
     setBusy(false);
     if (error) { erreur(error, 'Envoi impossible.'); return; }
     setOtpAttendu('recovery'); setOtpCode('');
-    setMsg('Si ce compte existe, un e-mail vient de partir. Saisissez ci-dessous le code à 6 chiffres qu’il contient ; vous choisirez ensuite un nouveau mot de passe.');
+    setMsg('Si ce compte existe, un e-mail vient de partir. Saisissez ci-dessous le code chiffré qu’il contient (6 à 10 chiffres) ; vous choisirez ensuite un nouveau mot de passe.');
   };
   const deconnecter = async () => {
     await auth.signOut();
@@ -11982,7 +11982,7 @@ function ModerationPage({ integre }) {
       <p className="text-sm text-gray-700"><strong>Premier accès : activez le second facteur.</strong> Scannez ce code avec une application d’authentification (Aegis, FreeOTP, Google Authenticator, Microsoft Authenticator…), puis saisissez le code à 6 chiffres qu’elle affiche.</p>
       {qr && qr.qr_code && <img src={qr.qr_code} alt="Code QR à scanner" className="mx-auto bg-white p-2 rounded-xl border" style={{ width: 192, height: 192 }} />}
       {qr && qr.secret && <p className="text-xs text-gray-500 text-center">Saisie manuelle : <span className="font-mono">{qr.secret}</span></p>}
-      <Input label="Code à 6 chiffres" value={code} onChange={setCode} placeholder="123456" />
+      <Input label="Code à 6 chiffres affiché par l’application (pas celui de l’e-mail)" value={code} onChange={setCode} placeholder="123456" />
       <Button onClick={validerCode} disabled={busy || code.trim().length < 6} className="w-full">Activer et se connecter</Button>
     </Card>
   );
@@ -11990,7 +11990,7 @@ function ModerationPage({ integre }) {
   if (etape === 'mfa-code') return cadre(
     <Card className="p-5 space-y-4">
       <p className="text-sm text-gray-700"><strong>Étape 2 sur 2.</strong> Saisissez le code à 6 chiffres de votre application d’authentification.</p>
-      <Input label="Code à 6 chiffres" value={code} onChange={setCode} placeholder="123456" />
+      <Input label="Code à 6 chiffres affiché par l’application (pas celui de l’e-mail)" value={code} onChange={setCode} placeholder="123456" />
       <Button onClick={validerCode} disabled={busy || code.trim().length < 6} className="w-full">Vérifier</Button>
     </Card>
   );
