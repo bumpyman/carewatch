@@ -11779,12 +11779,19 @@ function ModerationPage({ integre }) {
     /Accès refusé|permission denied/i.test(m) ? 'Ce compte n’est pas autorisé pour la modération, ou le second facteur n’est pas validé.' :
     /Invalid TOTP|invalid code|expired/i.test(m) ? 'Code à 6 chiffres incorrect ou expiré.' :
     /Email not confirmed/i.test(m) ? 'Compte non confirmé : cochez « Auto Confirm User » dans Supabase.' :
-    /friendly name .* already exists/i.test(m) ? 'Une activation précédente du second facteur est restée inachevée. Rechargez la page pour recommencer.' : m;
+    /friendly name .* already exists/i.test(m) ? 'Une activation précédente du second facteur est restée inachevée. Rechargez la page pour recommencer.' :
+    /sub claim|does not exist/i.test(m) ? 'Ce compte a été supprimé ou recréé. Rechargez la page et reconnectez-vous.' : m;
   const erreur = (e, defaut) => setMsg(e && e.message ? traduire(e.message) : defaut);
 
   const verifierNiveau = async () => {
     const { data: s } = await auth.getSession();
     if (!s || !s.session) { setUtilisateur(null); setEtape('connexion'); return; }
+    // Session conservée par le navigateur pour un compte supprimé depuis : on l'efface et on repart de la connexion
+    const { error: eu } = await auth.getUser();
+    if (eu && /does not exist|not found|invalid claim|JWT/i.test(eu.message || '')) {
+      try { await auth.signOut(); } catch (e) {}
+      setUtilisateur(null); setMsg('Votre session précédente n’est plus valable. Reconnectez-vous.'); setEtape('connexion'); return;
+    }
     setUtilisateur(s.session.user);
     const { data: aal } = await auth.mfa.getAuthenticatorAssuranceLevel();
     if (aal && aal.currentLevel === 'aal2') {
