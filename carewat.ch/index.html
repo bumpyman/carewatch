@@ -330,6 +330,7 @@ const VUES_DEMO = {
   'users': 'Gestion des utilisateurs pas encore disponible.',
 };
 const VUES_DEMO_SI_DEMO = {
+  'rapports': 'Les indicateurs affichés sont des données de démonstration, cohérentes avec le baromètre et les fiches d’établissement de démonstration. Décochez « Afficher les données de démonstration » sur l’accueil pour lire l’état réel.',
   'institutions': 'Les évaluations, nombres de signalements et indices de fiabilité affichés sont des données de démonstration. Décochez « Afficher les données de démonstration » dans le bandeau pour voir l’état réel.',
   'patient-home': 'Les compteurs d’ensemble affichés sont des données de démonstration.',
   'professional-home': 'Les compteurs d’ensemble affichés sont des données de démonstration.',
@@ -369,6 +370,7 @@ function useVeille() {
   return { ...etat, visibles, masquer };
 } // notification par courriel, hébergée sur Infomaniak (remplace FormSubmit)
 const VUE_TITRES = {
+  'rapports': 'Rapports',
   'barometre': 'Baromètre d’expérience', 'etat': 'État du projet', 'maturite': 'Maturité en équité', 'questions': 'Poser une question', 'admin-questions': 'Questions', 'situations': 'Votre situation', 'aide': 'Trouver de l’aide',
   'patient-home': 'Accueil', 'professional-home': 'Accueil', 'new-report': 'Signalement', 'positive-report': 'Expérience positive',
   'my-reports': 'Mes témoignages', 'institutions': 'Établissements', 'access-care': 'Accès aux soins', 'directory': 'Annuaire',
@@ -1850,7 +1852,7 @@ function CareWatch() {
 
   return (
     <AppContext.Provider value={contextValue}>
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50" data-demo={showDemo ? '1' : '0'}>
         {view === 'landing' ? <Landing /> :
          view === 'moderation' ? <ModerationPage /> : 
          view.endsWith('-public') ? <PublicPage /> :
@@ -1890,7 +1892,7 @@ function LogoSoutien({ soutien }) {
 }
 
 function Landing() {
-  const { realStats, showDemo, setShowDemo, setView, setShowLogin, setLoginType, stats, DB, searchQuery, setSearchQuery, selectedCanton, setSelectedCanton, selectedInstitution, setSelectedInstitution , ref } = useApp();
+  const { realStats, showDemo, setShowDemo, setView, setUserType, setShowLogin, setLoginType, stats, DB, searchQuery, setSearchQuery, selectedCanton, setSelectedCanton, selectedInstitution, setSelectedInstitution , ref } = useApp();
   const veille = useVeille();
   const [ratingFilter, setRatingFilter] = useState('');
   const [sortBy, setSortBy] = useState('rating');
@@ -2248,6 +2250,16 @@ function Landing() {
             <p className="text-base font-semibold text-gray-800">Droit de réponse</p>
             <p className="text-sm text-gray-500 mt-1">L'établissement peut apporter son point de vue</p>
           </div>
+        </div>
+        <div className="mt-6">
+          <Card className="p-5 flex items-center gap-4" onClick={() => { setUserType('patient'); setView('rapports'); }}>
+            <BarChart3 className="w-8 h-8 text-teal-600 flex-shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="font-semibold text-base text-gray-900">Rapports</p>
+              <p className="text-sm text-gray-600">Indicateurs par établissement, par service et par trimestre, graphiques et export CSV.</p>
+            </div>
+            <ChevronRight className="w-5 h-5 text-gray-400 flex-shrink-0" />
+          </Card>
         </div>
         </div>
       </section>
@@ -2877,6 +2889,7 @@ function AppShell() {
       { icon: Plus, label: 'Signaler', v: 'new-report' },
       { icon: Heart, label: 'Positif', v: 'positive-report' },
       { icon: TrendingUp, label: 'Baromètre', v: 'barometre' },
+      { icon: BarChart3, label: 'Rapports', v: 'rapports' },
       { icon: ClipboardList, label: 'Mes témoignages', v: 'my-reports' },
       { icon: Building, label: 'Établissements', v: 'institutions' },
       { icon: Users, label: 'Votre situation', v: 'situations' },
@@ -2898,6 +2911,7 @@ function AppShell() {
       { icon: Users, label: 'Pair-aidance', v: 'peer-support' },
       { icon: GraduationCap, label: 'Formations', v: 'formations' },
       { icon: TrendingUp, label: 'Maturité en équité', v: 'maturite' },
+      { icon: BarChart3, label: 'Rapports', v: 'rapports' },
       { icon: Building, label: 'Établissements', v: 'institutions' },
       { icon: Users, label: 'Votre situation', v: 'situations' },
       { icon: HelpCircle, label: 'Poser une question', v: 'questions' },
@@ -2967,6 +2981,7 @@ function AppShell() {
       case 'admin-opendata': return adminReel ? <OpenDataPage integre /> : <AdminOpenData />;
       case 'admin-config': return adminReel ? <ModerationPage integre="compte" /> : <AdminConfig />;
       case 'barometre': return <BarometreExperience />;
+      case 'rapports': return <RapportsPage />;
       case 'etat': return <EtatProjetPage />;
       case 'maturite': return <MaturitePage />;
       case 'questions': return <QuestionsPage />;
@@ -5875,6 +5890,405 @@ function BarometreExperience() {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+// ============================================
+// RAPPORTS : indicateurs par établissement, par service et par trimestre
+// Sources réelles : stats_publiques() (compteurs vérifiés par établissement) et la vue recits_publics
+// (fiches publiées avec consentement). Démonstration : jeu fictif dérivé des établissements de
+// démonstration et des neuf services du baromètre, pour que les trois pages racontent la même chose.
+// ============================================
+
+// Neuf services du baromètre de démonstration : [libellé, réponses, ressenti moyen DMS]
+const CW_RAPPORTS_SERVICES = [['Maternité', 412, 0.09], ['Pédiatrie', 268, 0.11], ['Oncologie', 187, 0.13], ['Chirurgie', 305, 0.17], ['Consultation externe', 640, 0.19], ['Médecine interne', 351, 0.24], ['Psychiatrie', 142, 0.27], ['Urgences adultes', 1024, 0.31], ['Accueil et admissions', 288, 0.34]];
+const CW_RAPPORTS_COULEURS = { compte: '#0d9488', ressenti: '#4f46e5', positif: '#d97706', fond: '#e5e7eb', texte: '#374151', trait: '#9ca3af' };
+
+// Clé de trimestre « 2026-T3 » (triable) et libellé « T3 2026 » ; une année seule reste telle quelle
+const cwPeriodeLibelle = (k) => { const m = /^(\d{4})-T([1-4])$/.exec(k || ''); return m ? `T${m[2]} ${m[1]}` : (k || '—'); };
+// Les n derniers trimestres révolus, du plus ancien au plus récent
+const cwTrimestresRevolus = (n) => {
+  const d = new Date();
+  let annee = d.getFullYear(), t = Math.floor(d.getMonth() / 3); // trimestre courant exclu
+  const l = [];
+  for (let i = 0; i < n; i++) { if (t === 0) { t = 4; annee -= 1; } l.unshift(`${annee}-T${t}`); t -= 1; }
+  return l;
+};
+// Répartition d'un entier selon des poids, somme exacte (arrondi cumulé) ; le décalage, entre 0 et 1,
+// déplace le seuil d'arrondi pour que les petits totaux tombent sur des cases différentes d'une ligne à l'autre
+const cwRepartir = (total, poids, decalage = 0.5) => {
+  const somme = poids.reduce((a, p) => a + p, 0) || 1;
+  let cumul = 0, place = 0;
+  return poids.map(p => { cumul += p / somme * total; const v = Math.floor(cumul + decalage) - place; place += v; return v; });
+};
+// Générateur pseudo-aléatoire déterministe (xorshift) : le même jeu fictif à chaque ouverture
+const cwAlea = (graine) => {
+  let x = 2166136261;
+  for (let i = 0; i < graine.length; i++) { x ^= graine.charCodeAt(i); x = Math.imul(x, 16777619); }
+  x = (x >>> 0) || 1;
+  const suivant = () => { x ^= x << 13; x ^= x >>> 17; x ^= x << 5; return ((x >>> 0) % 10000) / 10000; };
+  for (let i = 0; i < 12; i++) suivant(); // mise en route : les premières sorties dépendent trop de la graine
+  return suivant;
+};
+
+// Cellules fictives : une par établissement × service × trimestre
+// Totaux par établissement = compteurs des fiches de démonstration ; totaux par service = réponses du baromètre.
+const cwRapportsDemo = (institutions) => {
+  const trims = cwTrimestresRevolus(8);
+  const totalBaro = CW_RAPPORTS_SERVICES.reduce((a, s) => a + s[1], 0);
+  const totalSign = institutions.reduce((a, i) => a + (i.reports || 0), 0) || 1;
+  const decalNiveau = { outstanding: -0.08, good: -0.03, requires_improvement: 0.06, inadequate: 0.12 };
+  // Poids des services selon la vocation de l'établissement, lue dans son nom et son type
+  const poidsServices = (inst) => {
+    const n = `${inst.fullName} ${inst.type}`.toLowerCase();
+    return CW_RAPPORTS_SERVICES.map(([svc, nb]) => {
+      let w = nb;
+      if (/maternit/.test(n)) w *= svc === 'Maternité' ? 8 : svc === 'Pédiatrie' ? 2 : 0.2;
+      else if (/enfant|pédiatr/.test(n)) w *= svc === 'Pédiatrie' ? 8 : svc === 'Urgences adultes' ? 0.1 : 0.3;
+      else if (/psychiatr|belle-idée|santé mentale/.test(n)) w *= svc === 'Psychiatrie' ? 10 : /Urgences|Accueil|Consultation/.test(svc) ? 0.5 : 0.1;
+      else if (/gériatr|réhabilit|réadapt|loëx|ems\b/.test(n)) w *= svc === 'Médecine interne' ? 5 : svc === 'Consultation externe' ? 1.5 : 0.3;
+      else if (/clinique/.test(n)) w *= svc === 'Chirurgie' ? 3 : svc === 'Consultation externe' ? 2 : svc === 'Urgences adultes' ? 0.4 : 1;
+      return w;
+    });
+  };
+  // Correction du décalage moyen : la lecture « tous établissements » retombe sur les valeurs du baromètre
+  const moyDecal = institutions.reduce((a, i) => a + (decalNiveau[i.rating] || 0) * (i.reports || 0), 0) / totalSign;
+  // Ajustement itératif des poids : total par établissement (lignes) et réponses par service (colonnes) respectés
+  const lignesCible = institutions.map(inst => Math.round(totalBaro * (inst.reports || 0) / totalSign));
+  const colonnesCible = CW_RAPPORTS_SERVICES.map(s => s[1]);
+  let matrice = institutions.map(inst => poidsServices(inst));
+  for (let it = 0; it < 40; it++) {
+    matrice = matrice.map((l, i) => { const sl = l.reduce((a, v) => a + v, 0) || 1; return l.map(v => v * lignesCible[i] / sl); });
+    const sc = colonnesCible.map((_, j) => matrice.reduce((a, l) => a + l[j], 0) || 1);
+    matrice = matrice.map(l => l.map((v, j) => v * colonnesCible[j] / sc[j]));
+  }
+  const cellules = [];
+  institutions.forEach((inst, idx) => {
+    const alea = cwAlea(inst.id);
+    const ps = matrice[idx];
+    const enquetesInst = lignesCible[idx];
+    const tauxVerif = inst.reports ? Math.min(1, (inst.verified || 0) / inst.reports) : 0.8;
+    const pente = inst.trend === 'up' ? -0.012 : inst.trend === 'down' ? 0.012 : 0; // ressenti par trimestre
+    const parService = [cwRepartir(inst.reports || 0, ps, alea()), cwRepartir(inst.positiveReports || 0, ps, alea()), cwRepartir(enquetesInst, ps, alea())];
+    CW_RAPPORTS_SERVICES.forEach(([svc, , base], si) => {
+      // Légère montée en charge dans le temps, propre à chaque établissement
+      const pt = trims.map((_, ti) => 0.75 + ti * 0.07 + alea() * 0.3);
+      const parTrim = [cwRepartir(parService[0][si], pt, alea()), cwRepartir(parService[1][si], pt, alea()), cwRepartir(parService[2][si], pt, alea())];
+      trims.forEach((trim, ti) => {
+        const signalements = parTrim[0][ti], positifs = parTrim[1][ti], enquetes = parTrim[2][ti];
+        if (signalements + positifs + enquetes === 0) return;
+        const verifies = Math.round(signalements * tauxVerif) + positifs + enquetes;
+        const r = base + (decalNiveau[inst.rating] || 0) - moyDecal + pente * (ti - 3.5) + (alea() - 0.5) * 0.06;
+        cellules.push({ etab: inst.id, canton: inst.canton, service: svc, periode: trim, signalements, positifs, enquetes, verifies, ressenti: signalements + enquetes > 0 ? Math.min(0.7, Math.max(0.02, r)) : null });
+      });
+    });
+  });
+  return cellules;
+};
+
+// Cellules réelles : une par fiche publique (vue recits_publics)
+const cwRapportsFiches = (fiches, institutions) => {
+  const parNom = {};
+  institutions.forEach(i => { parNom[i.fullName] = i; });
+  return (fiches || []).map(f => {
+    const inst = parNom[f.etablissement_nom];
+    const type = f.type === 'positif' ? 'positifs' : f.type === 'enquete' ? 'enquetes' : 'signalements';
+    const ratio = (type !== 'positifs' && f.dms_max > 0 && f.dms_score != null) ? f.dms_score / f.dms_max : null;
+    return { etab: inst ? inst.id : null, nom: f.etablissement_nom, canton: f.canton || (inst ? inst.canton : null), service: (f.service || '').trim() || 'Service non précisé', periode: f.trimestre || f.annee || null, signalements: type === 'signalements' ? 1 : 0, positifs: type === 'positifs' ? 1 : 0, enquetes: type === 'enquetes' ? 1 : 0, verifies: 1, ressenti: ratio };
+  });
+};
+
+// Agrégation des cellules par clé ; le ressenti moyen est publié dès cinq réponses DMS (même seuil que l'indice)
+const cwAgreger = (cellules, cle) => {
+  const m = new Map();
+  cellules.forEach(c => {
+    const k = cle(c);
+    if (k == null) return;
+    let a = m.get(k);
+    if (!a) { a = { cle: k, signalements: 0, positifs: 0, enquetes: 0, verifies: 0, n: 0, somme: 0, nb: 0 }; m.set(k, a); }
+    a.signalements += c.signalements; a.positifs += c.positifs; a.enquetes += c.enquetes; a.verifies += c.verifies;
+    a.n += c.signalements + c.positifs + c.enquetes;
+    if (c.ressenti != null) { const p = c.signalements + c.enquetes; a.somme += c.ressenti * p; a.nb += p; }
+  });
+  return [...m.values()].map(a => ({ ...a, ressenti: a.nb >= 5 ? a.somme / a.nb : null }));
+};
+// Indice d'équité, même formule que la base : 70 × (1 − ressenti) + 30 × part des retours positifs, dès cinq vérifiés
+const cwIndice = (a) => (a.verifies >= 5 && a.ressenti != null) ? Math.round(70 * (1 - a.ressenti) + 30 * Math.min(1, a.positifs / a.verifies)) : null;
+const cwPct = (r) => r == null ? '—' : `${Math.round(r * 100)} %`;
+const cwRessentiCouleur = (r) => r == null ? CW_RAPPORTS_COULEURS.fond : r < 0.15 ? '#10b981' : r < 0.25 ? '#14b8a6' : r < 0.3 ? '#f59e0b' : '#f43f5e';
+
+// Barres horizontales : une ligne par entité, valeur en clair à droite, détail au survol
+const BarresH = ({ lignes, format, couleur, largeurLibelle = 168 }) => {
+  const max = Math.max(1, ...lignes.map(l => l.valeur || 0));
+  return (
+    <div className="text-sm text-gray-800 space-y-1.5">
+      {lignes.map(l => (
+        <div key={l.cle} className="flex items-center gap-3" title={l.detail || ''}>
+          <span className="truncate flex-shrink-0" style={{ width: '38%', maxWidth: largeurLibelle }}>{l.libelle}</span>
+          <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden"><div className="h-full rounded-full" style={{ width: `${Math.max(1, Math.round((l.valeur || 0) / max * 100))}%`, background: l.couleur || couleur || CW_RAPPORTS_COULEURS.compte }} /></div>
+          <span className="text-right text-xs text-gray-600 flex-shrink-0 whitespace-nowrap" style={{ width: 96 }}>{format ? format(l.valeur) : l.valeur}</span>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+// Évolution dans le temps : barres (comptes) ou ligne à marqueurs (taux), un seul axe par graphique
+const Evolution = ({ points, mode = 'barres', format, couleur, hauteur = 150, maxFixe }) => {
+  const largeur = 400, gauche = 6, droite = 6, haut = 22, bas = 24;
+  const h = hauteur - haut - bas, w = largeur - gauche - droite;
+  const max = maxFixe || Math.max(1, ...points.map(p => p.valeur || 0));
+  const pas = points.length ? w / points.length : w;
+  const x = (i) => gauche + pas * i + pas / 2;
+  const y = (v) => haut + h - (v || 0) / max * h;
+  const c = couleur || CW_RAPPORTS_COULEURS.compte;
+  const fmt = (v) => format ? format(v) : v;
+  return (
+    <svg viewBox={`0 0 ${largeur} ${hauteur}`} width="100%" role="img" style={{ display: 'block', maxWidth: largeur }}>
+      <line x1={gauche} x2={largeur - droite} y1={haut + h} y2={haut + h} stroke={CW_RAPPORTS_COULEURS.fond} strokeWidth="1" />
+      {mode === 'barres' && points.map((p, i) => {
+        const bw = Math.min(28, pas * 0.55);
+        return (
+          <g key={p.cle}>
+            <title>{`${p.libelle} : ${fmt(p.valeur)}`}</title>
+            <rect x={x(i) - bw / 2} y={y(p.valeur)} width={bw} height={Math.max(0, haut + h - y(p.valeur))} fill={c} rx="3" />
+            <text x={x(i)} y={y(p.valeur) - 5} textAnchor="middle" fontSize="11" fill={CW_RAPPORTS_COULEURS.texte}>{fmt(p.valeur)}</text>
+          </g>
+        );
+      })}
+      {mode === 'ligne' && (
+        <g>
+          <polyline fill="none" stroke={c} strokeWidth="2" strokeLinejoin="round" points={points.filter(p => p.valeur != null).map((p) => `${x(points.indexOf(p))},${y(p.valeur)}`).join(' ')} />
+          {points.map((p, i) => p.valeur == null ? null : (
+            <g key={p.cle}>
+              <title>{`${p.libelle} : ${fmt(p.valeur)}`}</title>
+              <circle cx={x(i)} cy={y(p.valeur)} r="4" fill={c} stroke="#fff" strokeWidth="2" />
+              <text x={x(i)} y={y(p.valeur) - 9} textAnchor="middle" fontSize="11" fill={CW_RAPPORTS_COULEURS.texte}>{fmt(p.valeur)}</text>
+            </g>
+          ))}
+        </g>
+      )}
+      {points.map((p, i) => <text key={p.cle} x={x(i)} y={hauteur - 8} textAnchor="middle" fontSize="11" fill={CW_RAPPORTS_COULEURS.trait}>{p.libelle}</text>)}
+    </svg>
+  );
+};
+
+function RapportsPage() {
+  const { DB, showDemo, realStats, setView, setSelectedInstitution } = useApp();
+  const [fiches, setFiches] = useState(null);
+  const [erreur, setErreur] = useState('');
+  const [filtre, setFiltre] = useState({ canton: '', etab: '', service: '', periode: '' });
+
+  // Fiches publiques, lues une fois en mode réel
+  useEffect(() => {
+    if (showDemo || !window.cwDb) { setFiches([]); return; }
+    let actif = true;
+    setFiches(null); setErreur('');
+    (async () => {
+      try {
+        const { data, error } = await window.cwDb.from('recits_publics').select('*').order('numero', { ascending: false }).limit(5000);
+        if (error) throw error;
+        if (actif) setFiches(Array.isArray(data) ? data : []);
+      } catch (e) { if (actif) { setErreur('Les fiches publiques ne peuvent pas être chargées pour l’instant.'); setFiches([]); } }
+    })();
+    return () => { actif = false; };
+  }, [showDemo]);
+
+  // Jeu de cellules : fictif ou réel, puis filtré
+  const cellules = React.useMemo(() => showDemo ? cwRapportsDemo(DB.institutions) : cwRapportsFiches(fiches, DB.institutions), [showDemo, fiches, DB.institutions]);
+  const instParId = React.useMemo(() => { const m = {}; DB.institutions.forEach(i => { m[i.id] = i; }); return m; }, [DB.institutions]);
+  const nomEtab = (c) => c.etab && instParId[c.etab] ? instParId[c.etab].fullName : (c.nom || c.etab || '—');
+  const visibles = cellules.filter(c => (!filtre.canton || c.canton === filtre.canton) && (!filtre.etab || c.etab === filtre.etab) && (!filtre.service || c.service === filtre.service) && (!filtre.periode || c.periode === filtre.periode));
+  const etablissements = DB.institutions.filter(i => !filtre.canton || i.canton === filtre.canton).sort((a, b) => a.fullName.localeCompare(b.fullName));
+  const services = [...new Set(cellules.map(c => c.service))].sort((a, b) => a.localeCompare(b));
+  const periodes = [...new Set(cellules.map(c => c.periode).filter(Boolean))].sort();
+  const filtreActif = Object.values(filtre).some(Boolean);
+  const filtreHorsEtab = Boolean(filtre.service || filtre.periode);
+
+  // Par établissement : compteurs vérifiés de stats_publiques en mode réel sans filtre de service ni de période, cellules sinon
+  const pe = (realStats && realStats.par_etablissement) || {};
+  const agrEtab = cwAgreger(visibles, c => c.etab || c.nom);
+  const parEtab = (!showDemo && !filtreHorsEtab)
+    ? etablissements.filter(i => !filtre.etab || i.id === filtre.etab).map(i => { const s = pe[i.id] || {}; const a = agrEtab.find(x => x.cle === i.id); return { cle: i.id, libelle: i.fullName, canton: i.canton, signalements: s.signalements || 0, positifs: s.positifs || 0, enquetes: s.enquetes || 0, verifies: s.verifies || 0, n: (s.signalements || 0) + (s.positifs || 0) + (s.enquetes || 0), ressenti: s.ressenti != null ? Number(s.ressenti) : null, indice: s.indice, fiches: a ? a.n : 0 }; }).filter(x => x.n > 0 || x.fiches > 0)
+    : agrEtab.map(a => { const i = instParId[a.cle]; return { ...a, libelle: i ? i.fullName : a.cle, canton: i ? i.canton : '', indice: cwIndice(a), fiches: a.n }; });
+  parEtab.sort((a, b) => b.n - a.n || a.libelle.localeCompare(b.libelle));
+
+  const parService = cwAgreger(visibles, c => c.service).sort((a, b) => (a.ressenti == null) - (b.ressenti == null) || (a.ressenti || 0) - (b.ressenti || 0) || b.n - a.n);
+  const parPeriode = cwAgreger(visibles, c => c.periode).sort((a, b) => String(a.cle).localeCompare(String(b.cle)));
+  const total = cwAgreger(visibles, () => 'tout')[0] || { n: 0, signalements: 0, positifs: 0, enquetes: 0, verifies: 0, ressenti: null };
+  const synthese = (!showDemo && !filtreActif && realStats)
+    ? { n: realStats.recus || 0, signalements: realStats.signalements || 0, positifs: realStats.positifs || 0, enquetes: realStats.enquetes || 0, verifies: realStats.verifies || 0, ressenti: total.ressenti, fiches: total.n }
+    : { ...total, fiches: total.n };
+  const partPositive = synthese.n ? Math.round(100 * synthese.positifs / synthese.n) : null;
+
+  // Exports CSV : une colonne « section » dans l'export complet, mêmes colonnes dans les exports par section
+  const jour = new Date().toISOString().slice(0, 10);
+  const colonnes = ['section', 'cle', 'libelle', 'canton', 'temoignages', 'signalements', 'positifs', 'enquetes', 'verifies', 'ressenti_dms', 'indice_equite'];
+  const ligne = (section, x) => ({ section, cle: x.cle, libelle: x.libelle || cwPeriodeLibelle(x.cle), canton: x.canton || '', temoignages: x.n, signalements: x.signalements, positifs: x.positifs, enquetes: x.enquetes, verifies: x.verifies, ressenti_dms: x.ressenti == null ? '' : Math.round(x.ressenti * 100) / 100, indice_equite: x.indice == null ? '' : x.indice });
+  const lignes = { etablissements: parEtab.map(x => ligne('etablissement', x)), services: parService.map(x => ligne('service', { ...x, libelle: x.cle })), periodes: parPeriode.map(x => ligne('periode', x)) };
+  const exporter = (section) => {
+    const l = section ? lignes[section] : [...lignes.etablissements, ...lignes.services, ...lignes.periodes];
+    const suffixe = [filtre.canton, filtre.etab, filtre.service, filtre.periode].filter(Boolean).map(v => v.toLowerCase().replace(/[^a-z0-9]+/g, '-')).join('_');
+    cwTelecharger(`carewatch_rapports_${section || 'complet'}${suffixe ? '_' + suffixe : ''}${showDemo ? '_demo' : ''}_${jour}.csv`, cwCsv(l, colonnes));
+  };
+
+  const Tuile = ({ v, l, c }) => <div className="text-center p-4 rounded-2xl bg-gray-50 border border-gray-200"><p className="text-3xl font-extrabold text-gray-800 mb-1">{v}</p><p className="text-sm font-semibold text-gray-800">{l}</p>{c && <p className="text-xs text-gray-500 cw-legende">{c}</p>}</div>;
+  const Entete = ({ titre, section, sousTitre }) => (
+    <div className="flex items-center justify-between gap-3 mb-1">
+      <div><h3 className="font-semibold">{titre}</h3>{sousTitre && <p className="text-xs text-gray-500">{sousTitre}</p>}</div>
+      <Button size="sm" variant="secondary" icon={FileText} onClick={() => exporter(section)} disabled={!lignes[section].length}>CSV</Button>
+    </div>
+  );
+  const Vide = ({ texte }) => <p className="text-sm text-gray-500 py-3">{texte}</p>;
+  const enAttente = !showDemo && fiches === null;
+  const sourceFiches = showDemo ? 'Données de démonstration.' : 'Fiches publiées avec consentement (vue recits_publics).';
+
+  return (
+    <div className="p-4 md:p-8 max-w-4xl mx-auto">
+      <div className="flex items-center gap-2 mb-1"><h2 className="text-xl font-bold">Rapports</h2>{showDemo && <span className="px-2 py-0.5 rounded text-xs bg-amber-100 text-amber-800">démonstration</span>}</div>
+      <p className="text-gray-600 mb-5">Indicateurs de l’observatoire restitués par établissement, par service et par trimestre, avec graphiques et export CSV. Les sources sont celles du tableau de bord et des fiches d’établissement.</p>
+
+      {/* Filtres */}
+      <Card className="p-4 mb-4">
+        <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-3">
+          <Select label="Canton" size="sm" value={filtre.canton} onChange={v => setFiltre({ ...filtre, canton: v, etab: '' })} options={DB.cantons.map(c => ({ value: c, label: DB.cantonNames[c] }))} placeholder="Tous les cantons" />
+          <Select label="Établissement" size="sm" value={filtre.etab} onChange={v => setFiltre({ ...filtre, etab: v })} options={etablissements.map(i => ({ value: i.id, label: i.fullName }))} placeholder="Tous les établissements" />
+          <Select label="Service" size="sm" value={filtre.service} onChange={v => setFiltre({ ...filtre, service: v })} options={services} placeholder="Tous les services" />
+          <Select label="Période" size="sm" value={filtre.periode} onChange={v => setFiltre({ ...filtre, periode: v })} options={periodes.map(p => ({ value: p, label: cwPeriodeLibelle(p) }))} placeholder="Toutes les périodes" />
+        </div>
+        <div className="flex flex-wrap items-center justify-between gap-2 mt-3">
+          <p className="text-xs text-gray-500">{showDemo ? 'Huit trimestres révolus, jeu fictif cohérent avec le baromètre et les fiches d’établissement de démonstration.' : 'Compteurs vérifiés par établissement (stats_publiques) et fiches publiées (recits_publics), mises à jour à chaque ouverture.'}</p>
+          <div className="flex gap-2">
+            {filtreActif && <Button size="sm" variant="ghost" onClick={() => setFiltre({ canton: '', etab: '', service: '', periode: '' })}>Réinitialiser</Button>}
+            <Button size="sm" variant="outline" icon={FileText} onClick={() => exporter(null)} disabled={enAttente}>Tout exporter (CSV)</Button>
+          </div>
+        </div>
+      </Card>
+
+      {erreur && <Card className="p-4 mb-4 bg-rose-50 border-rose-200"><p className="text-sm text-rose-700">{erreur}</p></Card>}
+      {enAttente && <p className="text-sm text-gray-500 mb-4">Chargement…</p>}
+
+      {/* Synthèse */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+        <Tuile v={synthese.n} l="Témoignages" c={`${synthese.signalements} signalements · ${synthese.positifs} positifs · ${synthese.enquetes} baromètre`} />
+        <Tuile v={synthese.verifies} l="Vérifiés" c="Lus et validés par la modération" />
+        <Tuile v={cwPct(synthese.ressenti)} l="Ressenti" c="Discrimination moyenne DMS, 0 % jamais, 100 % toujours" />
+        <Tuile v={partPositive == null ? '—' : `${partPositive} %`} l="Positifs" c="Part des retours positifs" />
+      </div>
+
+      {/* Établissements */}
+      <Card className="p-4 mb-4">
+        <Entete titre="Établissements" section="etablissements" sousTitre={showDemo || filtreHorsEtab ? sourceFiches : 'Compteurs par établissement (stats_publiques), tous témoignages vérifiés, publiés ou non.'} />
+        {parEtab.length === 0 ? <Vide texte="Les indicateurs par établissement apparaissent dès le premier témoignage vérifié." /> : (
+          <>
+            <div className="mt-3 mb-4">
+              <BarresH lignes={parEtab.slice(0, 12).map(x => ({ cle: x.cle, libelle: x.libelle, valeur: x.n, detail: `${x.signalements} signalements · ${x.positifs} positifs · ${x.enquetes} baromètre` }))} format={v => `${v} témoignage${v > 1 ? 's' : ''}`} largeurLibelle={200} />
+              {parEtab.length > 12 && <p className="text-xs text-gray-500 mt-2">Douze établissements les plus représentés ; le tableau et l’export les contiennent tous.</p>}
+            </div>
+            <div className="overflow-x-auto">
+              <table className="cw-tableau w-full text-sm">
+                <thead><tr className="text-left text-xs text-gray-500 border-b"><th className="py-1 pr-3">Établissement</th><th className="py-1 pr-3">Canton</th><th className="py-1 pr-3">Témoignages</th><th className="py-1 pr-3">Vérifiés</th><th className="py-1 pr-3">Ressenti</th><th className="py-1 pr-3">Positifs</th><th className="py-1 pr-3">Indice</th></tr></thead>
+                <tbody>
+                  {parEtab.map(x => (
+                    <tr key={x.cle} className="border-b border-gray-100">
+                      <td data-label="Établissement" className="py-1 pr-3">{instParId[x.cle] ? <button className="text-left text-teal-700 hover:underline" onClick={() => setSelectedInstitution(instParId[x.cle])}>{x.libelle}</button> : x.libelle}</td>
+                      <td data-label="Canton" className="py-1 pr-3">{x.canton}</td>
+                      <td data-label="Témoignages" className="py-1 pr-3">{x.n}</td>
+                      <td data-label="Vérifiés" className="py-1 pr-3">{x.verifies}</td>
+                      <td data-label="Ressenti" className="py-1 pr-3">{cwPct(x.ressenti)}</td>
+                      <td data-label="Positifs" className="py-1 pr-3">{x.positifs}</td>
+                      <td data-label="Indice" className="py-1 pr-3">{x.indice != null ? `${x.indice}/100` : '—'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
+        )}
+      </Card>
+
+      {/* Services */}
+      <Card className="p-4 mb-4">
+        <Entete titre="Services" section="services" sousTitre={`${sourceFiches} Ressenti du plus bas au plus élevé, publié dès cinq réponses DMS.`} />
+        {parService.length === 0 ? <Vide texte="La lecture par service apparaît dès la première fiche publiée." /> : (
+          <>
+            <div className="mt-3 mb-4">
+              <BarresH lignes={parService.map(x => ({ cle: x.cle, libelle: x.cle, valeur: x.ressenti == null ? 0 : Math.round(x.ressenti * 100), couleur: cwRessentiCouleur(x.ressenti), detail: `${x.n} témoignages · ${x.signalements} signalements · ${x.positifs} positifs · ${x.enquetes} baromètre` }))} format={v => v ? `${v} % ressenti` : '—'} largeurLibelle={200} />
+            </div>
+            <div className="overflow-x-auto">
+              <table className="cw-tableau w-full text-sm">
+                <thead><tr className="text-left text-xs text-gray-500 border-b"><th className="py-1 pr-3">Service</th><th className="py-1 pr-3">Témoignages</th><th className="py-1 pr-3">Signalements</th><th className="py-1 pr-3">Positifs</th><th className="py-1 pr-3">Baromètre</th><th className="py-1 pr-3">Ressenti</th></tr></thead>
+                <tbody>
+                  {parService.map(x => (
+                    <tr key={x.cle} className="border-b border-gray-100">
+                      <td data-label="Service" className="py-1 pr-3">{x.cle}</td>
+                      <td data-label="Témoignages" className="py-1 pr-3">{x.n}</td>
+                      <td data-label="Signalements" className="py-1 pr-3">{x.signalements}</td>
+                      <td data-label="Positifs" className="py-1 pr-3">{x.positifs}</td>
+                      <td data-label="Baromètre" className="py-1 pr-3">{x.enquetes}</td>
+                      <td data-label="Ressenti" className="py-1 pr-3">{cwPct(x.ressenti)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
+        )}
+      </Card>
+
+      {/* Périodes */}
+      <Card className="p-4 mb-4">
+        <Entete titre="Périodes" section="periodes" sousTitre={showDemo ? 'Trimestres révolus, du plus ancien au plus récent.' : 'Les fiches publiques portent le trimestre de dépôt quand la base le publie, l’année sinon.'} />
+        {parPeriode.length === 0 ? <Vide texte="L’évolution dans le temps apparaît dès la première fiche publiée." /> : (
+          <>
+            <div className="grid md:grid-cols-2 gap-4 mt-3 mb-4">
+              <div>
+                <p className="text-xs font-semibold text-gray-700 mb-1">Témoignages par période</p>
+                <Evolution points={parPeriode.map(x => ({ cle: x.cle, libelle: cwPeriodeLibelle(x.cle), valeur: x.n }))} mode="barres" />
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-gray-700 mb-1">Ressenti moyen par période</p>
+                <Evolution points={parPeriode.map(x => ({ cle: x.cle, libelle: cwPeriodeLibelle(x.cle), valeur: x.ressenti == null ? null : Math.round(x.ressenti * 100) }))} mode="ligne" format={v => `${v} %`} couleur={CW_RAPPORTS_COULEURS.ressenti} maxFixe={Math.max(50, ...parPeriode.map(x => x.ressenti == null ? 0 : Math.round(x.ressenti * 100) + 10))} />
+              </div>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="cw-tableau w-full text-sm">
+                <thead><tr className="text-left text-xs text-gray-500 border-b"><th className="py-1 pr-3">Période</th><th className="py-1 pr-3">Témoignages</th><th className="py-1 pr-3">Signalements</th><th className="py-1 pr-3">Positifs</th><th className="py-1 pr-3">Baromètre</th><th className="py-1 pr-3">Ressenti</th></tr></thead>
+                <tbody>
+                  {parPeriode.map(x => (
+                    <tr key={x.cle} className="border-b border-gray-100">
+                      <td data-label="Période" className="py-1 pr-3">{cwPeriodeLibelle(x.cle)}</td>
+                      <td data-label="Témoignages" className="py-1 pr-3">{x.n}</td>
+                      <td data-label="Signalements" className="py-1 pr-3">{x.signalements}</td>
+                      <td data-label="Positifs" className="py-1 pr-3">{x.positifs}</td>
+                      <td data-label="Baromètre" className="py-1 pr-3">{x.enquetes}</td>
+                      <td data-label="Ressenti" className="py-1 pr-3">{cwPct(x.ressenti)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
+        )}
+      </Card>
+
+      {/* Méthode */}
+      <Card className="p-4 mb-4">
+        <h3 className="font-semibold mb-2">Méthode</h3>
+        <ul className="text-sm text-gray-700 space-y-1.5 list-disc pl-6">
+          <li>Trois sources alimentent les mêmes indicateurs : les signalements, les retours positifs et le baromètre d’expérience.</li>
+          <li>Le ressenti est la moyenne des sept questions DMS (Discrimination in Medical Settings), de 0 % jamais à 100 % toujours, calculée sur les signalements et les réponses au baromètre, dès cinq réponses.</li>
+          <li>L’indice d’équité vaut 70 × (1 − ressenti) + 30 × part des retours positifs, sur témoignages vérifiés, dès cinq témoignages vérifiés par établissement.</li>
+          <li>Les compteurs par établissement couvrent tous les témoignages vérifiés ; les ventilations par service et par période reposent sur les fiches publiées avec le consentement de la personne.</li>
+          <li>Les exports CSV reprennent les tableaux affichés, filtres compris, avec le point-virgule comme séparateur. Licence CC BY-NC-SA 4.0, comme la page Données ouvertes.</li>
+        </ul>
+        <div className="flex flex-wrap gap-2 mt-4">
+          <Button variant="outline" size="sm" onClick={() => setView('institutions')}>Établissements</Button>
+          <Button variant="outline" size="sm" onClick={() => setView('barometre')}>Baromètre</Button>
+          <Button variant="outline" size="sm" onClick={() => setView('opendata')}>Données ouvertes</Button>
+        </div>
+      </Card>
     </div>
   );
 }
