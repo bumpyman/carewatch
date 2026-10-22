@@ -6,7 +6,7 @@ Version 0.1, 10 septembre 2026. Licence CC BY 4.0 : reprise libre avec mention d
 
 La grille décrit six dimensions de l’organisation d’un établissement de soins, chacune en cinq stades. Un stade est atteint quand son critère et ceux des stades inférieurs sont remplis. Le stade global déclaré est le plus bas des six dimensions.
 
-La déclaration est plafonnée par ce que mesurent les patient·e·s. Sans témoignage vérifié dans CareWatch, un établissement ne dépasse pas le stade 2. Avec des témoignages vérifiés mais sans indice publié (moins de cinq), il ne dépasse pas le stade 3. Un indice d’équité de 50 ou plus ouvre le stade 4, de 75 ou plus le stade 5.
+La déclaration est plafonnée par ce que mesurent les patient·e·s. Sans témoignage vérifié dans CareWatch, un établissement ne dépasse pas le stade 2. Avec des témoignages vérifiés mais sans note publiée (moins de cinq témoignages), il ne dépasse pas le stade 3. Une note d’équité de 50 ou plus ouvre le stade 4, de 75 ou plus le stade 5.
 
 | Stade | Nom | Sens |
 |---|---|---|
@@ -31,7 +31,7 @@ La déclaration est plafonnée par ce que mesurent les patient·e·s. Sans témo
 
 1. L’établissement recueille des retours de patient·e·s, sans dimension équité.
 2. Les plaintes et incidents sont codés par motif de discrimination perçu.
-3. L’établissement participe à une mesure externe standardisée de l’expérience de traitement (échelle DMS) dans au moins un service.
+3. L’établissement participe à une mesure externe identique pour tous de la discrimination vécue (les sept questions du DMS) dans au moins un service.
 4. La mesure couvre les services à forte affluence ; les résultats sont stratifiés par service et comparés dans le temps.
 5. Les indicateurs d’équité sont publiés en données ouvertes et intégrés au rapport qualité.
 
@@ -84,4 +84,4 @@ L’autoévaluation est libre et gratuite. Le label « CareWatch Équité · sta
 
 ## Sources d’inspiration
 
-Modèles par stades du type EMRAM (HIMSS) ; standards pour l’équité dans les soins aux personnes migrantes et vulnérables (Task Force on Migrant-Friendly and Culturally Competent Health Care, réseau Swiss Hospitals for Equity) ; objectifs quadriennaux 2025-2028 du Conseil fédéral pour le développement de la qualité ; échelle DMS (Discrimination in Medical Settings).
+Modèles par stades du type EMRAM (HIMSS) ; standards pour l’équité dans les soins aux personnes migrantes et vulnérables (Task Force on Migrant-Friendly and Culturally Competent Health Care, réseau Swiss Hospitals for Equity) ; objectifs quadriennaux 2025-2028 du Conseil fédéral pour le développement de la qualité ; questionnaire DMS (Discrimination in Medical Settings).
