@@ -6,6 +6,9 @@
 --
 -- Règles de publication
 --   · Recommandations positives uniquement, sous forme de critères cochés. Aucun texte libre n'est publié.
+--     Les critères décrivent l'accueil reçu par les patient·e·s : écoute, langue, accessibilité, précarité,
+--     LGBTIQA+, identité de genre, racisme, religions, voile, migration, handicap, santé mentale, poids,
+--     maladie chronique. Ils ne décrivent jamais l'identité du ou de la soignant·e.
 --   · Le téléphone proposé reste en base et ne s'affiche qu'après validation par l'équipe.
 --   · La personne concernée retire sa fiche en un clic (« Cette fiche me concerne ») ; la fiche est
 --     masquée aussitôt et la modération contrôle la demande ensuite.
@@ -76,6 +79,13 @@ returns text language sql immutable as $$
     || '|' || upper(trim(coalesce(p_canton, '')));
 $$;
 
+-- 2b. Critères admis ; la liste est lue par annuaire_proposer et reste modifiable à un seul endroit
+create or replace function public.cw_criteres_annuaire()
+returns text[] language sql immutable as $$
+  select array['ecoute', 'interprete', 'accessible', 'precarite',
+               'lgbtiqa', 'identite', 'racisme', 'religions', 'voile', 'migration', 'handicap', 'sante_mentale', 'poids', 'chronique'];
+$$;
+
 -- 3. Recommander (public, anonyme) --------------------------------------------
 --    5 recommandations par jour et par connexion. Critères admis : voir la liste ci-dessous.
 create or replace function public.annuaire_proposer(p jsonb)
@@ -111,7 +121,7 @@ begin
 
   select coalesce(array_agg(distinct x), '{}') into v_crit
     from jsonb_array_elements_text(case when jsonb_typeof(p->'criteres') = 'array' then p->'criteres' else '[]'::jsonb end) x
-   where x in ('ecoute', 'interprete', 'identite', 'accessible', 'precarite');
+   where x = any (public.cw_criteres_annuaire());
   if coalesce(array_length(v_crit, 1), 0) = 0 then return jsonb_build_object('ok', false, 'erreur', 'Cochez au moins un critère'); end if;
 
   v_cle := public.cw_cle_annuaire(v_nom, v_ville, v_canton);
