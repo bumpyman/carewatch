@@ -319,7 +319,7 @@ function StorageNotice() {
 const VUES_DEMO = {
   'dossier-analysis': 'L’analyse par intelligence artificielle n’est pas active. Aucun document n’est envoyé nulle part et le résultat affiché est un exemple fictif.',
   'peer-support': 'Les pair·e·s aidant·e·s présenté·e·s sont fictif·ve·s et la prise de rendez-vous n’est pas encore ouverte.',
-  'formations': 'Le catalogue de formations est fictif. Une inscription envoie seulement un message à l’équipe, aucune place n’est réservée.',
+  'formations': 'Le catalogue de formations est fictif. Les sessions se recalculent chaque jour à partir d’aujourd’hui. Une inscription envoie seulement un message à l’équipe, aucune place n’est réservée.',
   'plafa-doc': 'Version d’essai : vos notes sont conservées sur cet appareil uniquement et n’ont pas de valeur d’horodatage certifié.',
   'dashboard': 'Données fictives, rien n’est enregistré.',
   'admin-reports': 'Données fictives, rien n’est enregistré.',
@@ -10422,16 +10422,31 @@ function FormationsView() {
   const [filterLevel, setFilterLevel] = useState('');
   const [filterProvider, setFilterProvider] = useState('');
   const [filterTheme, setFilterTheme] = useState('');
+  const [filterFormat, setFilterFormat] = useState('');
   
+  // Sessions fictives toujours à venir : les dates se calculent à partir d'aujourd'hui, en jours ouvrés
+  const dateDans = (jours) => { const d = new Date(); d.setDate(d.getDate() + jours); while (d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() + 1); return d; };
+  const jour = (jours) => dateDans(jours).toLocaleDateString('fr-CH', { day: 'numeric', month: 'long', year: 'numeric' });
+  const deuxJours = (jours) => { const a = dateDans(jours), b = dateDans(jours + 1); return a.getMonth() === b.getMonth() ? `${a.getDate()}-${b.getDate()} ${b.toLocaleDateString('fr-CH', { month: 'long', year: 'numeric' })}` : `${jour(jours)} au ${jour(jours + 1)}`; };
   const formations = [
-    { id: 1, theme: 'discriminations', title: 'Sensibilisation aux biais inconscients', duration: '2h', provider: 'Partenaire associatif', date: '15 mars 2026', spots: 12, spotsLeft: 5, level: 'Débutant', format: 'En ligne', price: 'Gratuit', desc: 'Identifier et comprendre ses propres biais pour améliorer la relation soignant-soigné.', objectives: ['Comprendre les mécanismes des biais inconscients', 'Identifier ses propres biais', 'Développer des stratégies pour les contrer'], audience: 'Tout·e professionnel·le de santé', certificate: true },
-    { id: 2, theme: 'interculturel', title: 'Communication interculturelle en santé', duration: '4h', provider: 'HES-SO', date: '22 mars 2026', spots: 20, spotsLeft: 8, level: 'Intermédiaire', format: 'Présentiel', price: 'CHF 50', desc: 'Techniques de communication adaptées aux contextes multiculturels.', objectives: ['Adapter sa communication aux différents contextes culturels', 'Utiliser des techniques d\'écoute active', 'Gérer les malentendus interculturels'], audience: 'Soignant·e·s avec expérience clinique', certificate: true },
-    { id: 3, title: 'Drépanocytose : comprendre et accompagner', duration: '3h', provider: 'Suisse Drépano', date: '8 avril 2026', spots: 15, spotsLeft: 15, level: 'Tous niveaux', format: 'Hybride', price: 'Gratuit', desc: 'Comprendre la maladie et ses implications pour un meilleur accompagnement des patient·e·s.', objectives: ['Connaître la physiopathologie de la drépanocytose', 'Comprendre le vécu des patient·e·s', 'Adapter la prise en charge aux spécificités de la maladie'], audience: 'Tout·e professionnel·le de santé', certificate: true },
-    { id: 4, theme: 'discriminations', title: 'Gestion des micro-agressions', duration: '2h', provider: 'FAANG', date: '15 avril 2026', spots: 10, spotsLeft: 3, level: 'Intermédiaire', format: 'En ligne', price: 'Gratuit', desc: 'Reconnaître et répondre aux micro-agressions en milieu de soins.', objectives: ['Définir et reconnaître les micro-agressions', 'Comprendre leur impact sur la santé', 'Développer des réponses appropriées'], audience: 'Tout·e professionnel·le de santé', certificate: false },
-    { id: 5, theme: 'accueil', title: 'Accueil inclusif des patient·e·s', duration: '3h', provider: 'HES-SO', date: '22 mai 2026', spots: 20, spotsLeft: 12, level: 'Débutant', format: 'Présentiel', price: 'CHF 30', desc: 'Créer un environnement d\'accueil bienveillant et équitable pour tous les patient·e·s.', objectives: ['Analyser les obstacles à l\'accueil inclusif', 'Mettre en place des pratiques inclusives', 'Évaluer et améliorer continuellement l\'accueil'], audience: 'Personnel d\'accueil et administratif', certificate: true },
-    { id: 6, theme: 'discriminations', title: 'Leadership inclusif en santé', duration: '1 jour', provider: 'Unisanté', date: '29 mai 2026', spots: 12, spotsLeft: 6, level: 'Avancé', format: 'Présentiel', price: 'CHF 150', desc: 'Pour les cadres : créer et maintenir un environnement de travail inclusif.', objectives: ['Développer une vision inclusive pour son équipe', 'Mettre en place des politiques anti-discrimination', 'Gérer les situations de discrimination'], audience: 'Cadres et responsables d\'équipe', certificate: true },
-    { id: 7, theme: 'interculturel', title: 'Interprétariat communautaire', duration: '2 jours', provider: 'Appartenances', date: '5-6 juin 2026', spots: 8, spotsLeft: 4, level: 'Avancé', format: 'Présentiel', price: 'CHF 200', desc: 'Formation certifiante pour devenir interprète communautaire en milieu de santé.', objectives: ['Maîtriser les techniques d\'interprétariat', 'Comprendre le rôle et les limites de l\'interprète', 'Gérer les situations émotionnellement difficiles'], audience: 'Personnes bilingues souhaitant devenir interprètes', certificate: true },
-    { id: 8, theme: 'interculturel', title: 'Approche transculturelle en psychiatrie', duration: '4h', provider: 'HUG', date: '12 juin 2026', spots: 15, spotsLeft: 10, level: 'Intermédiaire', format: 'Hybride', price: 'CHF 80', desc: 'Adapter la prise en charge psychiatrique aux spécificités culturelles des patient·e·s.', objectives: ['Comprendre l\'influence de la culture sur la santé mentale', 'Adapter l\'évaluation psychiatrique', 'Développer des interventions culturellement adaptées'], audience: 'Professionnel·le·s en santé mentale', certificate: true },
+    { id: 1, theme: 'discriminations', title: 'Sensibilisation aux biais inconscients', duration: '2h', provider: 'Partenaire associatif', date: jour(12), spots: 12, spotsLeft: 5, level: 'Débutant', format: 'En ligne', price: 'Gratuit', desc: 'Identifier et comprendre ses propres biais pour améliorer la relation soignant-soigné.', objectives: ['Comprendre les mécanismes des biais inconscients', 'Identifier ses propres biais', 'Développer des stratégies pour les contrer'], audience: 'Tout·e professionnel·le de santé', certificate: true },
+    { id: 2, theme: 'interculturel', title: 'Communication interculturelle en santé', duration: '4h', provider: 'HES-SO', date: jour(19), spots: 20, spotsLeft: 8, level: 'Intermédiaire', format: 'Présentiel', price: 'CHF 50', desc: 'Techniques de communication adaptées aux contextes multiculturels.', objectives: ['Adapter sa communication aux différents contextes culturels', 'Utiliser des techniques d\'écoute active', 'Gérer les malentendus interculturels'], audience: 'Soignant·e·s avec expérience clinique', certificate: true },
+    { id: 3, title: 'Drépanocytose : comprendre et accompagner', duration: '3h', provider: 'Suisse Drépano', date: jour(33), spots: 15, spotsLeft: 15, level: 'Tous niveaux', format: 'Hybride', price: 'Gratuit', desc: 'Comprendre la maladie et ses implications pour un meilleur accompagnement des patient·e·s.', objectives: ['Connaître la physiopathologie de la drépanocytose', 'Comprendre le vécu des patient·e·s', 'Adapter la prise en charge aux spécificités de la maladie'], audience: 'Tout·e professionnel·le de santé', certificate: true },
+    { id: 4, theme: 'discriminations', title: 'Gestion des micro-agressions', duration: '2h', provider: 'FAANG', date: jour(40), spots: 10, spotsLeft: 3, level: 'Intermédiaire', format: 'En ligne', price: 'Gratuit', desc: 'Reconnaître et répondre aux micro-agressions en milieu de soins.', objectives: ['Définir et reconnaître les micro-agressions', 'Comprendre leur impact sur la santé', 'Développer des réponses appropriées'], audience: 'Tout·e professionnel·le de santé', certificate: false },
+    { id: 5, theme: 'accueil', title: 'Accueil inclusif des patient·e·s', duration: '3h', provider: 'HES-SO', date: jour(61), spots: 20, spotsLeft: 12, level: 'Débutant', format: 'Présentiel', price: 'CHF 30', desc: 'Créer un environnement d\'accueil bienveillant et équitable pour tous les patient·e·s.', objectives: ['Analyser les obstacles à l\'accueil inclusif', 'Mettre en place des pratiques inclusives', 'Évaluer et améliorer continuellement l\'accueil'], audience: 'Personnel d\'accueil et administratif', certificate: true },
+    { id: 6, theme: 'discriminations', title: 'Leadership inclusif en santé', duration: '1 jour', provider: 'Unisanté', date: jour(68), spots: 12, spotsLeft: 6, level: 'Avancé', format: 'Présentiel', price: 'CHF 150', desc: 'Pour les cadres : créer et maintenir un environnement de travail inclusif.', objectives: ['Développer une vision inclusive pour son équipe', 'Mettre en place des politiques anti-discrimination', 'Gérer les situations de discrimination'], audience: 'Cadres et responsables d\'équipe', certificate: true },
+    { id: 7, theme: 'interculturel', title: 'Interprétariat communautaire', duration: '2 jours', provider: 'Appartenances', date: deuxJours(82), spots: 8, spotsLeft: 4, level: 'Avancé', format: 'Présentiel', price: 'CHF 200', desc: 'Formation certifiante pour devenir interprète communautaire en milieu de santé.', objectives: ['Maîtriser les techniques d\'interprétariat', 'Comprendre le rôle et les limites de l\'interprète', 'Gérer les situations émotionnellement difficiles'], audience: 'Personnes bilingues souhaitant devenir interprètes', certificate: true },
+    { id: 8, theme: 'interculturel', title: 'Approche transculturelle en psychiatrie', duration: '4h', provider: 'HUG', date: jour(96), spots: 15, spotsLeft: 10, level: 'Intermédiaire', format: 'Hybride', price: 'CHF 80', desc: 'Adapter la prise en charge psychiatrique aux spécificités culturelles des patient·e·s.', objectives: ['Comprendre l\'influence de la culture sur la santé mentale', 'Adapter l\'évaluation psychiatrique', 'Développer des interventions culturellement adaptées'], audience: 'Professionnel·le·s en santé mentale', certificate: true },
+    { id: 9, theme: 'racisme', title: 'Racisme et discriminations dans les soins : reconnaître et agir', duration: '3h', provider: 'Association partenaire', date: jour(110), spots: 16, spotsLeft: 9, level: 'Intermédiaire', format: 'Hybride', price: 'Gratuit', desc: 'Comprendre comment le racisme structurel et les biais cliniques influencent l’accès aux soins, l’évaluation de la douleur et la relation de soin, et savoir agir en équipe.', objectives: ['Distinguer racisme interpersonnel, institutionnel et structurel en milieu de soins', 'Repérer les biais dans l’évaluation de la douleur et dans l’orientation des patient·e·s', 'Agir : réponse sur le moment, signalement, soutien à la personne concernée'], audience: 'Tout·e professionnel·le de santé', certificate: true },
+    { id: 10, theme: 'lgbtiqa', title: 'Accueillir les personnes LGBTIQA+ en santé', duration: '3h', provider: 'Association partenaire', date: jour(124), spots: 20, spotsLeft: 14, level: 'Débutant', format: 'En ligne', price: 'Gratuit', desc: 'Vocabulaire, anamnèse inclusive et respect du nom, des pronoms et de l’identité de genre, du premier contact à la consultation.', objectives: ['Utiliser un vocabulaire juste, le nom et les pronoms choisis par la personne', 'Mener une anamnèse inclusive, sans présupposé sur l’orientation ou la configuration familiale', 'Connaître les besoins de santé des personnes trans, intersexes et des couples de même sexe', 'Repérer les obstacles à l’accès aux soins et y répondre'], audience: 'Tout·e professionnel·le de santé, personnel d’accueil compris', certificate: true },
+    { id: 11, theme: 'migration', title: 'Santé des personnes migrantes : accès, droits et exil', duration: '4h', provider: 'Organisme partenaire', date: jour(138), spots: 18, spotsLeft: 11, level: 'Intermédiaire', format: 'Présentiel', price: 'CHF 40', desc: 'Repères sur les statuts de séjour, l’accès aux soins et les effets de l’exil sur la santé, avec le recours à l’interprétariat professionnel.', objectives: ['Situer les principaux statuts de séjour et leurs effets sur l’accès aux soins', 'Repérer les vulnérabilités liées à l’exil et aux violences vécues', 'Mobiliser l’interprétariat professionnel et les services d’orientation du canton'], audience: 'Soignant·e·s et travailleur·euse·s sociaux·ales', certificate: true },
+    { id: 12, theme: 'religions', title: 'Diversité religieuse et soins : pratiques, pudeur et fin de vie', duration: '3h', provider: 'Haute école partenaire', date: jour(152), spots: 20, spotsLeft: 13, level: 'Débutant', format: 'Présentiel', price: 'CHF 30', desc: 'Prière, jeûne, alimentation, pudeur, port du voile, accompagnement spirituel : répondre aux attentes des patient·e·s dans le respect de leur consentement.', objectives: ['Connaître les pratiques et attentes courantes liées aux principales religions et convictions', 'Proposer des aménagements respectueux de la pudeur, dont le port du voile, avec l’accord de la personne', 'Demander à chaque personne ce qui compte pour elle et faire appel à l’aumônerie au besoin'], audience: 'Tout·e professionnel·le de santé', certificate: true },
+    { id: 13, theme: 'handicap', title: 'Accueillir les personnes en situation de handicap', duration: '3h', provider: 'Organisme partenaire', date: jour(166), spots: 16, spotsLeft: 10, level: 'Débutant', format: 'Présentiel', price: 'CHF 30', desc: 'Adapter les lieux, l’information et la communication pour que chaque personne comprenne, décide et soit soignée dans de bonnes conditions.', objectives: ['Adapter l’accueil et l’information : lieux, documents en langage facile à lire, langue des signes', 'S’adresser directement à la personne et soutenir sa décision', 'Organiser des consultations accessibles : temps, installation, présence d’un·e accompagnant·e'], audience: 'Tout·e professionnel·le de santé, personnel d’accueil compris', certificate: true },
+    { id: 14, theme: 'trauma', title: 'Approche tenant compte des traumatismes en consultation', duration: '4h', provider: 'Haute école partenaire', date: jour(180), spots: 15, spotsLeft: 8, level: 'Intermédiaire', format: 'Hybride', price: 'CHF 60', desc: 'Sécurité, transparence, choix et collaboration : adapter la consultation pour réduire le risque de revivre un traumatisme.', objectives: ['Connaître les six principes d’une approche tenant compte des traumatismes (SAMHSA, 2014)', 'Reconnaître les réactions liées au traumatisme en consultation', 'Annoncer chaque geste, offrir des choix et des pauses, vérifier l’accord de la personne'], audience: 'Soignant·e·s, y compris en santé mentale et en maternité', certificate: true },
+    { id: 15, theme: 'accueil', title: 'Premier contact : accueil au secrétariat et à la réception', duration: '2h', provider: 'Partenaire associatif', date: jour(194), spots: 24, spotsLeft: 17, level: 'Débutant', format: 'En ligne', price: 'Gratuit', desc: 'Le premier contact donne le ton de la consultation : accueil, information sur les tarifs et les délais, orientation.', objectives: ['Accueillir chaque personne avec le même niveau de courtoisie et de respect', 'Expliquer clairement tarifs, prise en charge et délais, à l’oral et par écrit', 'Désamorcer les situations tendues et orienter vers la bonne personne'], audience: 'Personnel d’accueil et administratif', certificate: true },
+    { id: 16, theme: 'accueil', title: 'Consentement et gestes de soins : annoncer, demander, s’arrêter', duration: '3h', provider: 'Haute école partenaire', date: jour(208), spots: 14, spotsLeft: 7, level: 'Intermédiaire', format: 'Présentiel', price: 'CHF 40', desc: 'Demander l’accord avant chaque examen ou geste, protéger l’intimité, accepter la pause ou le refus, notamment pour les examens intimes.', objectives: ['Annoncer et demander l’accord avant chaque examen ou geste', 'Protéger l’intimité et la pudeur : installation, couverture, présence d’un tiers au choix de la personne', 'Accepter la pause et le refus, et en tenir compte dans la suite des soins'], audience: 'Soignant·e·s réalisant des examens physiques', certificate: true },
+    { id: 17, theme: 'accueil', title: 'Expliquer et décider ensemble : décision partagée et reformulation', duration: '3h', provider: 'Partenaire associatif', date: jour(222), spots: 20, spotsLeft: 12, level: 'Intermédiaire', format: 'En ligne', price: 'Gratuit', desc: 'Exposer les options, vérifier la compréhension par la reformulation (teach-back) et décider avec la personne.', objectives: ['Exposer choix, options, bénéfices et risques en langage clair', 'Vérifier la compréhension par la reformulation (teach-back)', 'Explorer les préférences et conclure par une décision partagée et une suite claire'], audience: 'Tout·e professionnel·le de santé', certificate: true },
+    { id: 18, theme: 'interculturel', title: 'Travailler avec un·e interprète professionnel·le', duration: '2h', provider: 'Organisme partenaire', date: jour(236), spots: 24, spotsLeft: 19, level: 'Débutant', format: 'En ligne', price: 'Gratuit', desc: 'Préparer l’entretien, se placer, s’adresser directement à la personne et relire la suite de la consultation avec l’interprète.', objectives: ['Savoir quand et comment faire appel à un·e interprète professionnel·le', 'Conduire l’entretien : briefing, placement, phrases courtes, échange direct avec la personne', 'Réserver l’interprétation aux professionnel·le·s : les proches et les enfants gardent leur rôle de proches'], audience: 'Tout·e professionnel·le de santé', certificate: true },
   ];
 
   const providers = [...new Set(formations.map(f => f.provider))].sort();
@@ -10441,7 +10456,8 @@ function FormationsView() {
     const matchLevel = !filterLevel || f.level === filterLevel;
     const matchProvider = !filterProvider || f.provider === filterProvider;
     const matchTheme = !filterTheme || f.theme === filterTheme;
-    return matchLevel && matchProvider && matchTheme;
+    const matchFormat = !filterFormat || f.format === filterFormat;
+    return matchLevel && matchProvider && matchTheme && matchFormat;
   });
 
   const handleRegister = async (formation) => {
@@ -10474,17 +10490,44 @@ function FormationsView() {
 
   const myFormations = formations.filter(f => registrations.includes(f.id));
 
+  // Inscription à un parcours : toutes les formations du parcours qui ont encore des places, en un seul message à l'équipe
+  const parcoursNb = (p) => p.formations.filter(id => registrations.includes(id)).length;
+  const parcoursComplet = (p) => p.formations.every(id => registrations.includes(id) || (formations.find(f => f.id === id) || {}).spotsLeft === 0);
+  const handleRegisterParcours = async (p) => {
+    const ids = p.formations.filter(id => !registrations.includes(id) && ((formations.find(f => f.id === id) || {}).spotsLeft || 0) > 0);
+    if (ids.length === 0) return;
+    setRegistrations(prev => [...new Set([...prev, ...ids])]);
+    try {
+      await fetch(CW_NOTIFIER_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({
+          _subject: `[CareWatch™] Inscription parcours : ${p.title}`,
+          _captcha: false,
+          parcours: p.title,
+          formations: ids.map(id => (formations.find(f => f.id === id) || {}).title).join(' ; '),
+          type: 'inscription_parcours',
+          timestamp: new Date().toISOString()
+        })
+      });
+    } catch (e) { console.log('Email inscription non envoyé (mode local)'); }
+  };
+
   const parcours = [
     { title: 'Parcours Fondamentaux', desc: 'Pour débuter dans l\'équité des soins', formations: [1, 5, 3], duration: '8h', color: 'teal' },
     { title: 'Parcours Professionnel·le de santé', desc: 'Approfondir ses compétences cliniques', formations: [1, 2, 4, 8], duration: '12h', color: 'indigo' },
-    { title: 'Parcours Leadership', desc: 'Pour les cadres et responsables', formations: [1, 2, 6], duration: '9h', color: 'amber' },
+    { title: 'Parcours Leadership', desc: 'Pour les cadres et responsables', formations: [1, 2, 6], duration: '13h', color: 'amber' },
+    { title: 'Parcours Accueil', desc: 'Du secrétariat à la décision partagée', formations: [15, 5, 17], duration: '8h', color: 'emerald' },
+    { title: 'Parcours Discriminations', desc: 'Biais, racisme, LGBTIQA+, religions et handicap', formations: [1, 9, 10, 12, 13], duration: '14h', color: 'rose' },
+    { title: 'Parcours Consentement et traumatismes', desc: 'Annoncer, demander, laisser le choix', formations: [14, 16, 18], duration: '9h', color: 'purple' },
+    { title: 'Parcours Migration', desc: 'Exil, interprétariat et communication interculturelle', formations: [11, 2, 18], duration: '10h', color: 'blue' },
   ];
 
   return (
     <div className="p-4 md:p-8 max-w-3xl mx-auto">
       <h2 className="text-2xl font-bold mb-2">Formations</h2>
       <p className="text-sm text-gray-500 mb-4 flex items-center gap-1.5"><Shield className="w-3.5 h-3.5 text-teal-600" /> Votre navigation est anonyme — votre employeur ne peut pas voir que vous consultez ces formations.</p>
-      <p className="text-gray-600 mb-6">Développez vos compétences en équité des soins</p>
+      <p className="text-gray-600 mb-6">Développez vos compétences en équité des soins : accueil, discriminations, interprétariat, consentement et traumatismes.</p>
 
       {/* Tabs */}
       <div className="flex flex-wrap gap-2 mb-6">
@@ -10508,11 +10551,13 @@ function FormationsView() {
             <Select value={filterLevel} onChange={setFilterLevel} options={levels} placeholder="Niveau" className="min-w-[9rem] flex-shrink-0" />
             <Select value={filterProvider} onChange={setFilterProvider} options={providers} placeholder="Organisme" className="min-w-[10rem] flex-shrink-0" />
             <Select value={filterTheme} onChange={setFilterTheme} options={CW_ANNUAIRE_THEMES_FORMATION.filter(([id]) => formations.some(f => f.theme === id)).map(([value, label]) => ({ value, label }))} placeholder="Thème" className="min-w-[10rem] flex-shrink-0" />
-            {(filterLevel || filterProvider || filterTheme) && (
-              <button onClick={() => { setFilterLevel(''); setFilterProvider(''); setFilterTheme(''); }} className="px-3 py-2 text-sm text-gray-500 hover:text-gray-700">Effacer</button>
+            <Select value={filterFormat} onChange={setFilterFormat} options={['En ligne', 'Présentiel', 'Hybride']} placeholder="Format" className="min-w-[9rem] flex-shrink-0" />
+            {(filterLevel || filterProvider || filterTheme || filterFormat) && (
+              <button onClick={() => { setFilterLevel(''); setFilterProvider(''); setFilterTheme(''); setFilterFormat(''); }} className="px-3 py-2 text-sm text-gray-500 hover:text-gray-700">Effacer</button>
             )}
           </div>
 
+          <p className="text-sm text-gray-600 mb-3">{filteredFormations.length} formation{filteredFormations.length > 1 ? 's' : ''} sur {formations.length}</p>
           <div className="space-y-4">
             {filteredFormations.map(f => {
               const isRegistered = registrations.includes(f.id);
@@ -10588,8 +10633,8 @@ function FormationsView() {
                     })}
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-700">Durée totale : {p.duration}</span>
-                    <Button size="sm" variant="outline">S'inscrire au parcours</Button>
+                    <span className="text-sm text-gray-700">Durée totale : {p.duration}{parcoursNb(p) > 0 ? ` · ${parcoursNb(p)}/${p.formations.length} inscrit·e` : ''}</span>
+                    <Button size="sm" variant="outline" onClick={() => handleRegisterParcours(p)} disabled={parcoursComplet(p)}>{parcoursComplet(p) ? 'Inscrit·e au parcours' : "S'inscrire au parcours"}</Button>
                   </div>
                 </div>
               </div>
@@ -10659,9 +10704,15 @@ function FormationsView() {
               </div>
               <div>
                 <p className="text-sm font-medium text-indigo-900">Equity Champion</p>
-                <p className="text-sm text-indigo-600">0/3 parcours complétés</p>
+                <p className="text-sm text-indigo-600">0/{parcours.length} parcours complétés</p>
               </div>
             </div>
+          </Card>
+
+          <Card className="p-4 bg-teal-50 border-teal-100">
+            <h3 className="font-medium text-teal-900 mb-2">Certificat et annuaire</h3>
+            <p className="text-sm text-teal-900 mb-3">Un certificat reçu à l’issue d’une formation à l’accueil ou aux discriminations peut être présenté à l’équipe pour que la formation soit attestée sur votre fiche de l’annuaire.</p>
+            <Button size="sm" variant="outline" onClick={() => setView('directory')}>Ouvrir l’annuaire</Button>
           </Card>
         </div>
       )}
@@ -10678,6 +10729,7 @@ function FormationsView() {
               </div>
               <h3 className="text-lg font-semibold">{selectedFormation.title}</h3>
               <p className="text-sm text-gray-600">{selectedFormation.provider}</p>
+              {selectedFormation.theme && <p className="text-xs text-teal-800 mt-1">{CW_ANNUAIRE_THEME_LIBELLE[selectedFormation.theme]}</p>}
             </div>
 
             <p className="text-gray-600">{selectedFormation.desc}</p>
@@ -10717,6 +10769,10 @@ function FormationsView() {
               <p className="text-sm text-gray-600">Public cible</p>
               <p className="text-sm">{selectedFormation.audience}</p>
             </div>
+
+            {selectedFormation.certificate && selectedFormation.theme && (
+              <p className="text-xs text-gray-600">Le certificat peut servir à faire attester cette formation sur la fiche de l’annuaire.</p>
+            )}
 
             <div className="flex gap-3 pt-2">
               <Button variant="secondary" onClick={() => setSelectedFormation(null)} className="flex-1">Fermer</Button>
@@ -11896,7 +11952,7 @@ function EtatProjetPage() {
     ['Accompagnement PLAFA', 'Notes conservées sur l’appareil, sans horodatage certifié', 'Démonstration'],
     ['Analyse de dossier', 'Aucun traitement automatique actif', 'Démonstration'],
     ['Pair-aidance', 'Profils fictifs, prise de rendez-vous fermée', 'Démonstration'],
-    ['Formations', 'Catalogue fictif', 'Démonstration'],
+    ['Formations', 'Catalogue fictif de dix-huit formations sur neuf thèmes, sept parcours, inscription par message à l’équipe, lien avec l’annuaire', 'Démonstration'],
     ['Annuaire participatif', 'Recommandations déposées par le public, publiées avec la mention « Validé par l’équipe » ou « En attente de vérification », formations signalées puis attestées', 'Alpha'],
   ];
   const Liste = ({ items }) => (
