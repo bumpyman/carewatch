@@ -320,7 +320,6 @@ const VUES_DEMO = {
   'dossier-analysis': 'L’analyse par intelligence artificielle n’est pas active. Aucun document n’est envoyé nulle part et le résultat affiché est un exemple fictif.',
   'peer-support': 'Les pair·e·s aidant·e·s présenté·e·s sont fictif·ve·s et la prise de rendez-vous n’est pas encore ouverte.',
   'formations': 'Le catalogue de formations est fictif. Une inscription envoie seulement un message à l’équipe, aucune place n’est réservée.',
-  'directory': 'Les professionnel·le·s de cet annuaire sont fictif·ve·s, numéros de téléphone compris.',
   'plafa-doc': 'Version d’essai : vos notes sont conservées sur cet appareil uniquement et n’ont pas de valeur d’horodatage certifié.',
   'dashboard': 'Données fictives, rien n’est enregistré.',
   'admin-reports': 'Données fictives, rien n’est enregistré.',
@@ -330,6 +329,7 @@ const VUES_DEMO = {
   'users': 'Gestion des utilisateurs pas encore disponible.',
 };
 const VUES_DEMO_SI_DEMO = {
+  'directory': 'Les cinq fiches affichées sont fictives, numéros de téléphone compris. Décochez « Afficher les données de démonstration » sur l’accueil pour lire les recommandations réelles.',
   'rapports': 'Les indicateurs affichés sont des données de démonstration, cohérentes avec le baromètre et les fiches d’établissement de démonstration. Décochez « Afficher les données de démonstration » sur l’accueil pour lire l’état réel.',
   'institutions': 'Les évaluations, nombres de signalements et indices de fiabilité affichés sont des données de démonstration. Décochez « Afficher les données de démonstration » dans le bandeau pour voir l’état réel.',
   'patient-home': 'Les compteurs d’ensemble affichés sont des données de démonstration.',
@@ -370,7 +370,7 @@ function useVeille() {
   return { ...etat, visibles, masquer };
 } // notification par courriel, hébergée sur Infomaniak (remplace FormSubmit)
 const VUE_TITRES = {
-  'rapports': 'Rapports',
+  'rapports': 'Rapports', 'admin-annuaire': 'Annuaire',
   'barometre': 'Baromètre d’expérience', 'etat': 'État du projet', 'maturite': 'Maturité en équité', 'questions': 'Poser une question', 'admin-questions': 'Questions', 'situations': 'Votre situation', 'aide': 'Trouver de l’aide',
   'patient-home': 'Accueil', 'professional-home': 'Accueil', 'new-report': 'Signalement', 'positive-report': 'Expérience positive',
   'my-reports': 'Mes témoignages', 'institutions': 'Établissements', 'access-care': 'Accès aux soins', 'directory': 'Annuaire',
@@ -2939,6 +2939,7 @@ function AppShell() {
     { icon: BarChart3, label: 'Tableau de bord', v: 'dashboard' },
     { icon: ClipboardList, label: 'Signalements', v: 'admin-reports' },
     { icon: HelpCircle, label: 'Questions', v: 'admin-questions' },
+    { icon: Users, label: 'Annuaire', v: 'admin-annuaire' },
     ...(user && user.role === 'admin' ? [
       { icon: Building, label: 'Référentiels', v: 'institutions' },
       { icon: Users, label: 'Accès et comptes', v: 'users' },
@@ -2988,6 +2989,7 @@ function AppShell() {
       case 'situations': return <SituationsPage />;
       case 'aide': return <TrouverAidePage />;
       case 'admin-questions': return adminReel ? <ModerationPage integre="questions" /> : <QuestionsPage />;
+      case 'admin-annuaire': return adminReel ? <ModerationPage integre="annuaire" /> : <DirectoryView />;
       case 'about': return <AboutPage />;
       case 'methodology': return <MethodologyPage />;
       case 'faq': return <FAQPage />;
@@ -5742,6 +5744,80 @@ function AdminQuestions({ signaler }) {
   );
 }
 
+// Équipe : contrôler les fiches de l'annuaire (valider, corriger, masquer, restaurer, supprimer)
+function AdminAnnuaire({ signaler }) {
+  const [liste, setListe] = useState(null);
+  const [brouillons, setBrouillons] = useState({});
+  const [busy, setBusy] = useState(false);
+  const charger = async () => {
+    const { data, error } = await window.cwDb.rpc('admin_annuaire_lire');
+    if (error) { signaler('Annuaire indisponible : ' + (error.message || '')); setListe([]); return; }
+    setListe(Array.isArray(data) ? data : []);
+  };
+  useEffect(() => { charger(); }, []);
+  const ecrire = async (id, op, p) => {
+    setBusy(true);
+    const { data, error } = await window.cwDb.rpc('admin_annuaire_ecrire', { p_id: id, p_op: op, p: p || {} });
+    setBusy(false);
+    if (error || !data || !data.ok) { signaler('Refusé : ' + ((error && error.message) || '')); return; }
+    setBrouillons(prev => { const n = { ...prev }; delete n[id]; return n; });
+    charger();
+  };
+  if (liste === null) return <p className="text-sm text-gray-500">Chargement…</p>;
+  const motifs = { concerne: 'Retrait demandé par la personne concernée', erreur: 'Information erronée', autre: 'Autre raison' };
+  const champ = 'w-full px-3 py-2 rounded-xl border-2 border-gray-200 focus:border-teal-500 focus:outline-none text-sm';
+  const Bloc = ({ x }) => {
+    const b = brouillons[x.id] || { nom: x.nom, specialite: x.specialite, ville: x.ville, source_url: x.source_url || '', telephone: x.telephone || '' };
+    const maj = (k, v) => setBrouillons(p => ({ ...p, [x.id]: { ...b, [k]: v } }));
+    const donnees = { nom: b.nom, specialite: b.specialite, ville: b.ville, source_url: b.source_url, telephone: b.telephone };
+    const criteres = Object.entries(x.criteres || {}).sort((a, c) => c[1] - a[1]);
+    return (
+      <Card className="p-4">
+        <div className="flex flex-wrap items-center gap-2 mb-2">
+          {x.masque ? <span className="px-2 py-0.5 rounded text-xs bg-rose-100 text-rose-800">Masquée</span> : <BadgeFiche valide={x.valide} />}
+          <span className="text-xs text-gray-600">{x.canton} · {x.nb} recommandation{x.nb > 1 ? 's' : ''} · déposée le {cwDateCourte(String(x.cree_le).slice(0, 10))}</span>
+        </div>
+        {x.masque && x.masque_motif && <p className="text-sm text-rose-700 mb-2">{x.masque_motif}</p>}
+        {criteres.length > 0 && <div className="flex flex-wrap gap-1 mb-3">{criteres.map(([id, n]) => <span key={id} className="px-2 py-0.5 rounded bg-teal-50 text-teal-800 text-xs">{CW_ANNUAIRE_CRITERE_LIBELLE[id] || id} · {n}</span>)}</div>}
+        {(x.langues || []).length > 0 && <p className="text-xs text-gray-600 mb-3">Langues : {x.langues.join(', ')}</p>}
+        {(x.signalements || []).length > 0 && (
+          <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 mb-3">
+            <p className="text-sm font-semibold text-amber-900 mb-1">Signalements à traiter</p>
+            {x.signalements.map(s => (
+              <p key={s.id} className="text-sm text-amber-900">{motifs[s.motif] || s.motif}{s.detail ? ` : ${s.detail}` : ''}{s.contact ? ` (${s.contact})` : ''}, {cwDateCourte(String(s.cree_le).slice(0, 10))}</p>
+            ))}
+          </div>
+        )}
+        <div className="grid sm:grid-cols-2 gap-2 mb-3">
+          <div><label className="block text-xs font-semibold text-gray-500 mb-1">Nom</label><input value={b.nom} onChange={e => maj('nom', e.target.value)} className={champ} /></div>
+          <div><label className="block text-xs font-semibold text-gray-500 mb-1">Spécialité</label><input value={b.specialite} onChange={e => maj('specialite', e.target.value)} className={champ} /></div>
+          <div><label className="block text-xs font-semibold text-gray-500 mb-1">Ville</label><input value={b.ville} onChange={e => maj('ville', e.target.value)} className={champ} /></div>
+          <div><label className="block text-xs font-semibold text-gray-500 mb-1">Téléphone (affiché une fois la fiche validée)</label><input value={b.telephone} onChange={e => maj('telephone', e.target.value)} className={champ} /></div>
+          <div className="sm:col-span-2"><label className="block text-xs font-semibold text-gray-500 mb-1">Source publique (https)</label><input value={b.source_url} onChange={e => maj('source_url', e.target.value)} className={champ} />{b.source_url && /^https:\/\//.test(b.source_url) && <a href={b.source_url} target="_blank" rel="noopener noreferrer" className="text-xs text-teal-700 underline">Ouvrir la source</a>}</div>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          {!x.valide ? <Button size="sm" onClick={() => ecrire(x.id, 'valider', donnees)} disabled={busy}>Valider</Button>
+            : <><Button size="sm" onClick={() => ecrire(x.id, 'valider', donnees)} disabled={busy}>Enregistrer</Button><Button size="sm" variant="secondary" onClick={() => ecrire(x.id, 'invalider')} disabled={busy}>Retirer la validation</Button></>}
+          {x.masque ? <Button size="sm" variant="secondary" onClick={() => ecrire(x.id, 'restaurer')} disabled={busy}>Restaurer</Button>
+            : <Button size="sm" variant="secondary" onClick={() => { const motif = window.prompt('Motif du masquage (visible par l’équipe seulement)', ''); if (motif !== null) ecrire(x.id, 'masquer', { motif }); }} disabled={busy}>Masquer</Button>}
+          {(x.signalements || []).length > 0 && <Button size="sm" variant="secondary" onClick={() => ecrire(x.id, 'clore')} disabled={busy}>Clore les signalements</Button>}
+          <Button size="sm" variant="ghost" onClick={() => { if (window.confirm('Supprimer définitivement cette fiche et ses recommandations ?')) ecrire(x.id, 'supprimer'); }} disabled={busy}>Supprimer</Button>
+        </div>
+      </Card>
+    );
+  };
+  const aTraiter = liste.filter(x => x.a_traiter), traitees = liste.filter(x => !x.a_traiter);
+  return (
+    <div className="space-y-4">
+      <h2 className="font-semibold">Fiches à contrôler{aTraiter.length ? ` (${aTraiter.length})` : ''}</h2>
+      <p className="text-sm text-gray-600">Les fiches sont publiées dès le dépôt, avec la mention « En attente de vérification ». Valider confirme l’existence de la personne et la source, et affiche le téléphone. Une demande de retrait masque la fiche immédiatement ; restaurez-la si la demande ne vient pas de la personne concernée.</p>
+      {aTraiter.length === 0 && <p className="text-sm text-gray-500">Tout est contrôlé.</p>}
+      {aTraiter.map(x => <Bloc key={x.id} x={x} />)}
+      {traitees.length > 0 && <><h2 className="font-semibold mt-6">Fiches validées ({traitees.length})</h2>{traitees.map(x => <Bloc key={x.id} x={x} />)}</>}
+    </div>
+  );
+}
+
 // Sortie rapide : quitte le site vers une page neutre et remplace l'entrée d'historique.
 // Boutons flottants : retour en haut de page, témoigner, quitter le site (touche Échap).
 function BoutonsFlottants({ temoigner, libelle }) {
@@ -7353,67 +7429,264 @@ function InstitutionsView() {
   );
 }
 
+// ============================================
+// ANNUAIRE PARTICIPATIF
+// Toute personne recommande un·e soignant·e. La fiche est publiée dès le dépôt avec la mention
+// « En attente de vérification » ; l'équipe la marque « Validé par l'équipe » après contrôle.
+// Sources : RPC annuaire_publie (lecture), annuaire_proposer et annuaire_signaler (écriture anonyme).
+// Démonstration : cinq fiches fictives, dont deux en attente de vérification.
+// ============================================
+const CW_ANNUAIRE_CRITERES = [
+  ['ecoute', 'Écoute sans jugement'],
+  ['interprete', 'Langue partagée ou interprète proposé'],
+  ['identite', 'Respect du nom, des pronoms et de l’identité'],
+  ['accessible', 'Locaux et soins accessibles'],
+  ['precarite', 'Accueil quelle que soit la situation financière ou administrative'],
+];
+const CW_ANNUAIRE_CRITERE_LIBELLE = Object.fromEntries(CW_ANNUAIRE_CRITERES);
+const CW_ANNUAIRE_SPECIALITES = ['Médecine générale', 'Médecine interne', 'Pédiatrie', 'Gynécologie et obstétrique', 'Sage-femme', 'Psychiatrie', 'Psychologie', 'Soins infirmiers', 'Physiothérapie', 'Dentisterie', 'Dermatologie', 'Cardiologie', 'Ophtalmologie', 'Pharmacie', 'Travail social', 'Autre'];
+const CW_ANNUAIRE_LANGUES = ['FR', 'EN', 'DE', 'IT', 'ES', 'PT', 'AR'];
+const CW_ANNUAIRE_DEMO = [
+  { id: 'demo-1', nom: 'Dr Aminata Diallo', specialite: 'Médecine interne', ville: 'Genève', canton: 'GE', langues: ['FR', 'Wolof', 'EN'], source_url: null, valide: true, telephone: '+41 22 xxx xx xx', nb: 14, criteres: { ecoute: 12, interprete: 9, identite: 6 } },
+  { id: 'demo-2', nom: 'Dr Jean-Pierre Mukendi', specialite: 'Pédiatrie', ville: 'Lausanne', canton: 'VD', langues: ['FR', 'Lingala', 'EN'], source_url: null, valide: true, telephone: '+41 21 xxx xx xx', nb: 9, criteres: { ecoute: 8, accessible: 4, interprete: 3 } },
+  { id: 'demo-3', nom: 'Dre Fatou Ndiaye', specialite: 'Gynécologie et obstétrique', ville: 'Genève', canton: 'GE', langues: ['FR', 'Wolof', 'EN'], source_url: null, valide: true, telephone: '+41 22 xxx xx xx', nb: 7, criteres: { identite: 6, ecoute: 5, precarite: 2 } },
+  { id: 'demo-4', nom: 'Dr Samuel Okonkwo', specialite: 'Psychiatrie', ville: 'Fribourg', canton: 'FR', langues: ['FR', 'Igbo', 'EN'], source_url: null, valide: false, telephone: null, nb: 2, criteres: { ecoute: 2, identite: 1 } },
+  { id: 'demo-5', nom: 'Dre Marie-Claire Habimana', specialite: 'Médecine générale', ville: 'Neuchâtel', canton: 'NE', langues: ['FR', 'Kinyarwanda', 'EN'], source_url: null, valide: false, telephone: null, nb: 1, criteres: { precarite: 1, interprete: 1 } },
+];
+const cwInitiales = (nom) => String(nom || '').replace(/^(docteure?|dre?|professeure?|prof|pre?|mme|madame|monsieur)\.?\s+/i, '').split(/\s+/).filter(Boolean).slice(0, 2).map(m => m[0].toUpperCase()).join('');
+const cwAnnuaireErreur = (e) => /schema cache|could not find the function/i.test((e && e.message) || '') ? 'L’annuaire participatif ouvrira après la prochaine mise à jour de la base.' : cwTraduireErreur(e);
+
+const BadgeFiche = ({ valide }) => valide
+  ? <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs bg-emerald-100 text-emerald-800"><Shield className="w-3 h-3" />Validé par l’équipe</span>
+  : <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs bg-amber-100 text-amber-800">En attente de vérification</span>;
+
+function RecommandationForm({ onClose, onDone }) {
+  const { DB, showDemo } = useApp();
+  const [d, setD] = useState({ nom: '', specialite: '', autre: '', ville: '', canton: '', langues: [], autresLangues: '', criteres: [], source: '', telephone: '', consentement: false });
+  const [busy, setBusy] = useState(false);
+  const [erreur, setErreur] = useState('');
+  const [resultat, setResultat] = useState(null);
+  const specialite = d.specialite === 'Autre' ? d.autre.trim() : d.specialite;
+  const manque = () => {
+    const m = [];
+    if (d.nom.trim().length < 3) m.push('le nom');
+    if (!specialite) m.push('la spécialité');
+    if (d.ville.trim().length < 2) m.push('la ville');
+    if (!d.canton) m.push('le canton');
+    if (d.criteres.length === 0) m.push('un critère');
+    if (!d.consentement) m.push('la confirmation');
+    return m;
+  };
+  const bascule = (cle, v) => setD(prev => ({ ...prev, [cle]: prev[cle].includes(v) ? prev[cle].filter(x => x !== v) : [...prev[cle], v] }));
+  const envoyer = async () => {
+    setBusy(true); setErreur('');
+    const langues = [...d.langues, ...d.autresLangues.split(',').map(x => x.trim()).filter(Boolean)];
+    let data = null, error = null;
+    try { ({ data, error } = await window.cwDb.rpc('annuaire_proposer', { p: { nom: d.nom.trim(), specialite, ville: d.ville.trim(), canton: d.canton, langues, criteres: d.criteres, source_url: d.source.trim(), telephone: d.telephone.trim(), consentement: d.consentement ? 'true' : 'false' } })); } catch (ex) { error = ex; }
+    setBusy(false);
+    if (error) { setErreur(cwAnnuaireErreur(error)); return; }
+    if (!data || !data.ok) { setErreur((data && data.erreur) || 'Envoi impossible pour l’instant.'); return; }
+    setResultat(data);
+  };
+  if (resultat) {
+    return (
+      <div>
+        <h3 className="font-semibold text-gray-900 mb-2">Merci pour votre recommandation.</h3>
+        <p className="text-sm text-gray-700 mb-3">
+          {resultat.deja ? 'Vous aviez déjà recommandé cette fiche, le compteur reste inchangé.'
+            : resultat.valide ? 'Votre recommandation s’ajoute à une fiche déjà validée par l’équipe.'
+            : resultat.nouvelle ? 'La fiche est publiée avec la mention « En attente de vérification ». L’équipe contrôle l’existence et la source, puis la marque « Validé par l’équipe ».'
+            : 'Votre recommandation s’ajoute à la fiche existante, en attente de vérification.'}
+        </p>
+        {showDemo && <p className="text-sm text-amber-800 mb-3">Les données de démonstration sont affichées : décochez la case du bandeau sur l’accueil pour retrouver la fiche dans l’annuaire réel.</p>}
+        <Button onClick={onDone}>Fermer</Button>
+      </div>
+    );
+  }
+  const chip = (on) => `px-3 py-1.5 rounded-full text-xs border ${on ? 'bg-teal-500 text-white border-teal-500' : 'bg-white text-gray-700 border-gray-200'}`;
+  return (
+    <div className="space-y-4">
+      <p className="text-sm text-gray-700">Recommandez un·e soignant·e ou un cabinet auprès duquel vous vous êtes senti·e respecté·e. La fiche est publiée tout de suite avec la mention « En attente de vérification ». Le numéro de téléphone s’affiche après le contrôle de l’équipe.</p>
+      <Input label="Nom du ou de la soignant·e, ou du cabinet" value={d.nom} onChange={v => setD({ ...d, nom: v })} placeholder="Dre Prénom Nom" required />
+      <Select label="Spécialité" value={d.specialite} onChange={v => setD({ ...d, specialite: v })} options={CW_ANNUAIRE_SPECIALITES} required />
+      {d.specialite === 'Autre' && <Input label="Précisez la spécialité" value={d.autre} onChange={v => setD({ ...d, autre: v })} required />}
+      <div className="grid sm:grid-cols-2 gap-3">
+        <Input label="Ville" value={d.ville} onChange={v => setD({ ...d, ville: v })} required />
+        <Select label="Canton" value={d.canton} onChange={v => setD({ ...d, canton: v })} options={DB.cantons.map(c => ({ value: c, label: DB.cantonNames[c] }))} required />
+      </div>
+      <div>
+        <p className="text-sm font-semibold text-gray-800 mb-2">Langues parlées</p>
+        <div className="flex flex-wrap gap-2 mb-2">{CW_ANNUAIRE_LANGUES.map(l => <button key={l} type="button" onClick={() => bascule('langues', l)} className={chip(d.langues.includes(l))}>{l}</button>)}</div>
+        <Input value={d.autresLangues} onChange={v => setD({ ...d, autresLangues: v })} placeholder="Autres langues, séparées par des virgules" />
+      </div>
+      <div>
+        <p className="text-sm font-semibold text-gray-800 mb-2">Ce que vous recommandez<span className="text-rose-500 ml-1 font-bold">*</span></p>
+        <div className="space-y-2">
+          {CW_ANNUAIRE_CRITERES.map(([id, libelle]) => (
+            <label key={id} className="flex items-start gap-3 text-sm text-gray-700 cursor-pointer"><input type="checkbox" checked={d.criteres.includes(id)} onChange={() => bascule('criteres', id)} className="mt-1" /> {libelle}</label>
+          ))}
+        </div>
+      </div>
+      <Input label="Lien vers une source publique (facultatif)" value={d.source} onChange={v => setD({ ...d, source: v })} placeholder="https://… site du cabinet, registre des professions médicales" />
+      <Input label="Téléphone du cabinet (facultatif)" value={d.telephone} onChange={v => setD({ ...d, telephone: v })} placeholder="+41 22 000 00 00" />
+      <label className="flex items-start gap-3 text-sm text-gray-700 cursor-pointer"><input type="checkbox" checked={d.consentement} onChange={e => setD({ ...d, consentement: e.target.checked })} className="mt-1" /> Je recommande cette personne d’après mon expérience ou celle d’un·e proche. Je sais que la personne concernée peut demander le retrait de sa fiche.</label>
+      {erreur && <p className="text-sm text-rose-700">{erreur}</p>}
+      {manque().length > 0 && <p className="text-xs text-rose-700">Il manque : {manque().join(', ')}.</p>}
+      <div className="flex justify-between gap-2">
+        <Button variant="outline" onClick={onClose}>Annuler</Button>
+        <Button onClick={envoyer} disabled={busy || manque().length > 0}>{busy ? 'Envoi…' : 'Publier la recommandation'}</Button>
+      </div>
+    </div>
+  );
+}
+
+function SignalementFiche({ fiche, onClose, onDone }) {
+  const [motif, setMotif] = useState('');
+  const [detail, setDetail] = useState('');
+  const [contact, setContact] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [erreur, setErreur] = useState('');
+  const [resultat, setResultat] = useState(null);
+  const envoyer = async () => {
+    setBusy(true); setErreur('');
+    let data = null, error = null;
+    try { ({ data, error } = await window.cwDb.rpc('annuaire_signaler', { p_id: fiche.id, p_motif: motif, p_precision: detail.trim() || null, p_contact: contact.trim() || null })); } catch (ex) { error = ex; }
+    setBusy(false);
+    if (error) { setErreur(cwAnnuaireErreur(error)); return; }
+    if (!data || !data.ok) { setErreur((data && data.erreur) || 'Envoi impossible pour l’instant.'); return; }
+    setResultat(data);
+  };
+  if (resultat) {
+    return (
+      <div>
+        <h3 className="font-semibold text-gray-900 mb-2">Demande enregistrée.</h3>
+        <p className="text-sm text-gray-700 mb-3">{resultat.masquee ? 'La fiche est retirée de l’annuaire dès maintenant. L’équipe contrôle votre demande.' : 'L’équipe examine la fiche et corrige l’information signalée.'}</p>
+        <Button onClick={onDone}>Fermer</Button>
+      </div>
+    );
+  }
+  return (
+    <div className="space-y-4">
+      <p className="text-sm text-gray-700"><span className="font-semibold">{fiche.nom}</span>, {fiche.specialite}, {fiche.ville}</p>
+      <Select label="Motif" value={motif} onChange={setMotif} options={[{ value: 'concerne', label: 'Cette fiche me concerne et je demande son retrait' }, { value: 'erreur', label: 'Une information est erronée' }, { value: 'autre', label: 'Autre raison' }]} required />
+      <TextArea label="Précisions (facultatif)" value={detail} onChange={setDetail} rows={3} maxLength={500} />
+      <Input label="Courriel pour vous répondre (facultatif)" type="email" value={contact} onChange={setContact} />
+      {erreur && <p className="text-sm text-rose-700">{erreur}</p>}
+      <div className="flex justify-between gap-2">
+        <Button variant="outline" onClick={onClose}>Annuler</Button>
+        <Button onClick={envoyer} disabled={busy || !motif}>{busy ? 'Envoi…' : 'Envoyer'}</Button>
+      </div>
+    </div>
+  );
+}
+
 function DirectoryView() {
-  const { DB, setView, userType } = useApp();
+  const { DB, showDemo } = useApp();
+  const [fiches, setFiches] = useState(null);
+  const [erreur, setErreur] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCanton, setSelectedCanton] = useState('');
+  const [valideSeul, setValideSeul] = useState(false);
+  const [formulaire, setFormulaire] = useState(false);
+  const [aSignaler, setASignaler] = useState(null);
+  const [version, setVersion] = useState(0);
 
-  const professionals = [
-    { name: 'Dr. Aminata Diallo', specialty: 'Médecine interne', city: 'Genève', canton: 'GE', languages: ['FR', 'Wolof', 'EN'], phone: '+41 22 xxx xx xx' },
-    { name: 'Dr. Jean-Pierre Mukendi', specialty: 'Pédiatrie', city: 'Lausanne', canton: 'VD', languages: ['FR', 'Lingala', 'EN'], phone: '+41 21 xxx xx xx' },
-    { name: 'Dr. Fatou Ndiaye', specialty: 'Gynécologie', city: 'Genève', canton: 'GE', languages: ['FR', 'Wolof', 'EN'], phone: '+41 22 xxx xx xx' },
-    { name: 'Dr. Samuel Okonkwo', specialty: 'Psychiatrie', city: 'Fribourg', canton: 'FR', languages: ['FR', 'Igbo', 'EN'], phone: '+41 26 xxx xx xx' },
-    { name: 'Dr. Marie-Claire Habimana', specialty: 'Médecine générale', city: 'Neuchâtel', canton: 'NE', languages: ['FR', 'Kinyarwanda', 'EN'], phone: '+41 32 xxx xx xx' },
-  ];
+  useEffect(() => {
+    if (showDemo) { setFiches(CW_ANNUAIRE_DEMO); setErreur(''); return; }
+    let actif = true;
+    setFiches(null); setErreur('');
+    (async () => {
+      try {
+        const { data, error } = await window.cwDb.rpc('annuaire_publie');
+        if (error) throw error;
+        if (actif) setFiches(Array.isArray(data) ? data : []);
+      } catch (e) {
+        if (actif) { setFiches([]); setErreur(/schema cache|could not find the function/i.test((e && e.message) || '') ? 'L’annuaire participatif ouvrira après la prochaine mise à jour de la base.' : 'L’annuaire ne peut pas être chargé pour l’instant.'); }
+      }
+    })();
+    return () => { actif = false; };
+  }, [showDemo, version]);
 
-  const filtered = professionals.filter(p => {
-    const matchSearch = norm(p.name).includes(norm(searchQuery)) || norm(p.specialty).includes(norm(searchQuery));
-    const matchCanton = !selectedCanton || p.canton === selectedCanton;
-    return matchSearch && matchCanton;
-  });
+  const q = norm(searchQuery);
+  const toutes = fiches || [];
+  const filtered = toutes.filter(p => (!q || norm(p.nom).includes(q) || norm(p.specialite).includes(q) || norm(p.ville).includes(q)) && (!selectedCanton || p.canton === selectedCanton) && (!valideSeul || p.valide));
+  const nbValides = toutes.filter(p => p.valide).length;
+  const fermer = () => { setFormulaire(false); setASignaler(null); setVersion(v => v + 1); };
 
   return (
     <div className="p-4 md:p-8 max-w-2xl mx-auto">
-      <h2 className="text-2xl font-bold mb-2">Annuaire des professionnel·le·s</h2>
-      <p className="text-sm text-gray-500 mb-4 flex items-center gap-1.5"><Shield className="w-3.5 h-3.5 text-teal-600" /> Navigation anonyme — aucune trace de consultation n'est conservée.</p>
-      <p className="text-gray-600 mb-6">Trouvez des soignant·e·s sensibilisé·e·s à l'équité culturelle</p>
+      <div className="flex items-start justify-between gap-3 mb-2">
+        <h2 className="text-2xl font-bold">Annuaire</h2>
+        <Button size="sm" icon={Plus} onClick={() => setFormulaire(true)}>Recommander</Button>
+      </div>
+      <p className="text-sm text-gray-500 mb-4 flex items-center gap-1.5"><Shield className="w-3.5 h-3.5 text-teal-600" /> Navigation anonyme, sans trace de consultation.</p>
+      <p className="text-gray-600 mb-3">Soignant·e·s recommandé·e·s par des personnes qui les ont consulté·e·s. Chaque fiche indique si l’équipe a contrôlé son existence et sa source.</p>
+      <div className="space-y-1.5 mb-5 text-xs text-gray-600">
+        <p><BadgeFiche valide={true} /> existence et source contrôlées</p>
+        <p><BadgeFiche valide={false} /> publiée dès le dépôt, contrôle à venir</p>
+      </div>
 
-      <div className="flex gap-2 mb-6">
+      <div className="flex gap-2 mb-3">
         <div className="relative flex-1">
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-          <input type="text" placeholder="Rechercher..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="w-full pl-9 pr-4 py-2 rounded-lg border text-sm" />
+          <input type="text" placeholder="Nom, spécialité ou ville" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="w-full pl-9 pr-4 py-2 rounded-lg border text-sm" />
         </div>
         <Select value={selectedCanton} onChange={setSelectedCanton} options={DB.cantons.map(c => ({ value: c, label: DB.cantonNames[c] }))} placeholder="Canton" className="min-w-[8rem] flex-shrink-0" />
       </div>
+      <div className="flex flex-wrap items-center justify-between gap-2 mb-5">
+        <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer"><input type="checkbox" checked={valideSeul} onChange={e => setValideSeul(e.target.checked)} /> Fiches validées seulement</label>
+        {fiches !== null && !erreur && <span className="text-xs text-gray-500">{toutes.length} fiche{toutes.length > 1 ? 's' : ''}, dont {nbValides} validée{nbValides > 1 ? 's' : ''}</span>}
+      </div>
+
+      {erreur && <Card className="p-4 mb-4 bg-amber-50 border-amber-200"><p className="text-sm text-amber-800">{erreur}</p></Card>}
+      {fiches === null && <p className="text-sm text-gray-500">Chargement…</p>}
 
       <div className="space-y-3">
-        {filtered.map(p => (
-          <Card key={p.name} className="p-4">
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-full bg-teal-100 flex items-center justify-center text-teal-700 font-semibold">
-                {p.name.split(' ').slice(1).map(n => n[0]).join('')}
-              </div>
-              <div className="flex-1">
-                <h3 className="font-medium">{p.name}</h3>
-                <p className="text-sm text-teal-600">{p.specialty}</p>
-                <p className="text-sm text-gray-600">{p.city} ({p.canton})</p>
-                <div className="flex gap-1 mt-2">
-                  {p.languages.map(l => <span key={l} className="px-2 py-0.5 rounded bg-gray-100 text-xs">{l}</span>)}
+        {filtered.map(p => {
+          const top = Object.entries(p.criteres || {}).sort((a, b) => b[1] - a[1]).slice(0, 3);
+          return (
+            <Card key={p.id} className="p-4">
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-full bg-teal-100 flex items-center justify-center text-teal-700 font-semibold flex-shrink-0">{cwInitiales(p.nom)}</div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-medium">{p.nom}</h3>
+                  <p className="text-sm text-teal-600">{p.specialite}</p>
+                  <p className="text-sm text-gray-600">{p.ville} ({p.canton})</p>
+                  <div className="flex flex-wrap items-center gap-2 mt-2">
+                    <BadgeFiche valide={p.valide} />
+                    <span className="text-xs text-gray-600">{p.nb} recommandation{p.nb > 1 ? 's' : ''}</span>
+                  </div>
+                  {(p.langues || []).length > 0 && <div className="flex flex-wrap gap-1 mt-2">{p.langues.map(l => <span key={l} className="px-2 py-0.5 rounded bg-gray-100 text-xs">{l}</span>)}</div>}
+                  {top.length > 0 && <div className="flex flex-wrap gap-1 mt-2">{top.map(([id, n]) => <span key={id} className="px-2 py-0.5 rounded bg-teal-50 text-teal-800 text-xs">{CW_ANNUAIRE_CRITERE_LIBELLE[id] || id} · {n}</span>)}</div>}
+                  <div className="flex flex-wrap items-center gap-3 mt-3">
+                    {p.source_url && /^https:\/\//.test(p.source_url) && <a href={p.source_url} target="_blank" rel="noopener noreferrer nofollow" className="text-xs text-teal-700 underline">Source</a>}
+                    {!showDemo && <button type="button" onClick={() => setASignaler(p)} className="text-xs text-gray-500 underline">Cette fiche me concerne ou contient une erreur</button>}
+                  </div>
                 </div>
+                {p.telephone && (
+                  <a href={`tel:${p.telephone.replace(/[^\d+]/g, '')}`} className="p-2 rounded-lg bg-teal-50 text-teal-600 flex-shrink-0" title="Appeler">
+                    <Phone className="w-5 h-5" />
+                  </a>
+                )}
               </div>
-              <a href={`tel:${p.phone.replace(/\s/g, '')}`} className="p-2 rounded-lg bg-teal-50 text-teal-600">
-                <Phone className="w-5 h-5" />
-              </a>
-            </div>
-          </Card>
-        ))}
-        {filtered.length === 0 && (
+            </Card>
+          );
+        })}
+        {fiches !== null && !erreur && filtered.length === 0 && (
           <Card className="p-8 text-center">
             <Users className="w-12 h-12 mx-auto mb-3 text-gray-400" />
-            <p className="text-gray-500">Aucun·e professionnel·le trouvé·e</p>
+            <p className="text-gray-700 mb-3">{toutes.length === 0 ? 'L’annuaire démarre. Recommandez le premier ou la première soignant·e.' : 'Pas de fiche pour ces filtres.'}</p>
+            {toutes.length === 0 && <Button size="sm" icon={Plus} onClick={() => setFormulaire(true)} className="mx-auto">Recommander</Button>}
           </Card>
         )}
       </div>
+
+      <Modal isOpen={formulaire} onClose={() => setFormulaire(false)} title="Recommander" size="lg">
+        <RecommandationForm onClose={() => setFormulaire(false)} onDone={fermer} />
+      </Modal>
+      <Modal isOpen={!!aSignaler} onClose={() => setASignaler(null)} title="Fiche de l’annuaire" size="md">
+        {aSignaler && <SignalementFiche fiche={aSignaler} onClose={() => setASignaler(null)} onDone={fermer} />}
+      </Modal>
     </div>
   );
 }
@@ -11442,7 +11715,7 @@ function EtatProjetPage() {
     ['Analyse de dossier', 'Aucun traitement automatique actif', 'Démonstration'],
     ['Pair-aidance', 'Profils fictifs, prise de rendez-vous fermée', 'Démonstration'],
     ['Formations', 'Catalogue fictif', 'Démonstration'],
-    ['Annuaire de professionnel·le·s', 'Entrées fictives', 'Démonstration'],
+    ['Annuaire participatif', 'Recommandations déposées par le public, publiées avec la mention « Validé par l’équipe » ou « En attente de vérification »', 'Alpha'],
   ];
   const Liste = ({ items }) => (
     <div className="divide-y border rounded-2xl">
@@ -12559,6 +12832,7 @@ function ModerationPage({ integre }) {
   if (integre === 'tableau') return cadre(<TableauDeBord recits={tousRecits} stats={realStats} dateFr={dateFr} ouvrir={(n) => { setView('admin-reports'); }} />, true);
   if (integre === 'referentiels') return cadre(estAdmin ? <AdminReferentiels signaler={setMsg} /> : <p className="text-sm text-gray-600">Réservé aux administrateur·rice·s.</p>, true);
   if (integre === 'questions') return cadre(<AdminQuestions signaler={setMsg} />, true);
+  if (integre === 'annuaire') return cadre(<AdminAnnuaire signaler={setMsg} />, true);
   if (integre === 'acces') return cadre(estAdmin ? <><AdminAcces signaler={setMsg} dateFr={dateFr} />{carteNda}</> : <p className="text-sm text-gray-600">Réservé aux administrateur·rice·s.</p>, true);
   if (integre === 'moderation') return cadre(panneauModeration, true);
   if (integre) return cadre(<p className="text-sm text-gray-600">Section inconnue.</p>, true);
@@ -12773,7 +13047,13 @@ const PRIVACY_SECTIONS = [
     'Les membres de l’équipe qui se connectent à l’espace de modération ont une session d’authentification conservée dans leur navigateur (jeton Supabase), protégée par mot de passe et second facteur. Cela ne concerne pas les personnes qui témoignent.',
   ]},
   { title: '12. Données de démonstration', body: [
-    'Pendant la phase alpha, les évaluations d’établissements, les compteurs d’ensemble et l’annuaire présentés sur le site sont des données de démonstration, fictives, destinées à illustrer le fonctionnement. Elles sont signalées comme telles et peuvent être masquées avec la case « Afficher les données de démonstration » du bandeau. Les signalements que vous envoyez, eux, sont réels et traités comme décrit ci-dessus.',
+    'Pendant la phase alpha, les évaluations d’établissements, les compteurs d’ensemble et les fiches d’exemple de l’annuaire présentés sur le site sont des données de démonstration, fictives, destinées à illustrer le fonctionnement. Elles sont signalées comme telles et peuvent être masquées avec la case « Afficher les données de démonstration » du bandeau. Les signalements que vous envoyez, eux, sont réels et traités comme décrit ci-dessus.',
+  ]},
+  { title: '12c. Annuaire participatif', body: [
+    'Toute personne peut recommander un·e soignant·e ou un cabinet. La fiche contient le nom, la spécialité, la ville, le canton, les langues, un lien vers une source publique si la personne qui recommande le fournit, et les critères cochés. Les fiches ne contiennent pas de texte libre. Le numéro de téléphone proposé est conservé et s’affiche après le contrôle de l’équipe.',
+    'La fiche est publiée dès le dépôt avec la mention « En attente de vérification ». Après contrôle de l’existence de la personne et de la source, l’équipe la marque « Validé par l’équipe ». Une recommandation exprime l’expérience de personnes qui ont consulté ; elle ne certifie pas la qualité des soins.',
+    'La personne qui recommande reste anonyme : son adresse IP et son identité ne sont pas enregistrées. Pour éviter les doublons, une empreinte technique non réversible, propre à chaque fiche et impossible à relier d’une fiche à l’autre, est conservée avec la recommandation.',
+    'La personne concernée demande le retrait de sa fiche avec le lien « Cette fiche me concerne ou contient une erreur » : la fiche est masquée immédiatement et l’équipe contrôle la demande. Elle peut aussi demander la correction d’une information. Les fiches sont conservées jusqu’au retrait ou à la suppression par l’équipe.',
   ]},
   { title: '12b. Phase alpha fermée et accord de confidentialité', body: [
     'Pendant la phase alpha, l’accès au site se fait sur invitation. À la première entrée, la personne invitée lit et signe électroniquement un accord de confidentialité. Nous enregistrons alors son nom, son organisation, son adresse e-mail, son code d’invitation, la date, la version de l’accord, l’identification de son navigateur et une empreinte technique non réversible de sa connexion, uniquement pour établir l’existence de l’accord et la contacter au sujet de la phase alpha. Ces données sont conservées cinq ans après la fin de la phase alpha et ne sont jamais reliées aux témoignages.',
