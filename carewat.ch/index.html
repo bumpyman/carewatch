@@ -7436,13 +7436,31 @@ function InstitutionsView() {
 // Sources : RPC annuaire_publie (lecture), annuaire_proposer et annuaire_signaler (écriture anonyme).
 // Démonstration : cinq fiches fictives, dont deux en attente de vérification.
 // ============================================
-// Les critères décrivent l'accueil reçu par les patient·e·s, en écho aux motifs de discrimination de la plateforme
+// Les critères suivent le déroulement d'une consultation. Chacun décrit un comportement observable par la personne
+// soignée (voir « Base des critères » dans la page). Les identifiants déjà publiés restent valides.
 const CW_ANNUAIRE_GROUPES = [
-  { titre: 'Qualité de l’accueil', criteres: [
-    ['ecoute', 'Écoute sans jugement'],
-    ['interprete', 'Langue partagée ou interprète proposé'],
+  { titre: 'Premier contact et accès', criteres: [
+    ['secretariat', 'Accueil respectueux dès le secrétariat ou la réception'],
+    ['tarifs', 'Tarifs, prise en charge et délais annoncés à l’avance'],
     ['accessible', 'Locaux et soins accessibles'],
     ['precarite', 'Accueil quelle que soit la situation financière ou administrative'],
+  ] },
+  { titre: 'Communication', criteres: [
+    ['ecoute', 'Écoute sans jugement'],
+    ['temps', 'Consultation sans précipitation, retards annoncés'],
+    ['explications', 'Explications claires, compréhension vérifiée par reformulation'],
+    ['interprete', 'Langue partagée ou interprète professionnel proposé'],
+  ] },
+  { titre: 'Respect de la personne', criteres: [
+    ['consentement', 'Consentement demandé avant chaque examen ou geste, pause ou refus possible'],
+    ['intimite', 'Intimité et pudeur protégées'],
+    ['confidentialite', 'Confidentialité respectée : échanges à l’abri des regards et des oreilles'],
+    ['douleur', 'Douleur et symptômes pris au sérieux'],
+    ['proches', 'Présence d’un·e proche ou d’une personne de confiance acceptée'],
+  ] },
+  { titre: 'Décision et suivi', criteres: [
+    ['decision', 'Options, bénéfices et risques exposés, décision prise ensemble'],
+    ['suivi', 'Suite claire : résultats, prochaine étape, personne à contacter'],
   ] },
   { titre: 'Sensibilité aux discriminations', criteres: [
     ['lgbtiqa', 'Accueil des personnes LGBTIQA+'],
@@ -7462,11 +7480,11 @@ const CW_ANNUAIRE_CRITERE_LIBELLE = Object.fromEntries(CW_ANNUAIRE_CRITERES);
 const CW_ANNUAIRE_SPECIALITES = ['Médecine générale', 'Médecine interne', 'Pédiatrie', 'Gynécologie et obstétrique', 'Sage-femme', 'Psychiatrie', 'Psychologie', 'Soins infirmiers', 'Physiothérapie', 'Dentisterie', 'Dermatologie', 'Cardiologie', 'Ophtalmologie', 'Pharmacie', 'Travail social', 'Autre'];
 const CW_ANNUAIRE_LANGUES = ['FR', 'EN', 'DE', 'IT', 'ES', 'PT', 'AR'];
 const CW_ANNUAIRE_DEMO = [
-  { id: 'demo-1', nom: 'Dr Aminata Diallo', specialite: 'Médecine interne', ville: 'Genève', canton: 'GE', langues: ['FR', 'Wolof', 'EN'], source_url: null, valide: true, telephone: '+41 22 xxx xx xx', nb: 14, criteres: { ecoute: 12, interprete: 9, racisme: 7, religions: 4, voile: 3 } },
-  { id: 'demo-2', nom: 'Dr Jean-Pierre Mukendi', specialite: 'Pédiatrie', ville: 'Lausanne', canton: 'VD', langues: ['FR', 'Lingala', 'EN'], source_url: null, valide: true, telephone: '+41 21 xxx xx xx', nb: 9, criteres: { ecoute: 8, accessible: 4, interprete: 3, racisme: 2 } },
-  { id: 'demo-3', nom: 'Dre Fatou Ndiaye', specialite: 'Gynécologie et obstétrique', ville: 'Genève', canton: 'GE', langues: ['FR', 'Wolof', 'EN'], source_url: null, valide: true, telephone: '+41 22 xxx xx xx', nb: 7, criteres: { identite: 6, lgbtiqa: 5, ecoute: 5, precarite: 2 } },
-  { id: 'demo-4', nom: 'Dr Samuel Okonkwo', specialite: 'Psychiatrie', ville: 'Fribourg', canton: 'FR', langues: ['FR', 'Igbo', 'EN'], source_url: null, valide: false, telephone: null, nb: 2, criteres: { ecoute: 2, sante_mentale: 2, lgbtiqa: 1 } },
-  { id: 'demo-5', nom: 'Dre Marie-Claire Habimana', specialite: 'Médecine générale', ville: 'Neuchâtel', canton: 'NE', langues: ['FR', 'Kinyarwanda', 'EN'], source_url: null, valide: false, telephone: null, nb: 1, criteres: { precarite: 1, interprete: 1, migration: 1 } },
+  { id: 'demo-1', nom: 'Dr Aminata Diallo', specialite: 'Médecine interne', ville: 'Genève', canton: 'GE', langues: ['FR', 'Wolof', 'EN'], source_url: null, valide: true, telephone: '+41 22 xxx xx xx', nb: 14, criteres: { ecoute: 12, explications: 11, interprete: 9, temps: 8, racisme: 7, consentement: 6, religions: 4, voile: 3 } },
+  { id: 'demo-2', nom: 'Dr Jean-Pierre Mukendi', specialite: 'Pédiatrie', ville: 'Lausanne', canton: 'VD', langues: ['FR', 'Lingala', 'EN'], source_url: null, valide: true, telephone: '+41 21 xxx xx xx', nb: 9, criteres: { ecoute: 8, temps: 6, explications: 5, accessible: 4, secretariat: 3, interprete: 3, racisme: 2 } },
+  { id: 'demo-3', nom: 'Dre Fatou Ndiaye', specialite: 'Gynécologie et obstétrique', ville: 'Genève', canton: 'GE', langues: ['FR', 'Wolof', 'EN'], source_url: null, valide: true, telephone: '+41 22 xxx xx xx', nb: 7, criteres: { consentement: 7, intimite: 6, identite: 6, lgbtiqa: 5, ecoute: 5, douleur: 4, precarite: 2 } },
+  { id: 'demo-4', nom: 'Dr Samuel Okonkwo', specialite: 'Psychiatrie', ville: 'Fribourg', canton: 'FR', langues: ['FR', 'Igbo', 'EN'], source_url: null, valide: false, telephone: null, nb: 2, criteres: { ecoute: 2, sante_mentale: 2, suivi: 1, lgbtiqa: 1 } },
+  { id: 'demo-5', nom: 'Dre Marie-Claire Habimana', specialite: 'Médecine générale', ville: 'Neuchâtel', canton: 'NE', langues: ['FR', 'Kinyarwanda', 'EN'], source_url: null, valide: false, telephone: null, nb: 1, criteres: { precarite: 1, tarifs: 1, interprete: 1, migration: 1 } },
 ];
 const cwInitiales = (nom) => String(nom || '').replace(/^(docteure?|dre?|professeure?|prof|pre?|mme|madame|monsieur)\.?\s+/i, '').split(/\s+/).filter(Boolean).slice(0, 2).map(m => m[0].toUpperCase()).join('');
 const cwAnnuaireErreur = (e) => /schema cache|could not find the function/i.test((e && e.message) || '') ? 'L’annuaire participatif ouvrira après la prochaine mise à jour de la base.' : cwTraduireErreur(e);
@@ -7536,7 +7554,7 @@ function RecommandationForm({ onClose, onDone }) {
       </div>
       <div>
         <p className="text-sm font-semibold text-gray-800 mb-1">Ce que vous recommandez<span className="text-rose-500 ml-1 font-bold">*</span></p>
-        <p className="text-xs text-gray-500 mb-3">Les critères décrivent l’accueil que vous avez reçu. Cochez tout ce qui s’applique.</p>
+        <p className="text-xs text-gray-500 mb-3">Les critères décrivent l’accueil que vous avez reçu, de la prise de rendez-vous au suivi. Cochez tout ce qui s’applique, un seul critère suffit ({d.criteres.length} coché{d.criteres.length > 1 ? 's' : ''}).</p>
         {CW_ANNUAIRE_GROUPES.map(g => (
           <div key={g.titre} className="mb-3">
             <p className="text-xs font-semibold text-gray-500 mb-1.5">{g.titre}</p>
@@ -7656,7 +7674,13 @@ function DirectoryView() {
         </div>
         <Select value={selectedCanton} onChange={setSelectedCanton} options={DB.cantons.map(c => ({ value: c, label: DB.cantonNames[c] }))} placeholder="Canton" className="min-w-[8rem] flex-shrink-0" />
       </div>
-      <Select value={critere} onChange={setCritere} options={CW_ANNUAIRE_CRITERES.map(([value, label]) => ({ value, label }))} placeholder="Tous les critères : LGBTIQA+, religions, racisme…" className="mb-3" />
+      <div className="relative mb-3">
+        <select value={critere} onChange={e => setCritere(e.target.value)} aria-label="Critère" className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 hover:border-gray-300 focus:border-teal-500 outline-none bg-white appearance-none cursor-pointer pr-10 font-medium text-gray-700 shadow-sm">
+          <option value="">Tous les critères : accueil, LGBTIQA+, religions, racisme…</option>
+          {CW_ANNUAIRE_GROUPES.map(g => <optgroup key={g.titre} label={g.titre}>{g.criteres.map(([id, libelle]) => <option key={id} value={id}>{libelle}</option>)}</optgroup>)}
+        </select>
+        <ChevronDown className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
+      </div>
       <div className="flex flex-wrap items-center justify-between gap-2 mb-5">
         <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer"><input type="checkbox" checked={valideSeul} onChange={e => setValideSeul(e.target.checked)} /> Fiches validées seulement</label>
         {fiches !== null && !erreur && <span className="text-xs text-gray-500">{toutes.length} fiche{toutes.length > 1 ? 's' : ''}, dont {nbValides} validée{nbValides > 1 ? 's' : ''}</span>}
@@ -7704,6 +7728,35 @@ function DirectoryView() {
           </Card>
         )}
       </div>
+
+      <Card className="p-4 mt-6">
+        <details>
+          <summary className="cursor-pointer font-semibold text-sm text-gray-800">Base des critères</summary>
+          <div className="mt-3 text-sm text-gray-700 space-y-3">
+            <p>Les critères suivent le déroulement d’une consultation : premier contact, communication, respect de la personne, décision et suivi. Chacun décrit un comportement observable par la personne soignée et s’appuie sur un cadre publié de l’accueil centré sur la personne.</p>
+            <ul className="list-disc pl-6 space-y-1.5">
+              <li><span className="font-semibold">Premier contact et accès.</span> L’accès et l’équité figurent parmi les six objectifs de qualité de l’Institute of Medicine (2001) et parmi les huit dimensions de Picker (Gerteis et al., 1993).</li>
+              <li><span className="font-semibold">Communication.</span> Information et communication (Gerteis et al., 1993). Reformulation par la personne pour vérifier la compréhension, ou teach-back (AHRQ, 2015). Les études recensées par Flores (2005) associent les interprètes formés à moins d’erreurs et à de meilleurs résultats.</li>
+              <li><span className="font-semibold">Respect de la personne.</span> Respect des valeurs et des besoins exprimés, confort physique, soutien émotionnel et place des proches (Gerteis et al., 1993). Consentement et respect pendant les soins (OMS, 2014, pour l’accouchement). Sécurité, transparence et choix laissé à la personne dans l’approche tenant compte des traumatismes (SAMHSA, 2014). Écarts d’évaluation de la douleur et de recommandation de traitement selon l’origine du patient, documentés y compris chez des étudiant·e·s en médecine et des résident·e·s (Hoffman et al., 2016).</li>
+              <li><span className="font-semibold">Décision et suivi.</span> Décision partagée en trois temps : choix, options, décision (Elwyn et al., 2012). Continuité et transition (Gerteis et al., 1993).</li>
+              <li><span className="font-semibold">Sensibilité aux discriminations.</span> Humilité culturelle : auto-évaluation continue et réduction des déséquilibres de pouvoir entre soignant·e et patient·e (Tervalon et Murray-García, 1998). Les motifs sont ceux de la plateforme.</li>
+            </ul>
+            <p className="text-xs text-gray-600">Les critères cochés expriment l’expérience de personnes qui ont consulté. Le baromètre d’expérience mesure, avec l’échelle DMS, la fréquence des traitements discriminatoires.</p>
+            <p className="font-semibold">Références</p>
+            <ol className="pl-6 space-y-1 text-xs text-gray-600" style={{ listStyleType: 'decimal' }}>
+              <li>Agency for Healthcare Research and Quality. Health Literacy Universal Precautions Toolkit, 2nd ed. AHRQ Publication No. 15-0023-EF, 2015.</li>
+              <li>Elwyn G, Frosch D, Thomson R, et al. Shared decision making: a model for clinical practice. J Gen Intern Med 2012;27(10):1361-1367.</li>
+              <li>Flores G. The impact of medical interpreter services on the quality of health care: a systematic review. Med Care Res Rev 2005;62(3):255-299.</li>
+              <li>Gerteis M, Edgman-Levitan S, Daley J, Delbanco TL, eds. Through the Patient’s Eyes: Understanding and Promoting Patient-Centered Care. San Francisco: Jossey-Bass; 1993.</li>
+              <li>Hoffman KM, Trawalter S, Axt JR, Oliver MN. Racial bias in pain assessment and treatment recommendations, and false beliefs about biological differences between blacks and whites. Proc Natl Acad Sci USA 2016;113(16):4296-4301.</li>
+              <li>Institute of Medicine. Crossing the Quality Chasm: A New Health System for the 21st Century. Washington, DC: National Academy Press; 2001.</li>
+              <li>Substance Abuse and Mental Health Services Administration. SAMHSA’s Concept of Trauma and Guidance for a Trauma-Informed Approach. HHS Publication No. (SMA) 14-4884; 2014.</li>
+              <li>Tervalon M, Murray-García J. Cultural humility versus cultural competence: a critical distinction in defining physician training outcomes in multicultural education. J Health Care Poor Underserved 1998;9(2):117-125.</li>
+              <li>World Health Organization. The prevention and elimination of disrespect and abuse during facility-based childbirth. WHO/RHR/14.23; 2014.</li>
+            </ol>
+          </div>
+        </details>
+      </Card>
 
       <Modal isOpen={formulaire} onClose={() => setFormulaire(false)} title="Recommander" size="lg">
         <RecommandationForm onClose={() => setFormulaire(false)} onDone={fermer} />
@@ -13074,7 +13127,7 @@ const PRIVACY_SECTIONS = [
     'Pendant la phase alpha, les évaluations d’établissements, les compteurs d’ensemble et les fiches d’exemple de l’annuaire présentés sur le site sont des données de démonstration, fictives, destinées à illustrer le fonctionnement. Elles sont signalées comme telles et peuvent être masquées avec la case « Afficher les données de démonstration » du bandeau. Les signalements que vous envoyez, eux, sont réels et traités comme décrit ci-dessus.',
   ]},
   { title: '12c. Annuaire participatif', body: [
-    'Toute personne peut recommander un·e soignant·e ou un cabinet. La fiche contient le nom, la spécialité, la ville, le canton, les langues, un lien vers une source publique si la personne qui recommande le fournit, et les critères cochés. Les critères décrivent l’accueil que reçoivent les patient·e·s : écoute, langue, accessibilité, attention aux discriminations (racisme, religions, orientation sexuelle, identité de genre, handicap, entre autres). Les informations personnelles du ou de la soignant·e sur sa religion, son orientation ou son origine restent hors des fiches, et l’équipe retire toute fiche qui en contient. Les fiches ne contiennent pas de texte libre. Le numéro de téléphone proposé est conservé et s’affiche après le contrôle de l’équipe.',
+    'Toute personne peut recommander un·e soignant·e ou un cabinet. La fiche contient le nom, la spécialité, la ville, le canton, les langues, un lien vers une source publique si la personne qui recommande le fournit, et les critères cochés. Les critères décrivent l’accueil que reçoivent les patient·e·s tout au long de la consultation (premier contact, communication, respect de la personne, décision et suivi) et l’attention portée aux discriminations (racisme, religions, orientation sexuelle, identité de genre, handicap, entre autres). Les informations personnelles du ou de la soignant·e sur sa religion, son orientation ou son origine restent hors des fiches, et l’équipe retire toute fiche qui en contient. Les fiches ne contiennent pas de texte libre. Le numéro de téléphone proposé est conservé et s’affiche après le contrôle de l’équipe.',
     'La fiche est publiée dès le dépôt avec la mention « En attente de vérification ». Après contrôle de l’existence de la personne et de la source, l’équipe la marque « Validé par l’équipe ». Une recommandation exprime l’expérience de personnes qui ont consulté ; elle ne certifie pas la qualité des soins.',
     'La personne qui recommande reste anonyme : son adresse IP et son identité ne sont pas enregistrées. Pour éviter les doublons, une empreinte technique non réversible, propre à chaque fiche et impossible à relier d’une fiche à l’autre, est conservée avec la recommandation.',
     'La personne concernée demande le retrait de sa fiche avec le lien « Cette fiche me concerne ou contient une erreur » : la fiche est masquée immédiatement et l’équipe contrôle la demande. Elle peut aussi demander la correction d’une information. Les fiches sont conservées jusqu’au retrait ou à la suppression par l’équipe.',

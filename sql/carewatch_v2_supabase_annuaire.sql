@@ -6,9 +6,10 @@
 --
 -- Règles de publication
 --   · Recommandations positives uniquement, sous forme de critères cochés. Aucun texte libre n'est publié.
---     Les critères décrivent l'accueil reçu par les patient·e·s : écoute, langue, accessibilité, précarité,
---     LGBTIQA+, identité de genre, racisme, religions, voile, migration, handicap, santé mentale, poids,
---     maladie chronique. Ils ne décrivent jamais l'identité du ou de la soignant·e.
+--     Les critères décrivent l'accueil reçu par les patient·e·s tout au long de la consultation (premier contact,
+--     communication, respect de la personne, décision et suivi) et l'attention portée aux discriminations
+--     (LGBTIQA+, identité de genre, racisme, religions, voile, migration, handicap, santé mentale, poids,
+--     maladie chronique). Ils ne décrivent jamais l'identité du ou de la soignant·e.
 --   · Le téléphone proposé reste en base et ne s'affiche qu'après validation par l'équipe.
 --   · La personne concernée retire sa fiche en un clic (« Cette fiche me concerne ») ; la fiche est
 --     masquée aussitôt et la modération contrôle la demande ensuite.
@@ -82,8 +83,17 @@ $$;
 -- 2b. Critères admis ; la liste est lue par annuaire_proposer et reste modifiable à un seul endroit
 create or replace function public.cw_criteres_annuaire()
 returns text[] language sql immutable as $$
-  select array['ecoute', 'interprete', 'accessible', 'precarite',
-               'lgbtiqa', 'identite', 'racisme', 'religions', 'voile', 'migration', 'handicap', 'sante_mentale', 'poids', 'chronique'];
+  select array[
+    -- premier contact et accès
+    'secretariat', 'tarifs', 'accessible', 'precarite',
+    -- communication
+    'ecoute', 'temps', 'explications', 'interprete',
+    -- respect de la personne
+    'consentement', 'intimite', 'confidentialite', 'douleur', 'proches',
+    -- décision et suivi
+    'decision', 'suivi',
+    -- sensibilité aux discriminations
+    'lgbtiqa', 'identite', 'racisme', 'religions', 'voile', 'migration', 'handicap', 'sante_mentale', 'poids', 'chronique'];
 $$;
 
 -- 3. Recommander (public, anonyme) --------------------------------------------
