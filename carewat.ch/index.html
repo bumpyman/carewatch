@@ -5764,13 +5764,25 @@ function AdminAnnuaire({ signaler }) {
     charger();
   };
   if (liste === null) return <p className="text-sm text-gray-500">Chargement…</p>;
-  const motifs = { concerne: 'Retrait demandé par la personne concernée', erreur: 'Information erronée', autre: 'Autre raison' };
+  const motifs = { concerne: 'Retrait demandé par la personne concernée', erreur: 'Information erronée', formation: 'Demande d’attestation de formation', autre: 'Autre raison' };
   const champ = 'w-full px-3 py-2 rounded-xl border-2 border-gray-200 focus:border-teal-500 focus:outline-none text-sm';
-  const Bloc = ({ x }) => {
+  const champCourt = 'flex-1 min-w-0 px-3 py-2 rounded-xl border-2 border-gray-200 focus:border-teal-500 focus:outline-none text-sm';
+  const ecrireFormation = async (op, p) => {
+    setBusy(true);
+    const { data, error } = await window.cwDb.rpc('admin_annuaire_formation', { p_op: op, p });
+    setBusy(false);
+    if (error || !data || !data.ok) { signaler('Refusé : ' + ((error && error.message) || '')); return; }
+    setBrouillons(prev => Object.fromEntries(Object.entries(prev).filter(([k]) => !/^(f|nf):/.test(k))));
+    charger();
+  };
+  // Fonction de rendu appelée directement : un composant défini ici serait recréé à chaque frappe et ferait perdre le focus aux champs
+  const bloc = (x) => {
     const b = brouillons[x.id] || { nom: x.nom, specialite: x.specialite, ville: x.ville, source_url: x.source_url || '', telephone: x.telephone || '' };
     const maj = (k, v) => setBrouillons(p => ({ ...p, [x.id]: { ...b, [k]: v } }));
     const donnees = { nom: b.nom, specialite: b.specialite, ville: b.ville, source_url: b.source_url, telephone: b.telephone };
     const criteres = Object.entries(x.criteres || {}).sort((a, c) => c[1] - a[1]);
+    const nf = brouillons['nf:' + x.id] || { theme: '', organisme: '', annee: '', preuve_url: '' };
+    const majNf = (k, v) => setBrouillons(p => ({ ...p, ['nf:' + x.id]: { ...nf, [k]: v } }));
     return (
       <Card className="p-4">
         <div className="flex flex-wrap items-center gap-2 mb-2">
@@ -5788,6 +5800,35 @@ function AdminAnnuaire({ signaler }) {
             ))}
           </div>
         )}
+        <div className="mb-3">
+          <p className="text-xs font-semibold text-gray-500 mb-1.5">Formations à l’accueil et aux discriminations</p>
+          {(x.formations || []).length === 0 && <p className="text-xs text-gray-500 mb-2">Pas de formation signalée.</p>}
+          {(x.formations || []).map(fo => {
+            const cle = 'f:' + fo.id;
+            const preuve = brouillons[cle] !== undefined ? brouillons[cle] : (fo.preuve_url || '');
+            return (
+              <div key={fo.id} className="flex flex-wrap items-center gap-2 mb-2">
+                {fo.attestee ? <span className="px-2 py-0.5 rounded text-xs bg-emerald-100 text-emerald-800">Attestée</span> : <span className="px-2 py-0.5 rounded text-xs bg-amber-100 text-amber-800">Signalée par {fo.mentions}</span>}
+                <span className="text-sm text-gray-800">{cwFormationTexte(fo)}</span>
+                <input value={preuve} onChange={e => setBrouillons(p => ({ ...p, [cle]: e.target.value }))} placeholder="Preuve : lien https (facultatif)" className={champCourt} />
+                {!fo.attestee
+                  ? <Button size="sm" onClick={() => ecrireFormation('attester', { formation_id: fo.id, preuve_url: preuve })} disabled={busy}>Attester</Button>
+                  : <Button size="sm" variant="secondary" onClick={() => ecrireFormation('desattester', { formation_id: fo.id })} disabled={busy}>Retirer l’attestation</Button>}
+                <Button size="sm" variant="ghost" onClick={() => { if (window.confirm('Supprimer cette formation de la fiche ?')) ecrireFormation('supprimer', { formation_id: fo.id }); }} disabled={busy}>Supprimer</Button>
+              </div>
+            );
+          })}
+          <div className="grid sm:grid-cols-2 gap-2 mt-2">
+            <select value={nf.theme} onChange={e => majNf('theme', e.target.value)} className={champ}>
+              <option value="">Ajouter une formation attestée : thème</option>
+              {CW_ANNUAIRE_THEMES_FORMATION.map(([id, libelle]) => <option key={id} value={id}>{libelle}</option>)}
+            </select>
+            <input value={nf.organisme} onChange={e => majNf('organisme', e.target.value)} placeholder="Organisme" className={champ} />
+            <input value={nf.annee} onChange={e => majNf('annee', e.target.value)} placeholder="Année" className={champ} />
+            <input value={nf.preuve_url} onChange={e => majNf('preuve_url', e.target.value)} placeholder="Preuve : lien https (facultatif)" className={champ} />
+          </div>
+          <div className="mt-2"><Button size="sm" variant="secondary" onClick={() => ecrireFormation('ajouter', { fiche_id: x.id, ...nf })} disabled={busy || !nf.theme}>Ajouter la formation</Button></div>
+        </div>
         <div className="grid sm:grid-cols-2 gap-2 mb-3">
           <div><label className="block text-xs font-semibold text-gray-500 mb-1">Nom</label><input value={b.nom} onChange={e => maj('nom', e.target.value)} className={champ} /></div>
           <div><label className="block text-xs font-semibold text-gray-500 mb-1">Spécialité</label><input value={b.specialite} onChange={e => maj('specialite', e.target.value)} className={champ} /></div>
@@ -5810,10 +5851,10 @@ function AdminAnnuaire({ signaler }) {
   return (
     <div className="space-y-4">
       <h2 className="font-semibold">Fiches à contrôler{aTraiter.length ? ` (${aTraiter.length})` : ''}</h2>
-      <p className="text-sm text-gray-600">Les fiches sont publiées dès le dépôt, avec la mention « En attente de vérification ». Valider confirme l’existence de la personne et la source, et affiche le téléphone. Une demande de retrait masque la fiche immédiatement ; restaurez-la si la demande ne vient pas de la personne concernée. Les critères décrivent l’accueil des patient·e·s ; corrigez ou masquez toute fiche dont le nom ou la spécialité indique la religion, l’orientation ou l’origine du ou de la soignant·e.</p>
+      <p className="text-sm text-gray-600">Les fiches sont publiées dès le dépôt, avec la mention « En attente de vérification ». Valider confirme l’existence de la personne et la source, et affiche le téléphone. Une demande de retrait masque la fiche immédiatement ; restaurez-la si la demande ne vient pas de la personne concernée. Les critères décrivent l’accueil des patient·e·s ; corrigez ou masquez toute fiche dont le nom ou la spécialité indique la religion, l’orientation ou l’origine du ou de la soignant·e. Une formation reste « signalée » jusqu’à l’attestation, par un lien ou par un courriel de l’organisme ; supprimez-la si elle ne peut pas être vérifiée.</p>
       {aTraiter.length === 0 && <p className="text-sm text-gray-500">Tout est contrôlé.</p>}
-      {aTraiter.map(x => <Bloc key={x.id} x={x} />)}
-      {traitees.length > 0 && <><h2 className="font-semibold mt-6">Fiches validées ({traitees.length})</h2>{traitees.map(x => <Bloc key={x.id} x={x} />)}</>}
+      {aTraiter.map(x => <div key={x.id}>{bloc(x)}</div>)}
+      {traitees.length > 0 && <><h2 className="font-semibold mt-6">Fiches validées ({traitees.length})</h2>{traitees.map(x => <div key={x.id}>{bloc(x)}</div>)}</>}
     </div>
   );
 }
@@ -7479,12 +7520,28 @@ const CW_ANNUAIRE_CRITERES = CW_ANNUAIRE_GROUPES.flatMap(g => g.criteres);
 const CW_ANNUAIRE_CRITERE_LIBELLE = Object.fromEntries(CW_ANNUAIRE_CRITERES);
 const CW_ANNUAIRE_SPECIALITES = ['Médecine générale', 'Médecine interne', 'Pédiatrie', 'Gynécologie et obstétrique', 'Sage-femme', 'Psychiatrie', 'Psychologie', 'Soins infirmiers', 'Physiothérapie', 'Dentisterie', 'Dermatologie', 'Cardiologie', 'Ophtalmologie', 'Pharmacie', 'Travail social', 'Autre'];
 const CW_ANNUAIRE_LANGUES = ['FR', 'EN', 'DE', 'IT', 'ES', 'PT', 'AR'];
+// Formations à l'accueil et aux discriminations : signalées par le public, attestées par l'équipe.
+// Les mêmes neuf thèmes servent le catalogue « Formations ».
+const CW_ANNUAIRE_THEMES_FORMATION = [
+  ['accueil', 'Accueil et communication avec les patient·e·s'],
+  ['discriminations', 'Biais, micro-agressions et discriminations'],
+  ['racisme', 'Racisme et discriminations liées à l’origine'],
+  ['lgbtiqa', 'Santé des personnes LGBTIQA+'],
+  ['interculturel', 'Communication interculturelle et interprétariat'],
+  ['migration', 'Santé des personnes migrantes et de l’asile'],
+  ['religions', 'Diversité religieuse et soins'],
+  ['handicap', 'Accueil des personnes en situation de handicap'],
+  ['trauma', 'Approche tenant compte des traumatismes'],
+];
+const CW_ANNUAIRE_THEME_LIBELLE = Object.fromEntries(CW_ANNUAIRE_THEMES_FORMATION);
+const cwFormationTexte = (fo) => [CW_ANNUAIRE_THEME_LIBELLE[fo.theme] || fo.theme, fo.organisme, fo.annee].filter(Boolean).join(' · ');
+const cwFormationAttestee = (p, theme) => (p.formations || []).some(fo => fo.theme === theme && fo.attestee);
 const CW_ANNUAIRE_DEMO = [
-  { id: 'demo-1', nom: 'Dr Aminata Diallo', specialite: 'Médecine interne', ville: 'Genève', canton: 'GE', langues: ['FR', 'Wolof', 'EN'], source_url: null, valide: true, telephone: '+41 22 xxx xx xx', nb: 14, criteres: { ecoute: 12, explications: 11, interprete: 9, temps: 8, racisme: 7, consentement: 6, religions: 4, voile: 3 } },
-  { id: 'demo-2', nom: 'Dr Jean-Pierre Mukendi', specialite: 'Pédiatrie', ville: 'Lausanne', canton: 'VD', langues: ['FR', 'Lingala', 'EN'], source_url: null, valide: true, telephone: '+41 21 xxx xx xx', nb: 9, criteres: { ecoute: 8, temps: 6, explications: 5, accessible: 4, secretariat: 3, interprete: 3, racisme: 2 } },
-  { id: 'demo-3', nom: 'Dre Fatou Ndiaye', specialite: 'Gynécologie et obstétrique', ville: 'Genève', canton: 'GE', langues: ['FR', 'Wolof', 'EN'], source_url: null, valide: true, telephone: '+41 22 xxx xx xx', nb: 7, criteres: { consentement: 7, intimite: 6, identite: 6, lgbtiqa: 5, ecoute: 5, douleur: 4, precarite: 2 } },
-  { id: 'demo-4', nom: 'Dr Samuel Okonkwo', specialite: 'Psychiatrie', ville: 'Fribourg', canton: 'FR', langues: ['FR', 'Igbo', 'EN'], source_url: null, valide: false, telephone: null, nb: 2, criteres: { ecoute: 2, sante_mentale: 2, suivi: 1, lgbtiqa: 1 } },
-  { id: 'demo-5', nom: 'Dre Marie-Claire Habimana', specialite: 'Médecine générale', ville: 'Neuchâtel', canton: 'NE', langues: ['FR', 'Kinyarwanda', 'EN'], source_url: null, valide: false, telephone: null, nb: 1, criteres: { precarite: 1, tarifs: 1, interprete: 1, migration: 1 } },
+  { id: 'demo-1', nom: 'Dr Aminata Diallo', specialite: 'Médecine interne', ville: 'Genève', canton: 'GE', langues: ['FR', 'Wolof', 'EN'], source_url: null, valide: true, telephone: '+41 22 xxx xx xx', nb: 14, criteres: { ecoute: 12, explications: 11, interprete: 9, temps: 8, racisme: 7, consentement: 6, religions: 4, voile: 3 }, formations: [{ id: 'df1', theme: 'accueil', organisme: 'Haute école partenaire', annee: 2025, attestee: true, mentions: 3, preuve_url: null }, { id: 'df2', theme: 'racisme', organisme: 'Association partenaire', annee: 2024, attestee: true, mentions: 2, preuve_url: null }] },
+  { id: 'demo-2', nom: 'Dr Jean-Pierre Mukendi', specialite: 'Pédiatrie', ville: 'Lausanne', canton: 'VD', langues: ['FR', 'Lingala', 'EN'], source_url: null, valide: true, telephone: '+41 21 xxx xx xx', nb: 9, criteres: { ecoute: 8, temps: 6, explications: 5, accessible: 4, secretariat: 3, interprete: 3, racisme: 2 }, formations: [{ id: 'df3', theme: 'interculturel', organisme: 'Haute école partenaire', annee: 2023, attestee: true, mentions: 1, preuve_url: null }] },
+  { id: 'demo-3', nom: 'Dre Fatou Ndiaye', specialite: 'Gynécologie et obstétrique', ville: 'Genève', canton: 'GE', langues: ['FR', 'Wolof', 'EN'], source_url: null, valide: true, telephone: '+41 22 xxx xx xx', nb: 7, criteres: { consentement: 7, intimite: 6, identite: 6, lgbtiqa: 5, ecoute: 5, douleur: 4, precarite: 2 }, formations: [{ id: 'df4', theme: 'trauma', organisme: 'Haute école partenaire', annee: 2025, attestee: true, mentions: 2, preuve_url: null }, { id: 'df5', theme: 'lgbtiqa', organisme: 'Association partenaire', annee: 2025, attestee: false, mentions: 2, preuve_url: null }] },
+  { id: 'demo-4', nom: 'Dr Samuel Okonkwo', specialite: 'Psychiatrie', ville: 'Fribourg', canton: 'FR', langues: ['FR', 'Igbo', 'EN'], source_url: null, valide: false, telephone: null, nb: 2, criteres: { ecoute: 2, sante_mentale: 2, suivi: 1, lgbtiqa: 1 }, formations: [] },
+  { id: 'demo-5', nom: 'Dre Marie-Claire Habimana', specialite: 'Médecine générale', ville: 'Neuchâtel', canton: 'NE', langues: ['FR', 'Kinyarwanda', 'EN'], source_url: null, valide: false, telephone: null, nb: 1, criteres: { precarite: 1, tarifs: 1, interprete: 1, migration: 1 }, formations: [{ id: 'df6', theme: 'accueil', organisme: null, annee: null, attestee: false, mentions: 1, preuve_url: null }] },
 ];
 const cwInitiales = (nom) => String(nom || '').replace(/^(docteure?|dre?|professeure?|prof|pre?|mme|madame|monsieur)\.?\s+/i, '').split(/\s+/).filter(Boolean).slice(0, 2).map(m => m[0].toUpperCase()).join('');
 const cwAnnuaireErreur = (e) => /schema cache|could not find the function/i.test((e && e.message) || '') ? 'L’annuaire participatif ouvrira après la prochaine mise à jour de la base.' : cwTraduireErreur(e);
@@ -7495,7 +7552,7 @@ const BadgeFiche = ({ valide }) => valide
 
 function RecommandationForm({ onClose, onDone }) {
   const { DB, showDemo } = useApp();
-  const [d, setD] = useState({ nom: '', specialite: '', autre: '', ville: '', canton: '', langues: [], autresLangues: '', criteres: [], source: '', telephone: '', consentement: false });
+  const [d, setD] = useState({ nom: '', specialite: '', autre: '', ville: '', canton: '', langues: [], autresLangues: '', criteres: [], source: '', telephone: '', fTheme: '', fOrganisme: '', fAnnee: '', consentement: false });
   const [busy, setBusy] = useState(false);
   const [erreur, setErreur] = useState('');
   const [resultat, setResultat] = useState(null);
@@ -7507,6 +7564,7 @@ function RecommandationForm({ onClose, onDone }) {
     if (d.ville.trim().length < 2) m.push('la ville');
     if (!d.canton) m.push('le canton');
     if (d.criteres.length === 0) m.push('un critère');
+    if (d.fTheme && d.fAnnee.trim() && !/^\d{4}$/.test(d.fAnnee.trim())) m.push('l’année de la formation (quatre chiffres)');
     if (!d.consentement) m.push('la confirmation');
     return m;
   };
@@ -7515,7 +7573,7 @@ function RecommandationForm({ onClose, onDone }) {
     setBusy(true); setErreur('');
     const langues = [...d.langues, ...d.autresLangues.split(',').map(x => x.trim()).filter(Boolean)];
     let data = null, error = null;
-    try { ({ data, error } = await window.cwDb.rpc('annuaire_proposer', { p: { nom: d.nom.trim(), specialite, ville: d.ville.trim(), canton: d.canton, langues, criteres: d.criteres, source_url: d.source.trim(), telephone: d.telephone.trim(), consentement: d.consentement ? 'true' : 'false' } })); } catch (ex) { error = ex; }
+    try { ({ data, error } = await window.cwDb.rpc('annuaire_proposer', { p: { nom: d.nom.trim(), specialite, ville: d.ville.trim(), canton: d.canton, langues, criteres: d.criteres, formation: d.fTheme ? { theme: d.fTheme, organisme: d.fOrganisme.trim(), annee: d.fAnnee.trim() } : null, source_url: d.source.trim(), telephone: d.telephone.trim(), consentement: d.consentement ? 'true' : 'false' } })); } catch (ex) { error = ex; }
     setBusy(false);
     if (error) { setErreur(cwAnnuaireErreur(error)); return; }
     if (!data || !data.ok) { setErreur((data && data.erreur) || 'Envoi impossible pour l’instant.'); return; }
@@ -7531,6 +7589,7 @@ function RecommandationForm({ onClose, onDone }) {
             : resultat.nouvelle ? 'La fiche est publiée avec la mention « En attente de vérification ». L’équipe contrôle l’existence et la source, puis la marque « Validé par l’équipe ».'
             : 'Votre recommandation s’ajoute à la fiche existante, en attente de vérification.'}
         </p>
+        {resultat.formation && !resultat.deja && <p className="text-sm text-gray-700 mb-3">La formation indiquée s’affiche « signalée » jusqu’à l’attestation par l’équipe.</p>}
         {showDemo && <p className="text-sm text-amber-800 mb-3">Les données de démonstration sont affichées : décochez la case du bandeau sur l’accueil pour retrouver la fiche dans l’annuaire réel.</p>}
         <Button onClick={onDone}>Fermer</Button>
       </div>
@@ -7566,6 +7625,17 @@ function RecommandationForm({ onClose, onDone }) {
           </div>
         ))}
       </div>
+      <div>
+        <p className="text-sm font-semibold text-gray-800 mb-1">Formation suivie (facultatif)</p>
+        <p className="text-xs text-gray-500 mb-3">Une formation à l’accueil ou aux discriminations que vous connaissez s’affiche « signalée » sur la fiche. L’équipe la marque « attestée » après avoir vu l’attestation.</p>
+        <Select value={d.fTheme} onChange={v => setD({ ...d, fTheme: v })} options={CW_ANNUAIRE_THEMES_FORMATION.map(([value, label]) => ({ value, label }))} placeholder="Thème de la formation" className="mb-3" />
+        {d.fTheme && (
+          <div className="grid sm:grid-cols-2 gap-3">
+            <Input value={d.fOrganisme} onChange={v => setD({ ...d, fOrganisme: v })} placeholder="Organisme, si vous le connaissez" />
+            <Input value={d.fAnnee} onChange={v => setD({ ...d, fAnnee: v })} placeholder="Année, par exemple 2025" />
+          </div>
+        )}
+      </div>
       <Input label="Lien vers une source publique (facultatif)" value={d.source} onChange={v => setD({ ...d, source: v })} placeholder="https://… site du cabinet, registre des professions médicales" />
       <Input label="Téléphone du cabinet (facultatif)" value={d.telephone} onChange={v => setD({ ...d, telephone: v })} placeholder="+41 22 000 00 00" />
       <label className="flex items-start gap-3 text-sm text-gray-700 cursor-pointer"><input type="checkbox" checked={d.consentement} onChange={e => setD({ ...d, consentement: e.target.checked })} className="mt-1 flex-shrink-0" /> Je recommande cette personne d’après mon expérience ou celle d’un·e proche. Je sais que la personne concernée peut demander le retrait de sa fiche.</label>
@@ -7599,7 +7669,7 @@ function SignalementFiche({ fiche, onClose, onDone }) {
     return (
       <div>
         <h3 className="font-semibold text-gray-900 mb-2">Demande enregistrée.</h3>
-        <p className="text-sm text-gray-700 mb-3">{resultat.masquee ? 'La fiche est retirée de l’annuaire dès maintenant. L’équipe contrôle votre demande.' : 'L’équipe examine la fiche et corrige l’information signalée.'}</p>
+        <p className="text-sm text-gray-700 mb-3">{resultat.masquee ? 'La fiche est retirée de l’annuaire dès maintenant. L’équipe contrôle votre demande.' : motif === 'formation' ? 'L’équipe vous écrit pour obtenir l’attestation de la formation.' : 'L’équipe examine la fiche et corrige l’information signalée.'}</p>
         <Button onClick={onDone}>Fermer</Button>
       </div>
     );
@@ -7607,26 +7677,28 @@ function SignalementFiche({ fiche, onClose, onDone }) {
   return (
     <div className="space-y-4">
       <p className="text-sm text-gray-700"><span className="font-semibold">{fiche.nom}</span>, {fiche.specialite}, {fiche.ville}</p>
-      <Select label="Motif" value={motif} onChange={setMotif} options={[{ value: 'concerne', label: 'Cette fiche me concerne et je demande son retrait' }, { value: 'erreur', label: 'Une information est erronée' }, { value: 'autre', label: 'Autre raison' }]} required />
+      <Select label="Motif" value={motif} onChange={setMotif} options={[{ value: 'concerne', label: 'Cette fiche me concerne et je demande son retrait' }, { value: 'erreur', label: 'Une information est erronée' }, { value: 'formation', label: 'Je suis cette personne et je souhaite faire attester une formation' }, { value: 'autre', label: 'Autre raison' }]} required />
       <TextArea label="Précisions (facultatif)" value={detail} onChange={setDetail} rows={3} maxLength={500} />
-      <Input label="Courriel pour vous répondre (facultatif)" type="email" value={contact} onChange={setContact} />
+      <Input label={motif === 'formation' ? 'Courriel (obligatoire pour une attestation)' : 'Courriel pour vous répondre (facultatif)'} type="email" value={contact} onChange={setContact} />
+      {motif === 'formation' && <p className="text-xs text-gray-600">L’équipe vous écrit pour obtenir l’attestation : thème, organisme et année de la formation.</p>}
       {erreur && <p className="text-sm text-rose-700">{erreur}</p>}
       <div className="flex justify-between gap-2">
         <Button variant="outline" onClick={onClose}>Annuler</Button>
-        <Button onClick={envoyer} disabled={busy || !motif}>{busy ? 'Envoi…' : 'Envoyer'}</Button>
+        <Button onClick={envoyer} disabled={busy || !motif || (motif === 'formation' && !contact.trim())}>{busy ? 'Envoi…' : 'Envoyer'}</Button>
       </div>
     </div>
   );
 }
 
 function DirectoryView() {
-  const { DB, showDemo } = useApp();
+  const { DB, showDemo, setView } = useApp();
   const [fiches, setFiches] = useState(null);
   const [erreur, setErreur] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCanton, setSelectedCanton] = useState('');
   const [valideSeul, setValideSeul] = useState(false);
   const [critere, setCritere] = useState('');
+  const [formation, setFormation] = useState('');
   const [formulaire, setFormulaire] = useState(false);
   const [aSignaler, setASignaler] = useState(null);
   const [version, setVersion] = useState(0);
@@ -7649,8 +7721,12 @@ function DirectoryView() {
 
   const q = norm(searchQuery);
   const toutes = fiches || [];
-  const filtered = toutes.filter(p => (!q || norm(p.nom).includes(q) || norm(p.specialite).includes(q) || norm(p.ville).includes(q)) && (!selectedCanton || p.canton === selectedCanton) && (!valideSeul || p.valide) && (!critere || ((p.criteres || {})[critere] > 0)))
-    .sort((a, b) => !critere ? 0 : (Number(b.valide) - Number(a.valide)) || (((b.criteres || {})[critere] || 0) - ((a.criteres || {})[critere] || 0)));
+  const filtered = toutes.filter(p => (!q || norm(p.nom).includes(q) || norm(p.specialite).includes(q) || norm(p.ville).includes(q)) && (!selectedCanton || p.canton === selectedCanton) && (!valideSeul || p.valide) && (!critere || ((p.criteres || {})[critere] > 0)) && (!formation || (p.formations || []).some(fo => fo.theme === formation)))
+    .sort((a, b) => {
+      if (critere) { const ecart = (Number(b.valide) - Number(a.valide)) || (((b.criteres || {})[critere] || 0) - ((a.criteres || {})[critere] || 0)); if (ecart) return ecart; }
+      if (formation) return Number(cwFormationAttestee(b, formation)) - Number(cwFormationAttestee(a, formation));
+      return 0;
+    });
   const nbValides = toutes.filter(p => p.valide).length;
   const fermer = () => { setFormulaire(false); setASignaler(null); setVersion(v => v + 1); };
 
@@ -7674,12 +7750,15 @@ function DirectoryView() {
         </div>
         <Select value={selectedCanton} onChange={setSelectedCanton} options={DB.cantons.map(c => ({ value: c, label: DB.cantonNames[c] }))} placeholder="Canton" className="min-w-[8rem] flex-shrink-0" />
       </div>
-      <div className="relative mb-3">
+      <div className="grid sm:grid-cols-2 gap-3 mb-3">
+      <div className="relative">
         <select value={critere} onChange={e => setCritere(e.target.value)} aria-label="Critère" className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 hover:border-gray-300 focus:border-teal-500 outline-none bg-white appearance-none cursor-pointer pr-10 font-medium text-gray-700 shadow-sm">
-          <option value="">Tous les critères : accueil, LGBTIQA+, religions, racisme…</option>
+          <option value="">Tous les critères</option>
           {CW_ANNUAIRE_GROUPES.map(g => <optgroup key={g.titre} label={g.titre}>{g.criteres.map(([id, libelle]) => <option key={id} value={id}>{libelle}</option>)}</optgroup>)}
         </select>
         <ChevronDown className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
+      </div>
+      <Select value={formation} onChange={setFormation} options={CW_ANNUAIRE_THEMES_FORMATION.map(([value, label]) => ({ value, label }))} placeholder="Toutes les formations" />
       </div>
       <div className="flex flex-wrap items-center justify-between gap-2 mb-5">
         <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer"><input type="checkbox" checked={valideSeul} onChange={e => setValideSeul(e.target.checked)} /> Fiches validées seulement</label>
@@ -7706,6 +7785,18 @@ function DirectoryView() {
                   </div>
                   {(p.langues || []).length > 0 && <div className="flex flex-wrap gap-1 mt-2">{p.langues.map(l => <span key={l} className="px-2 py-0.5 rounded bg-gray-100 text-xs">{l}</span>)}</div>}
                   {top.length > 0 && <div className="flex flex-wrap gap-1 mt-2">{top.map(([id, n]) => <span key={id} className={`px-2 py-0.5 rounded text-xs ${id === critere ? 'bg-teal-500 text-white' : 'bg-teal-50 text-teal-800'}`}>{CW_ANNUAIRE_CRITERE_LIBELLE[id] || id} · {n}</span>)}</div>}
+                  {(p.formations || []).length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-2">
+                      {p.formations.slice(0, 4).map(fo => {
+                        const contenu = <><GraduationCap className="w-3 h-3 flex-shrink-0" />{fo.attestee ? 'Formation attestée' : 'Formation signalée'} : {cwFormationTexte(fo)}{!fo.attestee && fo.mentions > 1 ? ` (${fo.mentions} personnes)` : ''}</>;
+                        const classe = `inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs ${fo.attestee ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-gray-50 text-gray-700 border border-gray-200'}`;
+                        const style = fo.theme === formation ? { boxShadow: '0 0 0 2px #14b8a6' } : undefined;
+                        return fo.attestee && fo.preuve_url && /^https:\/\//.test(fo.preuve_url)
+                          ? <a key={fo.id} href={fo.preuve_url} target="_blank" rel="noopener noreferrer nofollow" className={classe} style={style} title="Voir la preuve">{contenu}</a>
+                          : <span key={fo.id} className={classe} style={style}>{contenu}</span>;
+                      })}
+                    </div>
+                  )}
                   <div className="flex flex-wrap items-center gap-3 mt-3">
                     {p.source_url && /^https:\/\//.test(p.source_url) && <a href={p.source_url} target="_blank" rel="noopener noreferrer nofollow" className="text-xs text-teal-700 underline">Source</a>}
                     {!showDemo && <button type="button" onClick={() => setASignaler(p)} className="text-xs text-gray-500 underline">Cette fiche me concerne ou contient une erreur</button>}
@@ -7729,6 +7820,11 @@ function DirectoryView() {
         )}
       </div>
 
+      <Card className="p-4 mt-6 bg-teal-50 border-teal-100">
+        <p className="text-sm text-teal-900"><span className="font-semibold">Formations.</span> Une formation à l’accueil ou aux discriminations suivie par une personne soignante s’affiche sur sa fiche : en gris tant qu’elle est signalée, en vert une fois attestée par l’équipe. Soignant·e : demandez l’attestation avec le lien « Cette fiche me concerne ou contient une erreur », puis choisissez « faire attester une formation ».</p>
+        <div className="mt-3"><Button size="sm" variant="outline" onClick={() => setView('formations')}>Voir le catalogue de formations</Button></div>
+      </Card>
+
       <Card className="p-4 mt-6">
         <details>
           <summary className="cursor-pointer font-semibold text-sm text-gray-800">Base des critères</summary>
@@ -7740,6 +7836,7 @@ function DirectoryView() {
               <li><span className="font-semibold">Respect de la personne.</span> Respect des valeurs et des besoins exprimés, confort physique, soutien émotionnel et place des proches (Gerteis et al., 1993). Consentement et respect pendant les soins (OMS, 2014, pour l’accouchement). Sécurité, transparence et choix laissé à la personne dans l’approche tenant compte des traumatismes (SAMHSA, 2014). Écarts d’évaluation de la douleur et de recommandation de traitement selon l’origine du patient, documentés y compris chez des étudiant·e·s en médecine et des résident·e·s (Hoffman et al., 2016).</li>
               <li><span className="font-semibold">Décision et suivi.</span> Décision partagée en trois temps : choix, options, décision (Elwyn et al., 2012). Continuité et transition (Gerteis et al., 1993).</li>
               <li><span className="font-semibold">Sensibilité aux discriminations.</span> Humilité culturelle : auto-évaluation continue et réduction des déséquilibres de pouvoir entre soignant·e et patient·e (Tervalon et Murray-García, 1998). Les motifs sont ceux de la plateforme.</li>
+              <li><span className="font-semibold">Formations.</span> Une formation attestée établit un fait vérifié, la recommandation exprime une expérience vécue. Les deux informations se complètent.</li>
             </ul>
             <p className="text-xs text-gray-600">Les critères cochés expriment l’expérience de personnes qui ont consulté. Le baromètre d’expérience mesure, avec l’échelle DMS, la fréquence des traitements discriminatoires.</p>
             <p className="font-semibold">Références</p>
@@ -10324,16 +10421,17 @@ function FormationsView() {
   const [selectedFormation, setSelectedFormation] = useState(null);
   const [filterLevel, setFilterLevel] = useState('');
   const [filterProvider, setFilterProvider] = useState('');
+  const [filterTheme, setFilterTheme] = useState('');
   
   const formations = [
-    { id: 1, title: 'Sensibilisation aux biais inconscients', duration: '2h', provider: 'Partenaire associatif', date: '15 mars 2026', spots: 12, spotsLeft: 5, level: 'Débutant', format: 'En ligne', price: 'Gratuit', desc: 'Identifier et comprendre ses propres biais pour améliorer la relation soignant-soigné.', objectives: ['Comprendre les mécanismes des biais inconscients', 'Identifier ses propres biais', 'Développer des stratégies pour les contrer'], audience: 'Tout·e professionnel·le de santé', certificate: true },
-    { id: 2, title: 'Communication interculturelle en santé', duration: '4h', provider: 'HES-SO', date: '22 mars 2026', spots: 20, spotsLeft: 8, level: 'Intermédiaire', format: 'Présentiel', price: 'CHF 50', desc: 'Techniques de communication adaptées aux contextes multiculturels.', objectives: ['Adapter sa communication aux différents contextes culturels', 'Utiliser des techniques d\'écoute active', 'Gérer les malentendus interculturels'], audience: 'Soignant·e·s avec expérience clinique', certificate: true },
+    { id: 1, theme: 'discriminations', title: 'Sensibilisation aux biais inconscients', duration: '2h', provider: 'Partenaire associatif', date: '15 mars 2026', spots: 12, spotsLeft: 5, level: 'Débutant', format: 'En ligne', price: 'Gratuit', desc: 'Identifier et comprendre ses propres biais pour améliorer la relation soignant-soigné.', objectives: ['Comprendre les mécanismes des biais inconscients', 'Identifier ses propres biais', 'Développer des stratégies pour les contrer'], audience: 'Tout·e professionnel·le de santé', certificate: true },
+    { id: 2, theme: 'interculturel', title: 'Communication interculturelle en santé', duration: '4h', provider: 'HES-SO', date: '22 mars 2026', spots: 20, spotsLeft: 8, level: 'Intermédiaire', format: 'Présentiel', price: 'CHF 50', desc: 'Techniques de communication adaptées aux contextes multiculturels.', objectives: ['Adapter sa communication aux différents contextes culturels', 'Utiliser des techniques d\'écoute active', 'Gérer les malentendus interculturels'], audience: 'Soignant·e·s avec expérience clinique', certificate: true },
     { id: 3, title: 'Drépanocytose : comprendre et accompagner', duration: '3h', provider: 'Suisse Drépano', date: '8 avril 2026', spots: 15, spotsLeft: 15, level: 'Tous niveaux', format: 'Hybride', price: 'Gratuit', desc: 'Comprendre la maladie et ses implications pour un meilleur accompagnement des patient·e·s.', objectives: ['Connaître la physiopathologie de la drépanocytose', 'Comprendre le vécu des patient·e·s', 'Adapter la prise en charge aux spécificités de la maladie'], audience: 'Tout·e professionnel·le de santé', certificate: true },
-    { id: 4, title: 'Gestion des micro-agressions', duration: '2h', provider: 'FAANG', date: '15 avril 2026', spots: 10, spotsLeft: 3, level: 'Intermédiaire', format: 'En ligne', price: 'Gratuit', desc: 'Reconnaître et répondre aux micro-agressions en milieu de soins.', objectives: ['Définir et reconnaître les micro-agressions', 'Comprendre leur impact sur la santé', 'Développer des réponses appropriées'], audience: 'Tout·e professionnel·le de santé', certificate: false },
-    { id: 5, title: 'Accueil inclusif des patient·e·s', duration: '3h', provider: 'HES-SO', date: '22 mai 2026', spots: 20, spotsLeft: 12, level: 'Débutant', format: 'Présentiel', price: 'CHF 30', desc: 'Créer un environnement d\'accueil bienveillant et équitable pour tous les patient·e·s.', objectives: ['Analyser les obstacles à l\'accueil inclusif', 'Mettre en place des pratiques inclusives', 'Évaluer et améliorer continuellement l\'accueil'], audience: 'Personnel d\'accueil et administratif', certificate: true },
-    { id: 6, title: 'Leadership inclusif en santé', duration: '1 jour', provider: 'Unisanté', date: '29 mai 2026', spots: 12, spotsLeft: 6, level: 'Avancé', format: 'Présentiel', price: 'CHF 150', desc: 'Pour les cadres : créer et maintenir un environnement de travail inclusif.', objectives: ['Développer une vision inclusive pour son équipe', 'Mettre en place des politiques anti-discrimination', 'Gérer les situations de discrimination'], audience: 'Cadres et responsables d\'équipe', certificate: true },
-    { id: 7, title: 'Interprétariat communautaire', duration: '2 jours', provider: 'Appartenances', date: '5-6 juin 2026', spots: 8, spotsLeft: 4, level: 'Avancé', format: 'Présentiel', price: 'CHF 200', desc: 'Formation certifiante pour devenir interprète communautaire en milieu de santé.', objectives: ['Maîtriser les techniques d\'interprétariat', 'Comprendre le rôle et les limites de l\'interprète', 'Gérer les situations émotionnellement difficiles'], audience: 'Personnes bilingues souhaitant devenir interprètes', certificate: true },
-    { id: 8, title: 'Approche transculturelle en psychiatrie', duration: '4h', provider: 'HUG', date: '12 juin 2026', spots: 15, spotsLeft: 10, level: 'Intermédiaire', format: 'Hybride', price: 'CHF 80', desc: 'Adapter la prise en charge psychiatrique aux spécificités culturelles des patient·e·s.', objectives: ['Comprendre l\'influence de la culture sur la santé mentale', 'Adapter l\'évaluation psychiatrique', 'Développer des interventions culturellement adaptées'], audience: 'Professionnel·le·s en santé mentale', certificate: true },
+    { id: 4, theme: 'discriminations', title: 'Gestion des micro-agressions', duration: '2h', provider: 'FAANG', date: '15 avril 2026', spots: 10, spotsLeft: 3, level: 'Intermédiaire', format: 'En ligne', price: 'Gratuit', desc: 'Reconnaître et répondre aux micro-agressions en milieu de soins.', objectives: ['Définir et reconnaître les micro-agressions', 'Comprendre leur impact sur la santé', 'Développer des réponses appropriées'], audience: 'Tout·e professionnel·le de santé', certificate: false },
+    { id: 5, theme: 'accueil', title: 'Accueil inclusif des patient·e·s', duration: '3h', provider: 'HES-SO', date: '22 mai 2026', spots: 20, spotsLeft: 12, level: 'Débutant', format: 'Présentiel', price: 'CHF 30', desc: 'Créer un environnement d\'accueil bienveillant et équitable pour tous les patient·e·s.', objectives: ['Analyser les obstacles à l\'accueil inclusif', 'Mettre en place des pratiques inclusives', 'Évaluer et améliorer continuellement l\'accueil'], audience: 'Personnel d\'accueil et administratif', certificate: true },
+    { id: 6, theme: 'discriminations', title: 'Leadership inclusif en santé', duration: '1 jour', provider: 'Unisanté', date: '29 mai 2026', spots: 12, spotsLeft: 6, level: 'Avancé', format: 'Présentiel', price: 'CHF 150', desc: 'Pour les cadres : créer et maintenir un environnement de travail inclusif.', objectives: ['Développer une vision inclusive pour son équipe', 'Mettre en place des politiques anti-discrimination', 'Gérer les situations de discrimination'], audience: 'Cadres et responsables d\'équipe', certificate: true },
+    { id: 7, theme: 'interculturel', title: 'Interprétariat communautaire', duration: '2 jours', provider: 'Appartenances', date: '5-6 juin 2026', spots: 8, spotsLeft: 4, level: 'Avancé', format: 'Présentiel', price: 'CHF 200', desc: 'Formation certifiante pour devenir interprète communautaire en milieu de santé.', objectives: ['Maîtriser les techniques d\'interprétariat', 'Comprendre le rôle et les limites de l\'interprète', 'Gérer les situations émotionnellement difficiles'], audience: 'Personnes bilingues souhaitant devenir interprètes', certificate: true },
+    { id: 8, theme: 'interculturel', title: 'Approche transculturelle en psychiatrie', duration: '4h', provider: 'HUG', date: '12 juin 2026', spots: 15, spotsLeft: 10, level: 'Intermédiaire', format: 'Hybride', price: 'CHF 80', desc: 'Adapter la prise en charge psychiatrique aux spécificités culturelles des patient·e·s.', objectives: ['Comprendre l\'influence de la culture sur la santé mentale', 'Adapter l\'évaluation psychiatrique', 'Développer des interventions culturellement adaptées'], audience: 'Professionnel·le·s en santé mentale', certificate: true },
   ];
 
   const providers = [...new Set(formations.map(f => f.provider))].sort();
@@ -10342,7 +10440,8 @@ function FormationsView() {
   const filteredFormations = formations.filter(f => {
     const matchLevel = !filterLevel || f.level === filterLevel;
     const matchProvider = !filterProvider || f.provider === filterProvider;
-    return matchLevel && matchProvider;
+    const matchTheme = !filterTheme || f.theme === filterTheme;
+    return matchLevel && matchProvider && matchTheme;
   });
 
   const handleRegister = async (formation) => {
@@ -10400,12 +10499,17 @@ function FormationsView() {
 
       {activeTab === 'catalogue' && (
         <div>
+          <Card className="p-4 mb-4 bg-teal-50 border-teal-100">
+            <p className="text-sm text-teal-900">Une formation à l’accueil ou aux discriminations peut s’afficher sur votre fiche de l’annuaire. Demandez l’attestation depuis la fiche, avec « Cette fiche me concerne ou contient une erreur ».</p>
+            <div className="mt-3"><Button size="sm" variant="outline" onClick={() => setView('directory')}>Ouvrir l’annuaire</Button></div>
+          </Card>
           {/* Filters */}
-          <div className="flex gap-2 mb-4">
+          <div className="flex flex-wrap gap-2 mb-4">
             <Select value={filterLevel} onChange={setFilterLevel} options={levels} placeholder="Niveau" className="min-w-[9rem] flex-shrink-0" />
             <Select value={filterProvider} onChange={setFilterProvider} options={providers} placeholder="Organisme" className="min-w-[10rem] flex-shrink-0" />
-            {(filterLevel || filterProvider) && (
-              <button onClick={() => { setFilterLevel(''); setFilterProvider(''); }} className="px-3 py-2 text-sm text-gray-500 hover:text-gray-700">Effacer</button>
+            <Select value={filterTheme} onChange={setFilterTheme} options={CW_ANNUAIRE_THEMES_FORMATION.filter(([id]) => formations.some(f => f.theme === id)).map(([value, label]) => ({ value, label }))} placeholder="Thème" className="min-w-[10rem] flex-shrink-0" />
+            {(filterLevel || filterProvider || filterTheme) && (
+              <button onClick={() => { setFilterLevel(''); setFilterProvider(''); setFilterTheme(''); }} className="px-3 py-2 text-sm text-gray-500 hover:text-gray-700">Effacer</button>
             )}
           </div>
 
@@ -10429,6 +10533,7 @@ function FormationsView() {
                     )}
                   </div>
                   <h3 className="font-medium mb-1">{f.title}</h3>
+                  {f.theme && <p className="text-xs text-teal-800 mb-1">{CW_ANNUAIRE_THEME_LIBELLE[f.theme]}</p>}
                   <p className="text-sm text-gray-600 mb-2">{f.provider} • {f.duration} • {f.price}</p>
                   <p className="text-sm text-gray-600 mb-3">{f.desc}</p>
                   <div className="flex items-center justify-between">
@@ -11792,7 +11897,7 @@ function EtatProjetPage() {
     ['Analyse de dossier', 'Aucun traitement automatique actif', 'Démonstration'],
     ['Pair-aidance', 'Profils fictifs, prise de rendez-vous fermée', 'Démonstration'],
     ['Formations', 'Catalogue fictif', 'Démonstration'],
-    ['Annuaire participatif', 'Recommandations déposées par le public, publiées avec la mention « Validé par l’équipe » ou « En attente de vérification »', 'Alpha'],
+    ['Annuaire participatif', 'Recommandations déposées par le public, publiées avec la mention « Validé par l’équipe » ou « En attente de vérification », formations signalées puis attestées', 'Alpha'],
   ];
   const Liste = ({ items }) => (
     <div className="divide-y border rounded-2xl">
@@ -13128,7 +13233,7 @@ const PRIVACY_SECTIONS = [
   ]},
   { title: '12c. Annuaire participatif', body: [
     'Toute personne peut recommander un·e soignant·e ou un cabinet. La fiche contient le nom, la spécialité, la ville, le canton, les langues, un lien vers une source publique si la personne qui recommande le fournit, et les critères cochés. Les critères décrivent l’accueil que reçoivent les patient·e·s tout au long de la consultation (premier contact, communication, respect de la personne, décision et suivi) et l’attention portée aux discriminations (racisme, religions, orientation sexuelle, identité de genre, handicap, entre autres). Les informations personnelles du ou de la soignant·e sur sa religion, son orientation ou son origine restent hors des fiches, et l’équipe retire toute fiche qui en contient. Les fiches ne contiennent pas de texte libre. Le numéro de téléphone proposé est conservé et s’affiche après le contrôle de l’équipe.',
-    'La fiche est publiée dès le dépôt avec la mention « En attente de vérification ». Après contrôle de l’existence de la personne et de la source, l’équipe la marque « Validé par l’équipe ». Une recommandation exprime l’expérience de personnes qui ont consulté ; elle ne certifie pas la qualité des soins.',
+    'La fiche est publiée dès le dépôt avec la mention « En attente de vérification ». Après contrôle de l’existence de la personne et de la source, l’équipe la marque « Validé par l’équipe ». Une formation à l’accueil ou aux discriminations peut être signalée sur une fiche, avec son thème, son organisme et son année ; elle s’affiche « signalée » tant que l’équipe n’a pas vu d’attestation, puis « attestée ». Une recommandation exprime l’expérience de personnes qui ont consulté ; elle ne certifie pas la qualité des soins.',
     'La personne qui recommande reste anonyme : son adresse IP et son identité ne sont pas enregistrées. Pour éviter les doublons, une empreinte technique non réversible, propre à chaque fiche et impossible à relier d’une fiche à l’autre, est conservée avec la recommandation.',
     'La personne concernée demande le retrait de sa fiche avec le lien « Cette fiche me concerne ou contient une erreur » : la fiche est masquée immédiatement et l’équipe contrôle la demande. Elle peut aussi demander la correction d’une information. Les fiches sont conservées jusqu’au retrait ou à la suppression par l’équipe.',
   ]},
