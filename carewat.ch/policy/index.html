@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>CareWatch Policy — Suisse romande</title>
+<title>CareWatch Policy, Suisse romande</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Lora:wght@700&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
 <style>
@@ -119,7 +119,7 @@ p,div,span,li,td,th,label,select,input,textarea,button{font-size:inherit}
   #app{display:block;padding-bottom:0}
   #fz{padding:8px 12px 0}
   #gz{padding:6px 12px 80px}
-  /* Mobile readability — handled by CSS variable override in :root */
+  /* Mobile readability, handled by CSS variable override in :root */
   #rz{
     position:fixed;bottom:0;left:0;right:0;
     overscroll-behavior:contain;
@@ -275,7 +275,7 @@ p,div,span,li,td,th,label,select,input,textarea,button{font-size:inherit}
 #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;border-radius:20px;padding:8px 16px;font-size:14px;font-weight:700;opacity:0;transition:all .3s;pointer-events:none;z-index:9999;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.2)}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
-/* OVERLAYS — all sharing same base */
+/* OVERLAYS, all sharing same base */
 .ov{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:900;display:none;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto}
 .ov.open{display:flex}
 .op{background:var(--w);border-radius:var(--rl);width:min(660px,100%);max-height:90dvh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);margin-top:10px}
@@ -368,7 +368,7 @@ p,div,span,li,td,th,label,select,input,textarea,button{font-size:inherit}
   @page{margin:2cm}
 }
 
-/* ── NAV MENU BUTTONS — touch-friendly ── */
+/* ── NAV MENU BUTTONS, touch-friendly ── */
 .nb{
   display:block !important;width:100% !important;text-align:left;
   padding:16px 18px !important;
@@ -471,7 +471,7 @@ p,div,span,li,td,th,label,select,input,textarea,button{font-size:inherit}
           <div style="font-size:12px;font-weight:700;color:var(--bl);margin-bottom:2px">🏛 Canton d'analyse</div>
           <div style="font-size:11px;color:var(--ink4)">Ajuste la baseline, la population et les entrées affichées</div>
         </div>
-        <div class="cw-dd-wrap" style="width:100%;display:block"><button class="cw-dd-trigger" id="canton-sel-btn" style="width:100%;justify-content:space-between" onclick="_cwDD('canton-sel-btn','canton-sel-menu')"><span class="cw-dd-val">🏛 GE · Genève</span><span class="cw-dd-arr">▼</span></button><div class="cw-dd-menu" id="canton-sel-menu"><button class="cw-dd-item" data-val="" data-dd="canton-sel" onclick="_cwDDClick(this)">🗺 Tous cantons (baseline GE)</button><button class="cw-dd-item" data-val="CH" data-dd="canton-sel" onclick="_cwDDClick(this)">🇨🇭 Suisse — fédéral</button><button class="cw-dd-item on" data-val="GE" data-dd="canton-sel" onclick="_cwDDClick(this)">🏛 GE · Genève</button><button class="cw-dd-item" data-val="VD" data-dd="canton-sel" onclick="_cwDDClick(this)">🏛 VD · Vaud</button><button class="cw-dd-item" data-val="VS" data-dd="canton-sel" onclick="_cwDDClick(this)">🏛 VS · Valais</button><button class="cw-dd-item" data-val="NE" data-dd="canton-sel" onclick="_cwDDClick(this)">🏛 NE · Neuchâtel</button><button class="cw-dd-item" data-val="BE" data-dd="canton-sel" onclick="_cwDDClick(this)">🏛 BE · Berne</button><button class="cw-dd-item" data-val="FR" data-dd="canton-sel" onclick="_cwDDClick(this)">🏛 FR · Fribourg</button><button class="cw-dd-item" data-val="JU" data-dd="canton-sel" onclick="_cwDDClick(this)">🏛 JU · Jura</button></div></div>
+        <div class="cw-dd-wrap" style="width:100%;display:block"><button class="cw-dd-trigger" id="canton-sel-btn" style="width:100%;justify-content:space-between" onclick="_cwDD('canton-sel-btn','canton-sel-menu')"><span class="cw-dd-val">🏛 GE · Genève</span><span class="cw-dd-arr">▼</span></button><div class="cw-dd-menu" id="canton-sel-menu"><button class="cw-dd-item" data-val="" data-dd="canton-sel" onclick="_cwDDClick(this)">🗺 Tous cantons (baseline GE)</button><button class="cw-dd-item" data-val="CH" data-dd="canton-sel" onclick="_cwDDClick(this)">🇨🇭 Suisse, fédéral</button><button class="cw-dd-item on" data-val="GE" data-dd="canton-sel" onclick="_cwDDClick(this)">🏛 GE · Genève</button><button class="cw-dd-item" data-val="VD" data-dd="canton-sel" onclick="_cwDDClick(this)">🏛 VD · Vaud</button><button class="cw-dd-item" data-val="VS" data-dd="canton-sel" onclick="_cwDDClick(this)">🏛 VS · Valais</button><button class="cw-dd-item" data-val="NE" data-dd="canton-sel" onclick="_cwDDClick(this)">🏛 NE · Neuchâtel</button><button class="cw-dd-item" data-val="BE" data-dd="canton-sel" onclick="_cwDDClick(this)">🏛 BE · Berne</button><button class="cw-dd-item" data-val="FR" data-dd="canton-sel" onclick="_cwDDClick(this)">🏛 FR · Fribourg</button><button class="cw-dd-item" data-val="JU" data-dd="canton-sel" onclick="_cwDDClick(this)">🏛 JU · Jura</button></div></div>
         <div id="canton-info" style="font-size:11px;color:var(--bl)"></div>
       </div>
       <div id="pills" style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:5px">
@@ -499,7 +499,7 @@ p,div,span,li,td,th,label,select,input,textarea,button{font-size:inherit}
     <div id="drawer-handle" onclick="toggleDrawer()" role="button" tabindex="0"
          style="touch-action:none;user-select:none;-webkit-user-select:none">
       <div class="dpeek-inner">
-        <div id="dbadge" class="dbadge-el">—</div>
+        <div id="dbadge" class="dbadge-el">-</div>
         <div class="dinfo-el">
           <div id="dmain" class="dmain-el">Voir l'impact sur la santé</div>
           <div id="dsub" class="dsub-el">Ajoutez des lois pour simuler</div>
@@ -527,7 +527,7 @@ p,div,span,li,td,th,label,select,input,textarea,button{font-size:inherit}
         <div id="archive-body"></div>
       </div>
 
-      <!-- Méthodologie — toujours accessible -->
+      <!-- Méthodologie, toujours accessible -->
       <div id="sp-method-always" style="display:none">
         <div style="padding:4px 0;overflow-y:auto">
           <div style="font-family:var(--FS);font-size:15px;font-weight:700;margin-bottom:12px">Méthodologie</div>
@@ -536,7 +536,7 @@ p,div,span,li,td,th,label,select,input,textarea,button{font-size:inherit}
           <p style="font-size:13px;color:var(--ink2);line-height:1.7;margin-bottom:6px">Le score (0–100) agrège quatre indicateurs de santé publique. La référence 50 correspond aux données de la baseline du canton d'analyse sélectionné (source OBSAN/OFS 2022–2024). Au-delà de 50, l'effet estimé est favorable à la santé.</p>
           <code style="display:block;font-family:monospace;font-size:11px;background:var(--g1);padding:10px 12px;border-radius:var(--r);margin:8px 0;line-height:2.1;color:var(--ink2)">Score = 50<br>+ (18,0 − renoncement) × 1,2&nbsp;&nbsp;[ESS-CH OBSAN 2022]<br>+ (espérance − 67,8 ans) × 5,0&nbsp;[Johansson et al., Lancet 2019]<br>+ (158 − décès évitables) × 0,22 [OFSP 2022]<br>+ (6,2 − Gini santé) × 4,0&nbsp;&nbsp;&nbsp;&nbsp;[Wagstaff 1989 ; OCSTAT GE / OBSAN]</code>
 
-          <div style="font-size:11px;font-weight:700;color:var(--bl);margin:12px 0 5px;text-transform:uppercase;letter-spacing:.06em">Valeurs de référence — baseline du canton d'analyse (OBSAN/OFS 2022–2024)</div>
+          <div style="font-size:11px;font-weight:700;color:var(--bl);margin:12px 0 5px;text-transform:uppercase;letter-spacing:.06em">Valeurs de référence, baseline du canton d'analyse (OBSAN/OFS 2022–2024)</div>
           <div style="border:1px solid var(--bdr);border-radius:var(--r);overflow:hidden;margin-bottom:12px;font-size:12px">
             <div style="display:grid;grid-template-columns:1.4fr .7fr 1fr;background:var(--g2);padding:5px 8px;font-size:11px;font-weight:700;color:var(--ink4)"><span>Indicateur</span><span>Valeur</span><span>Source</span></div>
             <div style="display:grid;grid-template-columns:1.4fr .7fr 1fr;padding:5px 8px;border-top:1px solid var(--bdr)"><span>Renoncement aux soins</span><span>18,0 %</span><span>ESS-CH OBSAN</span></div>
@@ -553,7 +553,7 @@ p,div,span,li,td,th,label,select,input,textarea,button{font-size:inherit}
           </div>
 
           <div style="font-size:11px;font-weight:700;color:var(--bl);margin-bottom:5px;text-transform:uppercase;letter-spacing:.06em">Limites</div>
-          <p style="font-size:12px;color:var(--ink2);line-height:1.7;margin-bottom:10px">Les effets sont estimés ceteris paribus. Les interactions entre politiques ne sont pas modélisées. Les délais d'effet et les non-linéarités sont simplifiés. CareWatch Policy est un outil pédagogique — il ne se substitue pas à une étude d'impact formelle.</p>
+          <p style="font-size:12px;color:var(--ink2);line-height:1.7;margin-bottom:10px">Les effets sont estimés ceteris paribus. Les interactions entre politiques ne sont pas modélisées. Les délais d'effet et les non-linéarités sont simplifiés. CareWatch Policy est un outil pédagogique, il ne se substitue pas à une étude d'impact formelle.</p>
 
           <!-- SECTION TRANSPARENCE -->
           <div style="margin-top:20px;border-top:1px solid var(--bdr);padding-top:16px">
@@ -565,17 +565,17 @@ p,div,span,li,td,th,label,select,input,textarea,button{font-size:inherit}
               <div style="display:flex;align-items:center;gap:10px;padding:8px 11px;background:var(--grl);border-radius:8px">
                 <span style="font-size:16px">🟢</span>
                 <div><div style="font-size:13px;font-weight:700;color:var(--gr)">Confiance élevée</div>
-                <div style="font-size:12px;color:var(--ink3)">Renoncement aux soins — données OBSAN répétées sur 10+ ans, corrélations robustes.</div></div>
+                <div style="font-size:12px;color:var(--ink3)">Renoncement aux soins, données OBSAN répétées sur 10+ ans, corrélations robustes.</div></div>
               </div>
               <div style="display:flex;align-items:center;gap:10px;padding:8px 11px;background:var(--aml);border-radius:8px">
                 <span style="font-size:16px">🟡</span>
                 <div><div style="font-size:13px;font-weight:700;color:var(--am)">Confiance modérée</div>
-                <div style="font-size:12px;color:var(--ink3)">Espérance de vie saine — données longitudinales OFS, sensible aux délais d'application.</div></div>
+                <div style="font-size:12px;color:var(--ink3)">Espérance de vie saine, données longitudinales OFS, sensible aux délais d'application.</div></div>
               </div>
               <div style="display:flex;align-items:center;gap:10px;padding:8px 11px;background:var(--rdl);border-radius:8px">
                 <span style="font-size:16px">🟠</span>
                 <div><div style="font-size:13px;font-weight:700;color:var(--rdm)">Confiance indicative</div>
-                <div style="font-size:12px;color:var(--ink3)">Décès évitables et inégalités — estimations par analogie avec pays ou cantons comparables.</div></div>
+                <div style="font-size:12px;color:var(--ink3)">Décès évitables et inégalités, estimations par analogie avec pays ou cantons comparables.</div></div>
               </div>
             </div>
 
@@ -590,17 +590,17 @@ p,div,span,li,td,th,label,select,input,textarea,button{font-size:inherit}
               &nbsp;&nbsp;+ (décès_baseline − simulés) × 0.22<br>
               &nbsp;&nbsp;+ (gini_baseline − simulé) × 4
             </div>
-            <p style="font-size:12px;color:var(--ink4);line-height:1.6;margin-bottom:14px">Les pondérations reflètent l'importance relative de chaque indicateur sur la santé publique globale, calibrées à partir de la littérature académique (Lancet, OMS). Elles peuvent être débattues — c'est précisément le but d'un outil de démocratie sanitaire.</p>
+            <p style="font-size:12px;color:var(--ink4);line-height:1.6;margin-bottom:14px">Les pondérations reflètent l'importance relative de chaque indicateur sur la santé publique globale, calibrées à partir de la littérature académique (Lancet, OMS). Elles peuvent être débattues, c'est précisément le but d'un outil de démocratie sanitaire.</p>
 
             <div style="font-size:11px;font-weight:700;color:var(--bl);margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em">Sources primaires</div>
             <div style="display:flex;flex-direction:column;gap:5px;font-size:12px">
-              <a href="https://www.obsan.admin.ch/" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--g1);border-radius:7px;text-decoration:none;color:var(--ink2)">📊 <span><strong>OBSAN</strong> — Observatoire suisse de la santé</span><span style="margin-left:auto;color:var(--bl);font-weight:700">↗</span></a>
-              <a href="https://www.bfs.admin.ch/bfs/fr/home/statistiques/sante.html" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--g1);border-radius:7px;text-decoration:none;color:var(--ink2)">📈 <span><strong>OFS</strong> — Statistiques de la santé</span><span style="margin-left:auto;color:var(--bl);font-weight:700">↗</span></a>
-              <a href="https://www.bag.admin.ch/" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--g1);border-radius:7px;text-decoration:none;color:var(--ink2)">🏥 <span><strong>OFSP</strong> — Office fédéral de la santé publique</span><span style="margin-left:auto;color:var(--bl);font-weight:700">↗</span></a>
-              <a href="https://swissvotes.ch/" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--g1);border-radius:7px;text-decoration:none;color:var(--ink2)">🗳️ <span><strong>Swissvotes.ch</strong> — Base des votations fédérales</span><span style="margin-left:auto;color:var(--bl);font-weight:700">↗</span></a>
-              <a href="https://www.thelancet.com/" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--g1);border-radius:7px;text-decoration:none;color:var(--ink2)">📚 <span><strong>The Lancet</strong> — Études comparatives de politiques de santé</span><span style="margin-left:auto;color:var(--bl);font-weight:700">↗</span></a>
-              <a href="https://www.who.int/europe/" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--g1);border-radius:7px;text-decoration:none;color:var(--ink2)">🌍 <span><strong>OMS Europe</strong> — Systèmes de santé en Europe</span><span style="margin-left:auto;color:var(--bl);font-weight:700">↗</span></a>
-              <a href="https://www.oecd.org/health/" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--g1);border-radius:7px;text-decoration:none;color:var(--ink2)">🌐 <span><strong>OCDE Santé</strong> — Comparaisons des systèmes de santé</span><span style="margin-left:auto;color:var(--bl);font-weight:700">↗</span></a>
+              <a href="https://www.obsan.admin.ch/" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--g1);border-radius:7px;text-decoration:none;color:var(--ink2)">📊 <span><strong>OBSAN</strong>, Observatoire suisse de la santé</span><span style="margin-left:auto;color:var(--bl);font-weight:700">↗</span></a>
+              <a href="https://www.bfs.admin.ch/bfs/fr/home/statistiques/sante.html" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--g1);border-radius:7px;text-decoration:none;color:var(--ink2)">📈 <span><strong>OFS</strong>, Statistiques de la santé</span><span style="margin-left:auto;color:var(--bl);font-weight:700">↗</span></a>
+              <a href="https://www.bag.admin.ch/" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--g1);border-radius:7px;text-decoration:none;color:var(--ink2)">🏥 <span><strong>OFSP</strong>, Office fédéral de la santé publique</span><span style="margin-left:auto;color:var(--bl);font-weight:700">↗</span></a>
+              <a href="https://swissvotes.ch/" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--g1);border-radius:7px;text-decoration:none;color:var(--ink2)">🗳️ <span><strong>Swissvotes.ch</strong>, Base des votations fédérales</span><span style="margin-left:auto;color:var(--bl);font-weight:700">↗</span></a>
+              <a href="https://www.thelancet.com/" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--g1);border-radius:7px;text-decoration:none;color:var(--ink2)">📚 <span><strong>The Lancet</strong>, Études comparatives de politiques de santé</span><span style="margin-left:auto;color:var(--bl);font-weight:700">↗</span></a>
+              <a href="https://www.who.int/europe/" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--g1);border-radius:7px;text-decoration:none;color:var(--ink2)">🌍 <span><strong>OMS Europe</strong>, Systèmes de santé en Europe</span><span style="margin-left:auto;color:var(--bl);font-weight:700">↗</span></a>
+              <a href="https://www.oecd.org/health/" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--g1);border-radius:7px;text-decoration:none;color:var(--ink2)">🌐 <span><strong>OCDE Santé</strong>, Comparaisons des systèmes de santé</span><span style="margin-left:auto;color:var(--bl);font-weight:700">↗</span></a>
             </div>
           </div>
 
@@ -608,7 +608,7 @@ p,div,span,li,td,th,label,select,input,textarea,button{font-size:inherit}
           <div style="font-size:11px;color:var(--ink3);line-height:1.9;margin-bottom:14px;padding:8px 10px;background:var(--g1);border-radius:var(--r)">
             Wagstaff A &amp; van Doorslaer E (1989). Equity in the finance of health care. <em>J. Health Economics.</em><br>
             Johansson et al. (2019). Health-adjusted life expectancy, 195 countries. <em>The Lancet.</em><br>
-            OBSAN (2022). ESS-CH — renoncement aux soins pour raisons financières.<br>
+            OBSAN (2022). ESS-CH, renoncement aux soins pour raisons financières.<br>
             OFSP (2022). Mortalité évitable en Suisse.<br>
             OCSTAT GE (2024). Inégalités de santé dans le canton de Genève.<br>
             <strong>Contact</strong> : <a href="mailto:davidzac.issom@hes-so.ch">davidzac.issom@hes-so.ch</a> · Convivens Lab · HEG-Genève (HES-SO)
@@ -639,7 +639,7 @@ p,div,span,li,td,th,label,select,input,textarea,button{font-size:inherit}
             <div class="sverdict" id="sverdict"></div>
             <div class="sbar-w"><div id="sbar"></div></div>
             <div class="sref"    id="sref"></div>
-            <div class="scav">Ces chiffres sont des estimations fondées sur des données officielles suisses. Ils indiquent une direction probable — pas un résultat garanti.</div>
+            <div class="scav">Ces chiffres sont des estimations fondées sur des données officielles suisses. Ils indiquent une direction probable, pas un résultat garanti.</div>
           </div>
           <div class="mh">En chiffres concrets</div>
           <div id="metrics"></div>
@@ -725,7 +725,7 @@ p,div,span,li,td,th,label,select,input,textarea,button{font-size:inherit}
       </div>
       <div class="ftl">CareWatch Policy
       </div>
-      <div style="font-size:13px;opacity:.85;margin-bottom:4px">Observatoire participatif de l'équité sanitaire en Suisse</div>
+      <div style="font-size:13px;opacity:.85;margin-bottom:4px">Plateforme participative pour l'équité sanitaire en Suisse</div>
       <div style="font-size:12px;opacity:.7;font-style:italic">Impact des lois et votations sur votre santé.<br>
         <a href="https://www.convivens.ch" target="_blank" style="color:rgba(255,255,255,.7)">Convivens Lab</a> ·
         <a href="https://www.hesge.ch/heg" target="_blank" style="color:rgba(255,255,255,.7)">HEG-Genève (HES-SO)</a>.
@@ -810,7 +810,7 @@ p,div,span,li,td,th,label,select,input,textarea,button{font-size:inherit}
 <!-- PROPOSE overlay -->
 <div class="ov" id="propose-ov" onclick="if(event.target===this)closePropose()">
   <div class="op">
-    <div class="oh"><div><div class="oh-title">Tester une idée de loi</div><div class="oh-sub">Décrivez une mesure — réelle ou imaginaire — et voyez quel effet elle aurait sur la santé de la population genevoise.</div></div><button class="ocls" onclick="closePropose()">×</button></div>
+    <div class="oh"><div><div class="oh-title">Tester une idée de loi</div><div class="oh-sub">Décrivez une mesure, réelle ou imaginaire, et voyez quel effet elle aurait sur la santé de la population genevoise.</div></div><button class="ocls" onclick="closePropose()">×</button></div>
     <div class="ob">
       <div class="mf"><div class="mfl">Nom de la mesure</div><input id="m-name" placeholder="Ex. : Gratuité des soins dentaires pour les -25 ans"></div>
       <div class="mf"><div class="mfl">Description (optionnel)</div><textarea id="m-desc" placeholder="Comment fonctionnerait-elle ?"></textarea></div>
@@ -835,21 +835,21 @@ p,div,span,li,td,th,label,select,input,textarea,button{font-size:inherit}
       <div class="scg">
         <div>
           <div style="font-size:13px;font-weight:700;text-transform:uppercase;color:var(--bl);margin-bottom:7px">Scénario A</div>
-          <div class="cw-dd-wrap" style="width:100%;display:block"><button class="cw-dd-trigger" id="sc-a-btn" style="width:100%;justify-content:space-between" onclick="_cwDD('sc-a-btn','sc-a-menu')"><span class="cw-dd-val">— Préréglage —</span><span class="cw-dd-arr">▼</span></button><div class="cw-dd-menu" id="sc-a-menu"><button class="cw-dd-item on" data-val="" data-dd="sc-a" onclick="_cwDDClick(this)">— Préréglage —</button><button class="cw-dd-item" data-val="acc" data-dd="sc-a" onclick="_cwDDClick(this)">Toutes lois acceptées</button><button class="cw-dd-item" data-val="rej" data-dd="sc-a" onclick="_cwDDClick(this)">Toutes lois rejetées</button><button class="cw-dd-item" data-val="social" data-dd="sc-a" onclick="_cwDDClick(this)">Lois sociales</button><button class="cw-dd-item" data-val="sante" data-dd="sc-a" onclick="_cwDDClick(this)">Lois santé</button><button class="cw-dd-item" data-val="current" data-dd="sc-a" onclick="_cwDDClick(this)">Ma simulation actuelle</button></div></div>
-          <div id="sc-a-tags" style="min-height:28px;padding:6px;background:var(--bll);border-radius:var(--rs);border:1px dashed var(--blm);font-size:13px;color:var(--bl)">—</div>
+          <div class="cw-dd-wrap" style="width:100%;display:block"><button class="cw-dd-trigger" id="sc-a-btn" style="width:100%;justify-content:space-between" onclick="_cwDD('sc-a-btn','sc-a-menu')"><span class="cw-dd-val">Préréglage</span><span class="cw-dd-arr">▼</span></button><div class="cw-dd-menu" id="sc-a-menu"><button class="cw-dd-item on" data-val="" data-dd="sc-a" onclick="_cwDDClick(this)">Préréglage</button><button class="cw-dd-item" data-val="acc" data-dd="sc-a" onclick="_cwDDClick(this)">Toutes lois acceptées</button><button class="cw-dd-item" data-val="rej" data-dd="sc-a" onclick="_cwDDClick(this)">Toutes lois rejetées</button><button class="cw-dd-item" data-val="social" data-dd="sc-a" onclick="_cwDDClick(this)">Lois sociales</button><button class="cw-dd-item" data-val="sante" data-dd="sc-a" onclick="_cwDDClick(this)">Lois santé</button><button class="cw-dd-item" data-val="current" data-dd="sc-a" onclick="_cwDDClick(this)">Ma simulation actuelle</button></div></div>
+          <div id="sc-a-tags" style="min-height:28px;padding:6px;background:var(--bll);border-radius:var(--rs);border:1px dashed var(--blm);font-size:13px;color:var(--bl)">-</div>
           <input id="sc-input-a" type="text" placeholder="🔍 Ajouter une loi au scénario A…" oninput="_scSearch('a',this.value)" style="width:100%;margin-top:6px;padding:6px 10px;border:1px solid var(--bdr2);border-radius:var(--rs);font-family:var(--F);font-size:13px;background:var(--w);color:var(--ink);box-sizing:border-box">
           <div id="sc-search-a" style="background:var(--w);border:1px solid var(--bdr2);border-top:none;border-radius:0 0 var(--rs) var(--rs);max-height:160px;overflow-y:auto"></div>
           <div id="sc-search-results-a" style="border:1px solid var(--bdr2);border-radius:0 0 var(--rs) var(--rs);background:var(--w);max-height:160px;overflow-y:auto"></div>
-          <div id="sc-a-score" style="margin-top:7px;padding:7px 10px;background:var(--g1);border-radius:var(--rs);font-size:14px;font-weight:700;color:var(--ink4)">—</div>
+          <div id="sc-a-score" style="margin-top:7px;padding:7px 10px;background:var(--g1);border-radius:var(--rs);font-size:14px;font-weight:700;color:var(--ink4)">-</div>
         </div>
         <div>
           <div style="font-size:13px;font-weight:700;text-transform:uppercase;color:var(--rd);margin-bottom:7px">Scénario B</div>
-          <div class="cw-dd-wrap" style="width:100%;display:block"><button class="cw-dd-trigger" id="sc-b-btn" style="width:100%;justify-content:space-between" onclick="_cwDD('sc-b-btn','sc-b-menu')"><span class="cw-dd-val">— Préréglage —</span><span class="cw-dd-arr">▼</span></button><div class="cw-dd-menu" id="sc-b-menu"><button class="cw-dd-item on" data-val="" data-dd="sc-b" onclick="_cwDDClick(this)">— Préréglage —</button><button class="cw-dd-item" data-val="acc" data-dd="sc-b" onclick="_cwDDClick(this)">Toutes lois acceptées</button><button class="cw-dd-item" data-val="rej" data-dd="sc-b" onclick="_cwDDClick(this)">Toutes lois rejetées</button><button class="cw-dd-item" data-val="social" data-dd="sc-b" onclick="_cwDDClick(this)">Lois sociales</button><button class="cw-dd-item" data-val="sante" data-dd="sc-b" onclick="_cwDDClick(this)">Lois santé</button><button class="cw-dd-item" data-val="current" data-dd="sc-b" onclick="_cwDDClick(this)">Ma simulation actuelle</button></div></div>
-          <div id="sc-b-tags" style="min-height:28px;padding:6px;background:var(--rdl);border-radius:var(--rs);border:1px dashed var(--rdm);font-size:13px;color:var(--rd)">—</div>
+          <div class="cw-dd-wrap" style="width:100%;display:block"><button class="cw-dd-trigger" id="sc-b-btn" style="width:100%;justify-content:space-between" onclick="_cwDD('sc-b-btn','sc-b-menu')"><span class="cw-dd-val">Préréglage</span><span class="cw-dd-arr">▼</span></button><div class="cw-dd-menu" id="sc-b-menu"><button class="cw-dd-item on" data-val="" data-dd="sc-b" onclick="_cwDDClick(this)">Préréglage</button><button class="cw-dd-item" data-val="acc" data-dd="sc-b" onclick="_cwDDClick(this)">Toutes lois acceptées</button><button class="cw-dd-item" data-val="rej" data-dd="sc-b" onclick="_cwDDClick(this)">Toutes lois rejetées</button><button class="cw-dd-item" data-val="social" data-dd="sc-b" onclick="_cwDDClick(this)">Lois sociales</button><button class="cw-dd-item" data-val="sante" data-dd="sc-b" onclick="_cwDDClick(this)">Lois santé</button><button class="cw-dd-item" data-val="current" data-dd="sc-b" onclick="_cwDDClick(this)">Ma simulation actuelle</button></div></div>
+          <div id="sc-b-tags" style="min-height:28px;padding:6px;background:var(--rdl);border-radius:var(--rs);border:1px dashed var(--rdm);font-size:13px;color:var(--rd)">-</div>
           <input id="sc-input-b" type="text" placeholder="🔍 Ajouter une loi au scénario B…" oninput="_scSearch('b',this.value)" style="width:100%;margin-top:6px;padding:6px 10px;border:1px solid var(--bdr2);border-radius:var(--rs);font-family:var(--F);font-size:13px;background:var(--w);color:var(--ink);box-sizing:border-box">
           <div id="sc-search-b" style="background:var(--w);border:1px solid var(--bdr2);border-top:none;border-radius:0 0 var(--rs) var(--rs);max-height:160px;overflow-y:auto"></div>
           <div id="sc-search-results-b" style="border:1px solid var(--bdr2);border-radius:0 0 var(--rs) var(--rs);background:var(--w);max-height:160px;overflow-y:auto"></div>
-          <div id="sc-b-score" style="margin-top:7px;padding:7px 10px;background:var(--g1);border-radius:var(--rs);font-size:14px;font-weight:700;color:var(--ink4)">—</div>
+          <div id="sc-b-score" style="margin-top:7px;padding:7px 10px;background:var(--g1);border-radius:var(--rs);font-size:14px;font-weight:700;color:var(--ink4)">-</div>
         </div>
       </div>
       <div id="sc-result"></div>
@@ -1128,7 +1128,7 @@ const DB = [
  groups:{precaires:6,malades:8,migrants:6,seniors:4,familles:4,jeunes:4}},
 
 {id:'lteb_ge_2024',lv:'cantonal',cat:'Environnement',icon:'🏠',year:2024,dl:'En vigueur janvier 2024 · Grand Conseil GE',commune:'Genève',
- name:'LTEB — Loi genevoise sur la transition énergétique des bâtiments, rénovation obligatoire d\'ici 2040',st:'acc',stl:'✓ 2024',
+ name:'LTEB, Loi genevoise sur la transition énergétique des bâtiments, rénovation obligatoire d\'ici 2040',st:'acc',stl:'✓ 2024',
  whatisit:'Loi cantonale genevoise imposant la rénovation énergétique de tous les bâtiments genevois d\'ici 2040, avec un système de subventions renforcées. Votée par le Grand Conseil, en vigueur depuis janvier 2024.',
  desc:'Les bâtiments représentent 40% des émissions de CO2 à Genève. La loi impose un calendrier de rénovation selon l\'ancienneté et l\'usage du bâtiment, avec des subventions cantonales allant jusqu\'à 35% des coûts. Impact sanitaire indirect mais documenté : la réduction de la pollution de l\'air intérieur et extérieur liée aux chauffages fossiles améliore la santé respiratoire, surtout chez les enfants et les seniors.',
  data:'GE : 40% des émissions CO2 proviennent des bâtiments (OCEN 2023). 60\'000 bâtiments concernés. Budget cantonal subventions : 200M CHF sur 10 ans. Réduction attendue : -60% émissions bâtiments d\'ici 2040. Lien santé : -15% maladies respiratoires dans les quartiers avec rénovation thermique (OMS 2022).',
@@ -1140,7 +1140,7 @@ const DB = [
  groups:{malades:12,seniors:12,jeunes:8,precaires:10,familles:8,migrants:6}},
 
 {id:'lirt_ge_2026',lv:'cantonal',cat:'Travail',icon:'🔍',year:2026,dl:'Vote cantonal GE · 8 mars 2026',commune:'Genève',
- name:'LIRT GE — Loi sur l\'inspection et les relations du travail, renforcement des contrôles',st:'cours',stl:'⟳ 2026',
+ name:'LIRT GE, Loi sur l\'inspection et les relations du travail, renforcement des contrôles',st:'cours',stl:'⟳ 2026',
  whatisit:'Modification de la loi genevoise sur l\'inspection et les relations du travail (LIRT), soumise à votation cantonale le 8 mars 2026. Le texte renforce les compétences de l\'inspection cantonale du travail et les mécanismes de sanction des employeurs en infraction.',
  desc:'Le renforcement de l\'inspection du travail a un impact sanitaire direct : les violations des conditions de travail (heures excessives, sécurité, harcèlement) sont un déterminant majeur de la santé des travailleurs. Genève compte une proportion importante de travailleurs précaires et de frontaliers dont les conditions sont moins bien couvertes. Les syndicats (SIT, USS) soutiennent le texte ; une partie des milieux patronaux s\'y oppose.',
  data:'GE : 87\'000 frontaliers, 30% d\'employés précaires dans certains secteurs (OCSTAT 2024). Infractions détectées par l\'inspection GE 2023 : 1\'840 cas. Lien conditions de travail / santé : +18% maladies professionnelles dans secteurs à contrôle insuffisant (SUVA 2023).',
@@ -1164,7 +1164,7 @@ const DB = [
  groups:{migrants:20,femmes:15,malades:5,precaires:10,seniors:0,jeunes:5}},
 
 {id:'ge_lhom_dimanche_2026',lv:'cantonal',cat:'Travail',icon:'🛍️',year:2026,dl:'Vote cantonal GE · 14 juin 2026',commune:'Genève',
- name:'LHOM — Ouverture des magasins le dimanche à Genève',st:'cours',stl:'⟳ 2026',
+ name:'LHOM, Ouverture des magasins le dimanche à Genève',st:'cours',stl:'⟳ 2026',
  whatisit:'Modification de la loi genevoise sur les heures d\'ouverture des magasins (LHOM) pour autoriser l\'ouverture dominicale. Le Grand Conseil GE a adopté ce texte en mai 2025. Les syndicats ont déposé un référendum.',
  desc:'Débat classique entre flexibilité économique et protection des travailleurs. Les syndicats (SIT, USS) dénoncent la dégradation des conditions de travail des employés du commerce, déjà parmi les plus précaires du canton. Les associations d\'employeurs arguent d\'une demande touristique et d\'alignement sur d\'autres cantons. Impact sanitaire documenté du travail dominical : perturbation du rythme circadien, stress chronique, difficultés de conciliation vie professionnelle/familiale.',
  data:'Genève : 18\'000 employés dans le commerce de détail (OFS 2023). 60% de femmes dans ce secteur. Littérature OMS : le travail dominical régulier est associé à +15% de risque de troubles musculo-squelettiques et +12% de risque de dépression. Compensation dimanche prévue : +25% de salaire.',
@@ -1272,8 +1272,8 @@ const DB = [
  pertes:[{who:'Budget cantonal',quoi:'Investissement initial',chiffre:'45M CHF construction + 8M/an'},{who:'Canton de Genève',quoi:'Investissement initial nécessaire',chiffre:'Amorti par la réduction du non-recours aux soins'}],
  groups:{precaires:22,familles:16,seniors:14,migrants:20,malades:18,jeunes:12}},
 
-{id:'ge_ls_exit_2024',lv:'cantonal',cat:'Santé',icon:'🕊️',year:2024,dl:'Référendum rejeté 9 juin 2024 · 76.3% non — art. 39A maintenu',commune:'Genève',
- name:'Loi sur la santé GE — maintien de l\'assistance au suicide obligatoire en EMS et hôpitaux',st:'acc',stl:'✓ 2024',
+{id:'ge_ls_exit_2024',lv:'cantonal',cat:'Santé',icon:'🕊️',year:2024,dl:'Référendum rejeté 9 juin 2024 · 76.3% non, art. 39A maintenu',commune:'Genève',
+ name:'Loi sur la santé GE, maintien de l\'assistance au suicide obligatoire en EMS et hôpitaux',st:'acc',stl:'✓ 2024',
  whatisit:'Référendum lancé par EXIT Suisse romande contre une modification du Grand Conseil supprimant l\'article 39A de la loi sur la santé GE qui oblige EMS et hôpitaux à accepter l\'assistance au suicide. Le peuple a rejeté la modification à 76.3%, maintenant ainsi la garantie légale.',
  desc:'Depuis 2018, les EMS et établissements médicaux genevois ne peuvent refuser l\'accès à EXIT sous conditions. Le Grand Conseil de droite avait supprimé cette obligation. EXIT et quasi-tous les partis ont fait campagne contre cette modification. L\'article 39A est maintenu : les résidents d\'EMS conservent les mêmes droits que les personnes à domicile. Impact santé : garantie d\'égalité de traitement pour les personnes en fin de vie, réduction des inégalités de prise en charge selon le type d\'établissement.',
  data:'GE 2024 : 124 personnes accompagnées par EXIT. CH romande : 504 personnes/an. Résultat : 76.3% de non à la suppression (article 39A maintenu). LAPr (crèches privées) rejetée à 56.9% le même jour.',
@@ -1742,7 +1742,7 @@ const DB = [
  imp:5,impL:'Impact ciblé',
  effects:{renoncement:-0.4,esperance:0.2,mortEvit:-2,gini:-0.1},
  gains:[{who:'Jeunes adultes 18–30 ans',quoi:'Milieu festif plus sûr',chiffre:'-18% hospitalisations nocturnes dans les zones couvertes'},{who:'Résidents des quartiers festifs',quoi:'Réduction des nuisances',chiffre:'-25% plaintes bruit nocturne depuis 2022'}],
- pertes:[{who:'Exploitants de nuit',quoi:'Normes et formations obligatoires',chiffre:'Coût formation estimé 500.- CHF/établissement/an'},{who:'—',quoi:'Mesure très bien acceptée',chiffre:'Soutien transpartisan au Conseil municipal'}],
+ pertes:[{who:'Exploitants de nuit',quoi:'Normes et formations obligatoires',chiffre:'Coût formation estimé 500.- CHF/établissement/an'},{who:'-',quoi:'Mesure très bien acceptée',chiffre:'Soutien transpartisan au Conseil municipal'}],
  groups:{precaires:8,familles:4,seniors:2,migrants:8,malades:6,jeunes:22}},
 
 {id:'lancy_mobilite',lv:'communal',cat:'Mobilité',icon:'🚌',year:2024,dl:'2024 · Lancy',commune:'Lancy',
@@ -1828,7 +1828,7 @@ const DB = [
  imp:6,impL:'Impact modéré',
  effects:{renoncement:-0.8,esperance:0.3,mortEvit:-3,gini:-0.3},
  gains:[{who:'80\'000 pères/an',quoi:'2 semaines de congé payé légal',chiffre:'-18% dépression paternelle post-partum'},{who:'Enfants',quoi:'Meilleur lien père-enfant précoce',chiffre:'92% des pères ont utilisé le congé en 2022'}],
- pertes:[{who:'Petites entreprises',quoi:'Gestion des remplacements sur 2 semaines',chiffre:'Financement via APG, impact employeur limité'},{who:'—',quoi:'Réforme très bien acceptée',chiffre:'60.3% de oui'}],
+ pertes:[{who:'Petites entreprises',quoi:'Gestion des remplacements sur 2 semaines',chiffre:'Financement via APG, impact employeur limité'},{who:'-',quoi:'Réforme très bien acceptée',chiffre:'60.3% de oui'}],
  groups:{precaires:10,familles:24,seniors:0,migrants:10,malades:4,jeunes:8}},
 
 {id:'mariage_pour_tous',lv:'federal',cat:'Social',icon:'💍',year:2021,dl:'Acceptée 26 sept. 2021 · 64.1% oui',commune:'',
@@ -1852,7 +1852,7 @@ const DB = [
  imp:8,impL:'Impact majeur (pandémie)',
  effects:{renoncement:-2.0,esperance:0.5,mortEvit:-8,gini:-0.2},
  gains:[{who:'Toute la population',quoi:'Cadre légal pour les mesures sanitaires',chiffre:'14\'000 décès en CH, estimé 40\'000 sans mesures (SNSF)'},{who:'Travailleurs et entreprises',quoi:'Indemnisations chômage partiel et aides',chiffre:'40 milliards CHF d\'aides économiques'}],
- pertes:[{who:'Libertés individuelles',quoi:'Restrictions temporaires',chiffre:'Référendum motivé par l\'opposition aux restrictions'},{who:'—',quoi:'Acceptée à 60% puis 62%',chiffre:'Large soutien populaire malgré le contexte'}],
+ pertes:[{who:'Libertés individuelles',quoi:'Restrictions temporaires',chiffre:'Référendum motivé par l\'opposition aux restrictions'},{who:'-',quoi:'Acceptée à 60% puis 62%',chiffre:'Large soutien populaire malgré le contexte'}],
  groups:{precaires:10,familles:10,seniors:16,migrants:8,malades:18,jeunes:8}},
 
 {id:'avs21',lv:'federal',cat:'Travail',icon:'🏛',year:2022,dl:'Acceptée 25 sept. 2022 · 50.55% oui, 50.01% (objet 2)',commune:'',
@@ -1972,7 +1972,7 @@ const DB = [
  imp:5,impL:'Rejeté',
  effects:{renoncement:-1.0,esperance:0.2,mortEvit:-2,gini:-0.1},
  gains:[{who:'200\'000 travailleurs à temps partiel',quoi:'Accès au 2e pilier',chiffre:'Principalement des femmes à temps partiel'},{who:'Femmes en retraite future',quoi:'Rentes améliorées pour les carrières discontinues',chiffre:'+200.- CHF/mois pour les cas cibles'}],
- pertes:[{who:'Assurés actuels à plein temps',quoi:'Taux de conversion réduit de 6.8% à 6%',chiffre:'Perte estimée 12% de la rente LPP'},{who:'—',quoi:'Raison principale du rejet : perte nette pour la majorité',chiffre:'Rejeté à 67%'}],
+ pertes:[{who:'Assurés actuels à plein temps',quoi:'Taux de conversion réduit de 6.8% à 6%',chiffre:'Perte estimée 12% de la rente LPP'},{who:'-',quoi:'Raison principale du rejet : perte nette pour la majorité',chiffre:'Rejeté à 67%'}],
  groups:{precaires:4,familles:6,seniors:-4,migrants:4,malades:-2,jeunes:4}},
 
 
@@ -2046,7 +2046,7 @@ const DB = [
  imp:7,impL:'Impact fort',
  effects:{renoncement:-1.5,esperance:0.3,mortEvit:-4,gini:-0.3},
  gains:[{who:'Usagers de drogues',quoi:'Traitement médical humanisé',chiffre:'-80% mortalité héroïne depuis 1992'},{who:'Société',quoi:'Moins de criminalité et de déchéance sociale',chiffre:'-60% criminalité liée aux drogues dans les zones couvertes'}],
- pertes:[{who:'Partisans de la prohibition',quoi:'Légitimation de la remise d\'héroïne',chiffre:'32% de non malgré les résultats probants'},{who:'—',quoi:'Très largement acceptée et reconnue mondialement',chiffre:'Politique modèle dans 25 pays'}],
+ pertes:[{who:'Partisans de la prohibition',quoi:'Légitimation de la remise d\'héroïne',chiffre:'32% de non malgré les résultats probants'},{who:'-',quoi:'Très largement acceptée et reconnue mondialement',chiffre:'Politique modèle dans 25 pays'}],
  groups:{precaires:16,familles:6,seniors:4,migrants:10,malades:18,jeunes:12}},
 
 {id:'caisse_maladie_2014',lv:'federal',cat:'Fiscal',icon:'🏦',year:2014,dl:'Rejetée 28 sept. 2014 · 61.9% non',era:'hist',commune:'',
@@ -2070,7 +2070,7 @@ const DB = [
  imp:10,impL:'Impact fondateur',
  effects:{renoncement:-3,esperance:0.8,mortEvit:-8,gini:-0.8},
  gains:[{who:'Femmes suisses',quoi:'Participation pleine à la démocratie',chiffre:'50% de la population accède aux droits civiques'},{who:'Législation sociale',quoi:'Prise en compte des besoins des femmes',chiffre:'Assurance maternité, lois protection domestique, congé paternité : tous portés par des femmes élues'}],
- pertes:[{who:'—',quoi:'Aucune perte documentée',chiffre:'Vote fondateur universellement reconnu rétrospectivement'},{who:'Retard historique',quoi:'La Suisse a attendu 1971 (vs 1918 en Allemagne, 1944 en France)',chiffre:'53 ans de retard sur plusieurs voisins européens'}],
+ pertes:[{who:'-',quoi:'Aucune perte documentée',chiffre:'Vote fondateur universellement reconnu rétrospectivement'},{who:'Retard historique',quoi:'La Suisse a attendu 1971 (vs 1918 en Allemagne, 1944 en France)',chiffre:'53 ans de retard sur plusieurs voisins européens'}],
  groups:{precaires:14,familles:20,seniors:14,migrants:10,malades:12,jeunes:12}},
 
 // ── VOTATIONS ET LOIS MANQUANTES ────────────────────────────────────────
@@ -2084,7 +2084,7 @@ const DB = [
  imp:7,impL:'Impact fort',
  effects:{renoncement:-1.5,esperance:0.4,mortEvit:-4,gini:-0.6},
  gains:[{who:'Femmes travailleuses',quoi:'Protection légale contre la discrimination salariale',chiffre:'8.1% d\'écart inexpliqué à combler'},{who:'Familles avec femmes actives',quoi:'Revenus améliorés',chiffre:'Économie potentielle 400–900.- CHF/mois selon secteur'}],
- pertes:[{who:'Employeurs discriminants',quoi:'Obligation de transparence salariale',chiffre:'Sans sanction financière : application partielle'},{who:'—',quoi:'Loi consensuelle mais peu contraignante',chiffre:'Renforcement 2020 jugé insuffisant par les syndicats'}],
+ pertes:[{who:'Employeurs discriminants',quoi:'Obligation de transparence salariale',chiffre:'Sans sanction financière : application partielle'},{who:'-',quoi:'Loi consensuelle mais peu contraignante',chiffre:'Renforcement 2020 jugé insuffisant par les syndicats'}],
  groups:{precaires:14,familles:18,seniors:8,migrants:10,malades:6,jeunes:12}},
 
 {id:'partenariat_enregistre',lv:'federal',cat:'Social',icon:'💑',year:2004,dl:'Acceptée 5 juin 2005 · 58% oui · En vigueur 2007',era:'hist',commune:'',
@@ -2095,8 +2095,8 @@ const DB = [
  src:'Chancellerie fédérale 2005 · OFS · Swissvotes',
  imp:5,impL:'Impact ciblé',
  effects:{renoncement:-0.4,esperance:0.2,mortEvit:-1,gini:-0.2},
- gains:[{who:'Couples de même sexe',quoi:'Protection juridique et sociale partielle',chiffre:'7\'000 partenariats enregistrés 2007–2021'},{who:'—',quoi:'Étape vers le mariage pour tous (2021)',chiffre:'—'}],
- pertes:[{who:'—',quoi:'Solution jugée insuffisante par rapport au mariage',chiffre:'Exclusion de l\'adoption et du don de sperme'}],
+ gains:[{who:'Couples de même sexe',quoi:'Protection juridique et sociale partielle',chiffre:'7\'000 partenariats enregistrés 2007–2021'},{who:'-',quoi:'Étape vers le mariage pour tous (2021)',chiffre:'-'}],
+ pertes:[{who:'-',quoi:'Solution jugée insuffisante par rapport au mariage',chiffre:'Exclusion de l\'adoption et du don de sperme'}],
  groups:{precaires:6,familles:8,seniors:4,migrants:4,malades:6,jeunes:12}},
 
 {id:'medecins_famille',lv:'federal',cat:'Santé',icon:'🩺',year:2014,dl:'Acceptée 18 mai 2014 · 88% oui',era:'hist',commune:'',
@@ -2108,7 +2108,7 @@ const DB = [
  imp:7,impL:'Impact fort',
  effects:{renoncement:-2.0,esperance:0.4,mortEvit:-5,gini:-0.4},
  gains:[{who:'Toute la population',quoi:'Médecin de premier recours accessible',chiffre:'+30% étudiants en médecine générale depuis 2014'},{who:'Patients ruraux et défavorisés',quoi:'Réduction des déserts médicaux',chiffre:'Pénurie toujours présente mais ralentie'}],
- pertes:[{who:'—',quoi:'Acceptée à 88%, peu d\'opposition',chiffre:'Mesures insuffisantes selon les promoteurs'},{who:'—',quoi:'Pénurie toujours présente malgré la loi',chiffre:'Effets sur 10 ans, pas encore complets'}],
+ pertes:[{who:'-',quoi:'Acceptée à 88%, peu d\'opposition',chiffre:'Mesures insuffisantes selon les promoteurs'},{who:'-',quoi:'Pénurie toujours présente malgré la loi',chiffre:'Effets sur 10 ans, pas encore complets'}],
  groups:{precaires:12,familles:10,seniors:14,migrants:10,malades:16,jeunes:8}},
 
 {id:'initiative_1_12',lv:'federal',cat:'Fiscal',icon:'💰',year:2013,dl:'Rejetée 24 nov. 2013 · 65.3% non',era:'hist',commune:'',
@@ -2132,7 +2132,7 @@ const DB = [
  imp:4,impL:'Impact limité',
  effects:{renoncement:-0.5,esperance:0.1,mortEvit:-1,gini:-0.2},
  gains:[{who:'Actionnaires',quoi:'Contrôle démocratique des salaires',chiffre:'Vote obligatoire annuel en AG sur les rémunérations'},{who:'Cohésion sociale',quoi:'Signal politique fort contre les abus',chiffre:'Modèle repris par l\'UE et plusieurs pays'}],
- pertes:[{who:'Grandes entreprises',quoi:'Contraintes de gouvernance',chiffre:'Coûts administratifs supplémentaires'},{who:'—',quoi:'Peu d\'effet sur les inégalités réelles',chiffre:'Ratio salarial encore élevé en 2022'}],
+ pertes:[{who:'Grandes entreprises',quoi:'Contraintes de gouvernance',chiffre:'Coûts administratifs supplémentaires'},{who:'-',quoi:'Peu d\'effet sur les inégalités réelles',chiffre:'Ratio salarial encore élevé en 2022'}],
  groups:{precaires:4,familles:4,seniors:4,migrants:2,malades:2,jeunes:6}},
 
 {id:'six_semaines_vacances',lv:'federal',cat:'Travail',icon:'🏖',year:2012,dl:'Rejetée 11 mars 2012 · 66.5% non',era:'hist',commune:'',
@@ -2155,7 +2155,7 @@ const DB = [
  src:'Chancellerie fédérale 2014 · SECO · OFSP',
  imp:6,impL:'Inapplicable (impact négatif si appliquée)',
  effects:{renoncement:2.0,esperance:-0.4,mortEvit:4,gini:0.4},
- gains:[{who:'Partisans du contrôle migratoire',quoi:'Signal politique sur l\'immigration',chiffre:'Mise en oeuvre très limitée'},{who:'—',quoi:'Aucun bénéfice santé documenté',chiffre:'—'}],
+ gains:[{who:'Partisans du contrôle migratoire',quoi:'Signal politique sur l\'immigration',chiffre:'Mise en oeuvre très limitée'},{who:'-',quoi:'Aucun bénéfice santé documenté',chiffre:'-'}],
  pertes:[{who:'Système de santé',quoi:'Pénurie soignants si appliquée strictement',chiffre:'40% du personnel soignant menacé'},{who:'Accords bilatéraux',quoi:'Fragilisation des relations UE-Suisse',chiffre:'Négociations complexes pendant 7 ans'}],
  groups:{precaires:-4,familles:-2,seniors:-8,migrants:-20,malades:-8,jeunes:-4}},
 
@@ -2168,7 +2168,7 @@ const DB = [
  imp:5,impL:'Impact ciblé',
  effects:{renoncement:-0.8,esperance:0.2,mortEvit:-2,gini:-0.3},
  gains:[{who:'25\'000 jeunes de 3e génération',quoi:'Accès simplifié à la naturalisation',chiffre:'Délai réduit de 10 ans à quelques mois'},{who:'Intégration sociale',quoi:'Réduction de l\'exclusion civique',chiffre:'Participation politique et droits sociaux complets'}],
- pertes:[{who:'—',quoi:'Peu d\'opposition documentée',chiffre:'60% de oui'},{who:'—',quoi:'—',chiffre:'—'}],
+ pertes:[{who:'-',quoi:'Peu d\'opposition documentée',chiffre:'60% de oui'},{who:'-',quoi:'-',chiffre:'-'}],
  groups:{precaires:8,familles:10,seniors:4,migrants:18,malades:6,jeunes:12}},
 
 {id:'medecine_complementaire',lv:'federal',cat:'Santé',icon:'🌿',year:2009,dl:'Acceptée 17 mai 2009 · 67% oui',era:'hist',commune:'',
@@ -2192,7 +2192,7 @@ const DB = [
  imp:8,impL:'Impact fort (si adoptée)',
  effects:{renoncement:-3.0,esperance:0.5,mortEvit:-6,gini:-0.5},
  gains:[{who:'38% adultes GE avec troubles psy',quoi:'Soins mentaux remboursés comme les soins physiques',chiffre:'Fin de la discrimination de remboursement'},{who:'Suicidants et malades graves',quoi:'Accès facilité aux soins lourds',chiffre:'-1\'000 suicides/an en CH visé à long terme'}],
- pertes:[{who:'Assurés LAMal',quoi:'Hausse des primes',chiffre:'Coût estimé +200–400M CHF/an'},{who:'—',quoi:'Réforme socialement nécessaire',chiffre:'Consensus large sur le besoin, débat sur le financement'}],
+ pertes:[{who:'Assurés LAMal',quoi:'Hausse des primes',chiffre:'Coût estimé +200–400M CHF/an'},{who:'-',quoi:'Réforme socialement nécessaire',chiffre:'Consensus large sur le besoin, débat sur le financement'}],
  groups:{precaires:16,familles:12,seniors:10,migrants:10,malades:24,jeunes:22}},
 
 {id:'interdiction_pub_tabac',lv:'federal',cat:'Santé',icon:'🚭',year:2016,dl:'Rejetée 28 fév. 2016 · 67.6% non',era:'hist',commune:'',
@@ -2204,7 +2204,7 @@ const DB = [
  imp:6,impL:'Rejeté',
  effects:{renoncement:-0.8,esperance:0.4,mortEvit:-5,gini:-0.2},
  gains:[{who:'Mineurs',quoi:'Moins d\'exposition à la publicité tabac',chiffre:'-26% tabagisme jeunes dans les pays avec interdiction totale'},{who:'Santé publique',quoi:'Réduction du tabagisme à long terme',chiffre:'-9\'500 décès/an visé à 20 ans'}],
- pertes:[{who:'Industrie du tabac et publicité',quoi:'Perte de marché publicitaire',chiffre:'Raison principale du lobbying contre'},{who:'—',quoi:'Rejetée mais suivi par loi tabac 2022 plus forte',chiffre:'—'}],
+ pertes:[{who:'Industrie du tabac et publicité',quoi:'Perte de marché publicitaire',chiffre:'Raison principale du lobbying contre'},{who:'-',quoi:'Rejetée mais suivi par loi tabac 2022 plus forte',chiffre:'-'}],
  groups:{precaires:8,familles:10,seniors:8,migrants:6,malades:14,jeunes:12}},
 
 {id:'anti_vax_2024',lv:'federal',cat:'Santé',icon:'💉',year:2024,dl:'Rejetée 9 juin 2024 · 77.2% non',commune:'',
@@ -2215,12 +2215,12 @@ const DB = [
  src:'Chancellerie fédérale juin 2024 · OFSP · OMS',
  imp:7,impL:'Rejeté (impact négatif si adoptée)',
  effects:{renoncement:1.5,esperance:-0.3,mortEvit:5,gini:0.2},
- gains:[{who:'Opposants aux vaccinations',quoi:'Protection légale contre toute obligation',chiffre:'Bénéfice selon les promoteurs'},{who:'—',quoi:'Aucun bénéfice de santé publique documenté',chiffre:'—'}],
+ gains:[{who:'Opposants aux vaccinations',quoi:'Protection légale contre toute obligation',chiffre:'Bénéfice selon les promoteurs'},{who:'-',quoi:'Aucun bénéfice de santé publique documenté',chiffre:'-'}],
  pertes:[{who:'Programmes de vaccination scolaire',quoi:'Remise en question juridique possible',chiffre:'Taux vaccination rougeole sous 95% → épidémies'},{who:'Personnel soignant âgé',quoi:'Impossibilité d\'exiger la vaccination grippe',chiffre:'3\'000 décès/an liés à la grippe en CH'}],
  groups:{precaires:-4,familles:-6,seniors:-10,migrants:-4,malades:-12,jeunes:-4}},
 
 {id:'bail_besoin_propre_2024',lv:'federal',cat:'Logement',icon:'🏠',year:2024,dl:'Rejetée 24 nov. 2024 · 55% non',commune:'',
- name:'Droit du bail — résiliation pour besoin propre facilitée, rejetée à 55%',st:'rej',stl:'✗ 2024',
+ name:'Droit du bail, résiliation pour besoin propre facilitée, rejetée à 55%',st:'rej',stl:'✗ 2024',
  whatisit:'Modification du Code des obligations assouplissant la condition de résiliation du bail pour besoin propre du propriétaire : remplace l\'exigence d\'urgence par celle d\'un besoin \'important et actuel\'. Rejetée le 24 novembre 2024 à 55%, référendum lancé par l\'Association suisse des locataires.',
  desc:'Rejetée dans toute la Romandie (GE 67% non, VD 60.5%, NE 62%). Les opposants ont mis en avant le risque d\'expulsions facilitées dans un marché du logement tendu, avec des conséquences directes sur la santé : instabilité résidentielle, stress chronique, perte de liens sociaux. La pénurie de logements à Genève (taux de vacance 0.38% en 2024) rendait ce texte particulièrement sensible.',
  data:'GE taux de vacance logements 2024 : 0.38% (OCSTAT). Loyer médian GE : 2\'200.- CHF/mois. Littérature OMS : instabilité résidentielle associée à +25% de troubles anxieux et dépressifs. 24 nov. 2024 : sous-location rejetée à 53.2%, besoin propre à 55%, financement LAMAL accepté à 53.4%.',
@@ -2228,11 +2228,11 @@ const DB = [
  imp:6,impL:'Impact modéré sur santé via logement',
  effects:{renoncement:0.4,esperance:-0.1,mortEvit:1,gini:0.5},
  gains:[{who:'Si acceptée : propriétaires',quoi:'Récupération facilitée de leur bien',chiffre:'Procédures juridiques simplifiées'},{who:'Marché locatif',quoi:'Libération potentielle de logements',chiffre:'Argument des partisans : meilleure rotation du parc'}],
- pertes:[{who:'Locataires (surtout GE, VD)',quoi:'Risque d\'expulsion facilité',chiffre:'GE : 0.38% vacance — expulsion = sans solution de relogement'},{who:'Précaires et personnes vulnérables',quoi:'Instabilité résidentielle = impact santé documenté',chiffre:'+25% troubles anxieux/dépressifs (OMS)'}],
+ pertes:[{who:'Locataires (surtout GE, VD)',quoi:'Risque d\'expulsion facilité',chiffre:'GE : 0.38% vacance, expulsion = sans solution de relogement'},{who:'Précaires et personnes vulnérables',quoi:'Instabilité résidentielle = impact santé documenté',chiffre:'+25% troubles anxieux/dépressifs (OMS)'}],
  groups:{precaires:16,migrants:14,malades:10,seniors:12,familles:12,jeunes:8}},
 
 {id:'nlpd_2023',lv:'federal',cat:'Social',icon:'🔒',year:2023,dl:'En vigueur 1er septembre 2023',commune:'',
- name:'nLPD — Nouvelle loi fédérale sur la protection des données, alignement RGPD',st:'acc',stl:'✓ 2023',
+ name:'nLPD, Nouvelle loi fédérale sur la protection des données, alignement RGPD',st:'acc',stl:'✓ 2023',
  whatisit:'Révision complète de la loi fédérale suisse sur la protection des données (LPD, RS 235.1) entrée en vigueur le 1er septembre 2023. Aligne la Suisse sur le RGPD européen : droits renforcés des personnes concernées, obligations accrues des responsables du traitement, sanctions et notification des violations.',
  desc:'Impact direct sur la santé numérique : les données de santé sont explicitement catégorisées comme données sensibles requérant des protections renforcées. Les dossiers électroniques du patient (DEP), les plateformes de télémédecine, les assureurs et les hôpitaux sont directement concernés. La loi renforce la confiance dans les systèmes de santé numériques et réduit les risques de réutilisation non consentie des données médicales.',
  data:'CH : ~8 mrd CHF de marché des données de santé (estimation OFSP). Notification de violation obligatoire au PFPDT dans les 72h. Amende maximale : 250\'000.- CHF par personne physique responsable. Droits : accès, rectification, portabilité, droit à l\'oubli.',
@@ -2244,7 +2244,7 @@ const DB = [
  groups:{malades:10,precaires:6,migrants:6,seniors:8,familles:6,jeunes:8}},
 
 {id:'bail_sous_location_2024',lv:'federal',cat:'Logement',icon:'🏠',year:2024,dl:'Rejetée 24 nov. 2024 · 53.2% non',commune:'',
- name:'Droit du bail — encadrement de la sous-location, rejeté à 53.2%',st:'rej',stl:'✗ 2024',
+ name:'Droit du bail, encadrement de la sous-location, rejeté à 53.2%',st:'rej',stl:'✗ 2024',
  whatisit:'Modification du Code des obligations renforçant les conditions d\'autorisation de la sous-location : consentement écrit du bailleur requis, refus possible si la sous-location dure plus de 2 ans ou présente des inconvénients majeurs. Rejetée à 53.2% le 24 novembre 2024.',
  desc:'Rejetée dans toute la Romandie (GE 64% non, VD 58.7%, NE 62%). Les syndicats et associations de locataires arguaient que ce texte fragilisait la mobilité résidentielle et aggravait l\'exclusion des ménages précaires en réduisant l\'offre de sous-locations abordables. Lien santé documenté : l\'instabilité résidentielle et la surpopulation des logements sont des déterminants majeurs de santé mentale et physique.',
  data:'GE taux de vacance 2024 : 0.38% (OCSTAT). Loyer médian GE : 2\'200.- CHF/mois. Résultat 24 nov. 2024 : sous-location rejetée à 53.2%, besoin propre à 55%, LAMAL uniformisée acceptée à 53.4%. GE : 64% non sous-location.',
@@ -2264,8 +2264,8 @@ const DB = [
  src:'Chancellerie fédérale fév. 2020 · ASLOCA · OCSTAT GE',
  imp:5,impL:'Rejeté en 2020 (relancé en 2023)',
  effects:{renoncement:-0.5,esperance:0.1,mortEvit:-1,gini:-0.2},
- gains:[{who:'Locataires',quoi:'Protection des droits existants maintenue',chiffre:'85% de la population genevoise protégée'},{who:'—',quoi:'Victoire temporaire, réforme relancée en 2023',chiffre:'—'}],
- pertes:[{who:'Propriétaires',quoi:'Statu quo pour la récupération de leur bien',chiffre:'Attente de 3 ans avant une nouvelle tentative'},{who:'—',quoi:'—',chiffre:'—'}],
+ gains:[{who:'Locataires',quoi:'Protection des droits existants maintenue',chiffre:'85% de la population genevoise protégée'},{who:'-',quoi:'Victoire temporaire, réforme relancée en 2023',chiffre:'-'}],
+ pertes:[{who:'Propriétaires',quoi:'Statu quo pour la récupération de leur bien',chiffre:'Attente de 3 ans avant une nouvelle tentative'},{who:'-',quoi:'-',chiffre:'-'}],
  groups:{precaires:8,familles:8,seniors:6,migrants:10,malades:4,jeunes:10}},
 
 {id:'aide_sociale_suisse',lv:'federal',cat:'Social',icon:'🤝',year:2018,dl:'Rejetée 25 nov. 2018 · 63.2% non (initiative UDC)',commune:'',
@@ -2276,7 +2276,7 @@ const DB = [
  src:'Chancellerie fédérale 2018 · Swissvotes · CAMSCO',
  imp:6,impL:'Rejeté (impact négatif si adoptée)',
  effects:{renoncement:2.0,esperance:-0.3,mortEvit:4,gini:0.6},
- gains:[{who:'Partisans d\'une immigration restrictive',quoi:'Incitation à l\'autonomie financière',chiffre:'Argument des promoteurs'},{who:'—',quoi:'Aucun bénéfice de santé publique documenté',chiffre:'—'}],
+ gains:[{who:'Partisans d\'une immigration restrictive',quoi:'Incitation à l\'autonomie financière',chiffre:'Argument des promoteurs'},{who:'-',quoi:'Aucun bénéfice de santé publique documenté',chiffre:'-'}],
  pertes:[{who:'Étrangers en précarité',quoi:'Exclusion du droit à la naturalisation',chiffre:'68% des bénéficiaires aide sociale GE sont étrangers'},{who:'Cohésion sociale',quoi:'Discrimination institutionnalisée',chiffre:'Rapport bénéfice/coût social très défavorable'}],
  groups:{precaires:-10,familles:-6,seniors:-4,migrants:-24,malades:-8,jeunes:-6}},
 
@@ -2301,7 +2301,7 @@ const DB = [
  imp:4,impL:'Impact indirect',
  effects:{renoncement:-0.5,esperance:0.1,mortEvit:-1,gini:-0.3},
  gains:[{who:'Résidents ordinaires',quoi:'Réduction de l\'inégalité fiscale',chiffre:'+400–600M CHF/an de recettes si supprimés'},{who:'Services publics',quoi:'Financement accru potentiel',chiffre:'Impact indirect sur les services de santé'}],
- pertes:[{who:'Cantons accueillant des fortunés',quoi:'Risque de départ de résidents fortunés',chiffre:'Argument principal des opposants'},{who:'—',quoi:'GE a déjà supprimé ses forfaits sans catastrophe',chiffre:'Expérience cantonale positive'}],
+ pertes:[{who:'Cantons accueillant des fortunés',quoi:'Risque de départ de résidents fortunés',chiffre:'Argument principal des opposants'},{who:'-',quoi:'GE a déjà supprimé ses forfaits sans catastrophe',chiffre:'Expérience cantonale positive'}],
  groups:{precaires:4,familles:4,seniors:4,migrants:2,malades:2,jeunes:4}},
 
 {id:'assurance_invalidite_2007',lv:'federal',cat:'Social',icon:'♿',year:2007,dl:'Acceptée 17 juin 2007 · 59.1% oui · 4e révision AI',era:'hist',commune:'',
@@ -2325,7 +2325,7 @@ const DB = [
  imp:6,impL:'Impact sur la recherche',
  effects:{renoncement:-0.5,esperance:0.4,mortEvit:-3,gini:-0.1},
  gains:[{who:'Patients',quoi:'Protection lors de la participation à la recherche',chiffre:'Consentement éclairé obligatoire, protection des données'},{who:'Recherche médicale',quoi:'Cadre légal clair pour les essais cliniques',chiffre:'1\'200 études/an en CH dans un cadre sécurisé'}],
- pertes:[{who:'Industrie pharmaceutique',quoi:'Processus d\'approbation plus long',chiffre:'Délai approbation commission d\'éthique : 30–60 jours'},{who:'—',quoi:'Loi très consensuelle',chiffre:'77% de oui'}],
+ pertes:[{who:'Industrie pharmaceutique',quoi:'Processus d\'approbation plus long',chiffre:'Délai approbation commission d\'éthique : 30–60 jours'},{who:'-',quoi:'Loi très consensuelle',chiffre:'77% de oui'}],
  groups:{precaires:6,familles:6,seniors:8,migrants:4,malades:16,jeunes:6}},
 
 {id:'biodiversite',lv:'federal',cat:'Environnement',icon:'🌿',year:2024,dl:'Rejetée 22 sept. 2024 · 63% non',commune:'',
@@ -2375,7 +2375,7 @@ const DB = [
  imp:4,impL:'Impact indirect (information publique)',
  effects:{renoncement:-0.2,esperance:0.1,mortEvit:-1,gini:-0.1},
  gains:[{who:'SSR et médias régionaux',quoi:'Maintien du financement du service public audiovisuel',chiffre:'Budget SSR préservé à 1.5 mrd CHF'},{who:'Cohésion nationale',quoi:'Information multilingue préservée',chiffre:'4 régions linguistiques maintenues'}],
- pertes:[{who:'—',quoi:'Rejetée largement, peu de perdants documentés',chiffre:'Le Conseil fédéral baisse quand même la redevance à 300.- CHF dès 2027'}],
+ pertes:[{who:'-',quoi:'Rejetée largement, peu de perdants documentés',chiffre:'Le Conseil fédéral baisse quand même la redevance à 300.- CHF dès 2027'}],
  groups:{precaires:4,familles:4,seniors:6,migrants:4,malades:4,jeunes:4}},
 
 {id:'argent_liquide',lv:'federal',cat:'Fiscal',icon:'💵',year:2026,dl:'Initiative rejetée, contre-projet accepté · 8 mars 2026',commune:'',
@@ -2387,7 +2387,7 @@ const DB = [
  imp:4,impL:'Impact ciblé (inclusion financière)',
  effects:{renoncement:-0.2,esperance:0.1,mortEvit:-1,gini:-0.1},
  gains:[{who:'Personnes sans compte bancaire ou smartphone',quoi:'Droit d\'accès au numéraire garanti',chiffre:'1.5 million de Suisses concernés'},{who:'Personnes âgées',quoi:'Protection contre l\'exclusion numérique',chiffre:'34% des 75+ utilisent exclusivement le cash'}],
- pertes:[{who:'—',quoi:'Réforme constitutionnelle minimale, peu de perdants',chiffre:'Contre-projet très modéré vs initiative initiale'}],
+ pertes:[{who:'-',quoi:'Réforme constitutionnelle minimale, peu de perdants',chiffre:'Contre-projet très modéré vs initiative initiale'}],
  groups:{precaires:6,familles:4,seniors:12,migrants:6,malades:4,jeunes:2}},
 {id:'loi_service_civil_2026',lv:'federal',cat:'Social',icon:'🪖',year:2026,dl:'Vote 14 juin 2026 · Loi fédérale sur le service civil (LSC)',commune:'',
  name:'Réforme de la loi sur le service civil, conditions d\'accès durcies',st:'cours',stl:'⟳ 2026',
@@ -2397,7 +2397,7 @@ const DB = [
  src:'CIVS (Centre d\'information du service civil) · Chancellerie fédérale 2026 · Parlament.ch',
  imp:5,impL:'Impact modéré',
  effects:{renoncement:-0.2,esperance:0.1,mortEvit:-1,gini:-0.1},
- gains:[{who:'Armée suisse',quoi:'Rééquilibrage des effectifs',chiffre:'Objectif : maintenir les effectifs militaires nécessaires'},{who:'—',quoi:'Peu de bénéfices santé directs',chiffre:'Impact indirect sur les organisations sociales'}],
+ gains:[{who:'Armée suisse',quoi:'Rééquilibrage des effectifs',chiffre:'Objectif : maintenir les effectifs militaires nécessaires'},{who:'-',quoi:'Peu de bénéfices santé directs',chiffre:'Impact indirect sur les organisations sociales'}],
  pertes:[{who:'Organisations sociales et sanitaires',quoi:'Moins de civilistes disponibles',chiffre:'4\'500 organisations concernées dont 40% dans la santé'},{who:'Personnes souhaitant le service civil',quoi:'Accès plus difficile',chiffre:'Délai d\'attente réintroduit'}],
  groups:{precaires:2,familles:2,seniors:4,migrants:2,malades:4,jeunes:-4}},
 
@@ -2481,7 +2481,7 @@ const DB = [
  plain:"L'exclusion de fait de certains profils des mandats électifs réduit la représentation des populations migrantes et de confession visible dans les instances décisionnelles de santé.",
  src:"ge.ch · Radio Lac · Verts GE · 14 juin 2026"},
 
-{id:"ouverture_dimanche_ge_2026",name:"Ouverture des magasins le dimanche — LHOM GE",year:2026,st:'proj',stl:'◌ 2026',
+{id:"ouverture_dimanche_ge_2026",name:"Ouverture des magasins le dimanche, LHOM GE",year:2026,st:'proj',stl:'◌ 2026',
  lv:'cantonal',cat:'Travail',icon:'🛍️',commune:'',dl:"Votation cantonale GE · 14 juin 2026",
  whatisit:"Modification de la loi sur les heures d'ouverture des magasins (LHOM) permettant aux commerces d'ouvrir 2 dimanches par an sans autorisation (au lieu de 3 actuellement). Combattu par référendum de la gauche et des syndicats.",
  desc:"La droite veut flexibiliser l'ouverture dominicale pour soutenir le commerce. La gauche et les syndicats défendent le repos dominical et les conditions de travail dans le commerce de détail. Le Tribunal fédéral avait annulé un précédent scrutin sur ce sujet.",
@@ -2586,7 +2586,7 @@ const DB = [
  imp:7,impL:'Impact fort (maladies rares)',
  effects:{renoncement:-1.2,esperance:0.6,mortEvit:-8,gini:-0.5},
  gains:[{who:'400\'000 personnes',quoi:'Délai diagnostic réduit',chiffre:'5–7 ans → 3 ans'},{who:'Enfants atteints',quoi:'Accès aux centres de référence',chiffre:'Traitement adapté dès le diagnostic'}],
- pertes:[{who:'LAMal',quoi:'Médicaments orphelins',chiffre:'200\'000 CHF/patient/an — tension sur primes'}],
+ pertes:[{who:'LAMal',quoi:'Médicaments orphelins',chiffre:'200\'000 CHF/patient/an, tension sur primes'}],
  groups:{malades:26,familles:16,precaires:10,seniors:8,migrants:6,jeunes:8}},
 
 // ── INITIATIVES PARLEMENTAIRES NON VOTÉES ────────────────────────────────
@@ -2603,7 +2603,7 @@ const DB = [
  groups:{precaires:20,migrants:18,malades:16,seniors:12,familles:10,jeunes:8}},
 
 {id:'gel_primes_lamal_initiative',lv:'federal',cat:'Santé',icon:'🧊',year:2026,era:'future',dl:'⟳ Collecte signatures 2025–2026',
- name:'Initiative populaire pour le gel des primes LAMal — plafond à 10% du revenu (PS)',st:'prop',stl:'⟳ 2026',
+ name:'Initiative populaire pour le gel des primes LAMal, plafond à 10% du revenu (PS)',st:'prop',stl:'⟳ 2026',
  whatisit:'Initiative du PS et syndicats pour plafonner les primes LAMal à 10% du revenu des ménages. État fédéral et cantons compenseraient la différence. Coût estimé : 12–18 milliards CHF/an.',
  desc:'Primes LAMal +28% entre 2020 et 2025. 10% des ménages consacrent >15% de leur revenu aux primes. Après le rejet du frein aux coûts en 2024 (56% non), initiative encore plus ambitieuse.',
  data:'Primes 2025 : 378 CHF/mois en moyenne · +28% depuis 2020 · Coût plafonnement : 12–18 Mrd CHF/an.',
@@ -2886,7 +2886,7 @@ const DB = [
  desc:'1\'500 adhérents en 2024, croissance rapide. Centrale téléphonique de gestionnaires de santé en première ligne. Prévention, suivi maladies chroniques, coordination. Économies attendues : 15–20%.',
  data:'1\'500 adhérents jan. 2024 · Modèle capitation · -15–20% coûts visés · SA tripartite BE/Visana/SMN.',
  src:'Réseau de l\'Arc · Visana VIVA · Swiss Medical Network · rapport Projet Béluga 2024',
- imp:9,impL:'Impact fort — modèle de référence suisse',
+ imp:9,impL:'Impact fort, modèle de référence suisse',
  effects:{renoncement:-1.5,esperance:0.6,mortEvit:-10,gini:-0.5},
  gains:[{who:'Assurés du Jura bernois',quoi:'Soins coordonnés et primes réduites',chiffre:'-15–20% coûts visés'},{who:'Médecins de premier recours',quoi:'Financement coordination hors LAMal',chiffre:'Capitation couvre prévention et coordination'}],
  pertes:[{who:'Assureurs concurrents',quoi:'Modèle alternatif attractif',chiffre:'Pression concurrentielle sur les primes'}],
@@ -2896,7 +2896,7 @@ const DB = [
  name:'BE : plan cantonal santé mentale 2023–2030, psychiatrie intégrée et prévention',
  st:'acc',stl:'✓ 2023',dl:'Direction Santé BE · 2023',
  whatisit:'Plan bernois de santé mentale le plus ambitieux de Suisse : psychiatrie intégrée dans les hôpitaux régionaux, équipes mobiles de crise, programme de prévention du suicide scolaire.',
- desc:'BE : 1\'000 suicides/an en Suisse — BE est le plus grand canton. Plan vise -12% hospitalisations psychiatriques et déploiement de 6 équipes mobiles de crise en 4 ans.',
+ desc:'BE : 1\'000 suicides/an en Suisse, BE est le plus grand canton. Plan vise -12% hospitalisations psychiatriques et déploiement de 6 équipes mobiles de crise en 4 ans.',
  data:'1ère cause de mortalité 15–44 ans en CH · -12% hospitalisations psych visées · 6 équipes mobiles · 20M CHF/4 ans.',
  src:'Direction Santé BE · Insel Gruppe · 2023',
  imp:8,impL:'Impact fort (santé mentale)',
@@ -2914,7 +2914,7 @@ const DB = [
  src:'Direction Santé BE · EFAS · Spitex BE · 2024',
  imp:7,impL:'Impact structurel (vieillissement)',
  effects:{renoncement:-0.6,esperance:0.4,mortEvit:-5,gini:-0.3},
- gains:[{who:'Personnes âgées BE',quoi:'Maintien à domicile favorisé',chiffre:'22\'000 résidents EMS — alternative domicile'},{who:'Finances cantonales BE',quoi:'Incitation à l\'efficience ambulatoire',chiffre:'EFAS aligne les incitations'}],
+ gains:[{who:'Personnes âgées BE',quoi:'Maintien à domicile favorisé',chiffre:'22\'000 résidents EMS, alternative domicile'},{who:'Finances cantonales BE',quoi:'Incitation à l\'efficience ambulatoire',chiffre:'EFAS aligne les incitations'}],
  pertes:[{who:'Budget cantonal BE',quoi:'Nouveau cofinancement ambulatoire EFAS',chiffre:'+180M CHF/an dès 2028'}],
  groups:{seniors:26,malades:20,familles:14,precaires:12,migrants:8,jeunes:4}},
 
@@ -2952,7 +2952,7 @@ const DB = [
  name:'JU : plan cantonal santé mentale, équipe mobile et partenariat RHNE',
  st:'acc',stl:'✓ 2022',dl:'Département Santé JU · RHNE · 2022',
  whatisit:'Plan jurassien de santé mentale en partenariat avec le Réseau Hospitalier Neuchâtelois (RHNE). Équipe mobile de psychiatrie, unité de crise à Delémont, renforcement des soins ambulatoires.',
- desc:'JU : plus petit canton suisse (73\'000 hab) — mutualisation psychiatrique avec NE indispensable. Délai accès psychiatre : 8 semaines. Plan vise 4 semaines et déploiement équipe mobile en 2023.',
+ desc:'JU : plus petit canton suisse (73\'000 hab), mutualisation psychiatrique avec NE indispensable. Délai accès psychiatre : 8 semaines. Plan vise 4 semaines et déploiement équipe mobile en 2023.',
  data:'73\'000 habitants · Délai psychiatre 8 sem → 4 sem visées · Équipe mobile 2023 · Partenariat RHNE.',
  src:'Département Santé JU · RHNE · 2022',
  imp:7,impL:'Impact fort (santé mentale JU)',
@@ -3029,7 +3029,7 @@ const DB = [
 
 const BASE={renoncement:18.0,esperance:67.8,mortEvit:158,gini:6.2};
 
-// Baselines par canton — sources : OBSAN, OFS, OCSTAT 2022-2024
+// Baselines par canton, sources : OBSAN, OFS, OCSTAT 2022-2024
 const BASES = {
   'GE': {renoncement:18.0, esperance:67.8, mortEvit:158, gini:6.2, pop:510000,  label:'GE · Genève'},
   'VD': {renoncement:16.5, esperance:68.4, mortEvit:148, gini:5.8, pop:870000,  label:'VD · Vaud'},
@@ -3047,7 +3047,7 @@ function getBase() {
 }
 
 const POL_CONFIDENCE = {
-  // CERTAIN — effets mesurés directement en CH ou GE
+  // CERTAIN, effets mesurés directement en CH ou GE
   lamal_1996:'cert', avs13:'cert', soins_inf:'cert', psy:'cert', loi_epidemies:'cert',
   loi_co2_2021:'cert', loi_climat_2023:'cert', conge_paternite:'cert', reforme_lpp:'cert',
   avs_1985:'cert', lpp_1985:'cert', avs21:'cert', financement_uniforme_lamal:'cert',
@@ -3055,7 +3055,7 @@ const POL_CONFIDENCE = {
   smic_ge:'cert', ge_ls_exit_2024:'cert', ge_sante_mentale:'cert',
   primes_rej:'cert', initiative_rentes_2024:'cert', nlpd_2023:'cert',
   ge_laicite_2026:'cert', loi_service_civil_2026:'cert',
-  // MODERÉ — extrapolation depuis systèmes bismarckoïdes comparables (AUT, NL, DK)
+  // MODERÉ, extrapolation depuis systèmes bismarckoïdes comparables (AUT, NL, DK)
   logt_abord:'mod', interdiction_pub_tabac:'mod', rente_pont:'mod',
   mariage_pour_tous:'mod', aide_domicile_2013:'mod', protection_locataires_2020:'mod',
   droit_bail_2023:'mod', bail_besoin_propre_2024:'mod', bail_sous_location_2024:'mod',
@@ -3065,7 +3065,7 @@ const POL_CONFIDENCE = {
   initiative_eau_potable_2021:'mod', soins_dentaires_ge:'mod', soins_dentaires_federal:'mod',
   immigration_masse_2014:'mod', ge_logement_urgence:'mod', ge_hospice_budget:'mod',
   conge_parental_24:'mod', ge_lhom_dimanche_2026:'mod', bail_besoin_propre_2024:'mod',
-  // EXPLORATOIRE — mécanismes documentés mais quantification incertaine
+  // EXPLORATOIRE, mécanismes documentés mais quantification incertaine
   rbi:'expl', caisse_unique:'expl', caisse_maladie_2014:'expl',
   initiative_1_12:'expl', six_semaines_vacances:'expl',
   suppression_forfaits_fiscaux:'expl', naturalisation_facilitee:'expl',
@@ -3101,21 +3101,21 @@ const PARTY_VALUES = {
     tensions: []
   },
   PVL: {
-    label: "Le PVL défend une approche alliant innovation, durabilité économique et protection environnementale — avec une attention aux effets sur la santé à long terme.",
+    label: "Le PVL défend une approche alliant innovation, durabilité économique et protection environnementale, avec une attention aux effets sur la santé à long terme.",
     coherences_cles: ['elec_renouv','loi_climat_2023','reforme_lpp','psy'],
     tensions: [
       {pol:'reforme_lpp', texte:"La réforme LPP que le PVL a soutenue améliore la couverture des temps partiels, mais avec des mécanismes de financement contestés par les syndicats."}
     ]
   },
   Centre: {
-    label: "Le Centre défend la cohésion sociale, le soutien aux familles et une économie sociale de marché — avec une attention particulière aux équilibres entre liberté et protection.",
+    label: "Le Centre défend la cohésion sociale, le soutien aux familles et une économie sociale de marché, avec une attention particulière aux équilibres entre liberté et protection.",
     coherences_cles: ['assurance_maternite','allocations_fam','medecins_famille','conge_paternite'],
     tensions: [
       {pol:'frein_couts_2024', texte:"L'initiative que le Centre a portée liait les dépenses de santé à la conjoncture économique. Les associations de soignants ont alerté : en récession, les besoins de santé augmentent précisément quand l'économie ralentit."}
     ]
   },
   PLR: {
-    label: "Le PLR défend la liberté économique, la responsabilité individuelle et l'efficience du système de santé — parfois au détriment de l'accès universel aux soins.",
+    label: "Le PLR défend la liberté économique, la responsabilité individuelle et l'efficience du système de santé, parfois au détriment de l'accès universel aux soins.",
     coherences_cles: ['lamal_1996','financement_uniforme_lamal','nlpd_2023'],
     tensions: [
       {pol:'psy', texte:"Le PLR a longtemps voté contre le remboursement des psychologues par la LAMal. Cette barrière financière (130–200 CHF/h) excluait les personnes à faibles revenus de l'accès aux soins de santé mentale."},
@@ -3123,7 +3123,7 @@ const PARTY_VALUES = {
     ]
   },
   UDC: {
-    label: "L'UDC défend la souveraineté nationale, le contrôle de l'immigration et la responsabilité individuelle — des positions qui ont eu des effets documentés sur le personnel soignant et l'accès aux soins de certains groupes.",
+    label: "L'UDC défend la souveraineté nationale, le contrôle de l'immigration et la responsabilité individuelle, des positions qui ont eu des effets documentés sur le personnel soignant et l'accès aux soins de certains groupes.",
     coherences_cles: ['argent_liquide','durabilite_udc','stop_abus_asile'],
     tensions: [
       {pol:'initiative_limitation_2020', texte:"L'UDC a soutenu la fin de la libre circulation. Or 40% du personnel soignant suisse est ressortissant UE. Une acceptation aurait aggravé la pénurie documentée de 65 000 postes infirmiers."},
@@ -3138,7 +3138,7 @@ const PARTY_VALUES = {
     ]
   },
   EaG: {
-    label: "Ensemble à Gauche défend la santé comme bien commun, la transformation sociale et les droits des travailleurs — avec des positions systématiquement favorables à l'accès universel aux soins.",
+    label: "Ensemble à Gauche défend la santé comme bien commun, la transformation sociale et les droits des travailleurs, avec des positions systématiquement favorables à l'accès universel aux soins.",
     coherences_cles: ['smic_ge','soins_dentaires_ge','initiative_multinationales_2020','initiative_99pct_2021','ge_ls_exit_2024'],
     tensions: []
   }
@@ -3373,7 +3373,7 @@ function renderParties() {
 
   // Filter parties by level
   const visibleParties = Object.entries(PARTIES).filter(([pid, p]) => {
-    return true; // show all parties at all levels — EàG has federal recommendations too
+    return true; // show all parties at all levels, EàG has federal recommendations too
   });
 
   // Sort by score descending
@@ -3621,7 +3621,7 @@ function openPartyDetail(pid) {
 
   var html = '<div class="oh" style="position:sticky;top:0;background:var(--w);z-index:10">'
     + '<div>'
-    + '<div style="font-family:var(--FS);font-size:17px;font-weight:700">' + det + ' — ' + party.full + '</div>'
+    + '<div style="font-family:var(--FS);font-size:17px;font-weight:700">' + det + ', ' + party.full + '</div>'
     + '<div style="font-size:12px;color:var(--ink4);margin-top:2px;font-style:italic">' + (values.label||'') + '</div>'
     + '<div style="margin-top:8px;padding:7px 11px;background:var(--g1);border-radius:var(--r);display:inline-flex;align-items:center;gap:10px">'
     + '<div style="font-size:20px;font-weight:700;color:' + scoreCol + '">' + score.toFixed(1) + ' pts</div>'
@@ -3743,15 +3743,15 @@ window.addEventListener('DOMContentLoaded',()=>{
 const PROFILES = {
   citoyen: {
     ids: ['avs13', 'soins_inf', 'psy', 'conge_paternite', 'assurance_maternite', 'primes_enfants'] ,
-    label: 'Citoyen·ne — politiques du quotidien'
+    label: 'Citoyen·ne, politiques du quotidien'
   },
   elu: {
     ids: ['lamal_1996', 'loi_epidemies', 'soins_longue_duree', 'smic_ge', 'ge_sante_mentale', 'avs13'],
-    label: 'Élu·e — politiques structurantes'
+    label: 'Élu·e, politiques structurantes'
   },
   chercheur: {
     ids: ['lamal_1996', 'avs_1985', 'assur_acc', 'avs13', 'soins_inf', 'financement_uniforme_lamal'],
-    label: 'Chercheur·e — couverture historique'
+    label: 'Chercheur·e, couverture historique'
   }
 };
 
@@ -3776,7 +3776,7 @@ function loadExample(key){document.getElementById('main').style.display='block';
   setTimeout(()=>openAnalysis('effects'), 300);
 }
 // ════════════════════════════════════════════════════════════════
-// POPUP SIZING — fixe la hauteur en px au moment de l'ouverture
+// POPUP SIZING, fixe la hauteur en px au moment de l'ouverture
 // ════════════════════════════════════════════════════════════════
 function fitPopup(panelId){
   const overlayMap = {
@@ -4344,7 +4344,7 @@ JSON strict (pas de backticks), [] si aucune certitude :
   if(!raw.startsWith('[')) raw='['+raw;
   const newPols=JSON.parse(raw);
   if(!newPols.length){out.innerHTML='<div class="rp-result">Aucune nouvelle politique trouvée pour ce domaine.</div>';return;}
-  out.innerHTML=`<div class="rp-result" style="margin-bottom:14px">🔍 <strong>${newPols.length} politique${newPols.length>1?'s':''} identifiée${newPols.length>1?'s':''}</strong> — Ajoutez-les à la base de données.</div>`+
+  out.innerHTML=`<div class="rp-result" style="margin-bottom:14px">🔍 <strong>${newPols.length} politique${newPols.length>1?'s':''} identifiée${newPols.length>1?'s':''}</strong>, Ajoutez-les à la base de données.</div>`+
    newPols.map((p,i)=>`
    <div class="new-pol-card" id="npc-${i}">
     <div class="npc-name">${p.icon||'📋'} ${p.nom}</div>
@@ -4865,7 +4865,7 @@ function updateResults() {
 }
 
 function sLbl(s) {
-  if(s === null) return ['—','var(--ink4)','Simulation vide'];
+  if(s === null) return ['-','var(--ink4)','Simulation vide'];
   if(s >= 72) return [s.toFixed(0)+'/100','var(--gr)','Bon pour la santé'];
   if(s >= 55) return [s.toFixed(0)+'/100','var(--am)','Impact modeste'];
   if(s >= 45) return [s.toFixed(0)+'/100','var(--ink3)','Situation proche de la normale'];
@@ -5030,7 +5030,7 @@ function updatePeek(s, lbl, col) {
   var main  = document.getElementById('dmain');
   var sub   = document.getElementById('dsub');
   if(badge) {
-    badge.textContent = s ? (s > 52 ? '↑ ' : s < 48 ? '↓ ' : '') + Math.round(s) + '/100' : '—';
+    badge.textContent = s ? (s > 52 ? '↑ ' : s < 48 ? '↓ ' : '') + Math.round(s) + '/100' : '-';
     badge.style.background = s ? col.replace(')',',0.15)').replace('var(','rgba(') || 'var(--bll)' : 'var(--g2)';
     badge.style.color = s ? col : 'var(--ink3)';
   }
@@ -5088,9 +5088,9 @@ function openPopup(polId) {
     + '<div><div class="oh-sub" style="margin-bottom:6px">Effets estimés</div>' + effHtml
     + '<div style="margin:8px 0;padding:8px 12px;background:var(--g1);border:1px solid var(--bdr);border-radius:8px;font-size:12px;color:var(--ink2);display:flex;gap:8px;flex-wrap:wrap;align-items:center">'
     + '<span style="font-weight:700;font-size:13px">Fiabilité des estimations :</span>'
-    + '<span style="background:var(--grl);color:var(--gr);border-radius:5px;padding:3px 10px;font-size:12px;font-weight:600" title="Données OBSAN répétées sur 10+ ans — confiance élevée">🟢 Renoncement aux soins</span>'
-    + '<span style="background:var(--aml);color:var(--am);border-radius:5px;padding:3px 10px;font-size:12px;font-weight:600" title="Données longitudinales OFS — confiance modérée">🟡 Espérance de vie en bonne santé</span>'
-    + '<span style="background:var(--rdl);color:var(--rdm);border-radius:5px;padding:3px 10px;font-size:12px;font-weight:600" title="Estimations par analogie — confiance indicative">🟠 Décès évitables / Inégalités</span>'
+    + '<span style="background:var(--grl);color:var(--gr);border-radius:5px;padding:3px 10px;font-size:12px;font-weight:600" title="Données OBSAN répétées sur 10+ ans, confiance élevée">🟢 Renoncement aux soins</span>'
+    + '<span style="background:var(--aml);color:var(--am);border-radius:5px;padding:3px 10px;font-size:12px;font-weight:600" title="Données longitudinales OFS, confiance modérée">🟡 Espérance de vie en bonne santé</span>'
+    + '<span style="background:var(--rdl);color:var(--rdm);border-radius:5px;padding:3px 10px;font-size:12px;font-weight:600" title="Estimations par analogie, confiance indicative">🟠 Décès évitables / Inégalités</span>'
     + '</div>'
     + '</div>'
     + "<div class=\"pbox\">Ces estimations sont fondées sur des données officielles suisses. Elles indiquent une direction probable, pas un résultat garanti.</div>"
@@ -5339,14 +5339,14 @@ function updateScTags(side) {
   var tags = document.getElementById('sc-'+side+'-tags');
   var score = document.getElementById('sc-'+side+'-score');
   if(!tags) return;
-  if(!sc.size) { tags.innerHTML = '—'; if(score) { score.textContent='—'; score.style.color='var(--ink4)'; } return; }
+  if(!sc.size) { tags.innerHTML = '-'; if(score) { score.textContent='-'; score.style.color='var(--ink4)'; } return; }
   var pols = [...sc].map(function(id){return allP().find(function(p){return p.id===id;});}).filter(Boolean);
   tags.innerHTML = pols.slice(0,6).map(function(p){
     return '<span style="font-size:12px;padding:2px 7px;background:' + bk + ';color:var(--ink2);border-radius:8px;margin-right:3px;margin-bottom:3px;display:inline-block">' + p.icon + ' ' + p.name.slice(0,22) + (p.name.length>22?'…':'') + '</span>';
   }).join('') + (pols.length > 6 ? '<span style="font-size:12px;color:var(--ink4)">+' + (pols.length-6) + '</span>' : '');
   var s = computeForSet(sc);
   var sl = sLbl(s);
-  if(score) { score.textContent = sl[0] + ' — ' + sl[2]; score.style.color = sl[1]; }
+  if(score) { score.textContent = sl[0] + ', ' + sl[2]; score.style.color = sl[1]; }
 }
 function runCompare() {
   var rA = _scA.size ? computeEffectsForSet(_scA) : null;
@@ -5361,10 +5361,10 @@ function runCompare() {
   var slA = sA !== null ? sLbl(sA) : null;
   var slB = sB !== null ? sLbl(sB) : null;
   var metrics = [
-    {lbl:'Renoncement aux soins',fA:rA?rA.renoncement.toFixed(1)+'%':'—',fB:rB?rB.renoncement.toFixed(1)+'%':'—',hA:rA?rA.renoncement:null,hB:rB?rB.renoncement:null,hi:'lower'},
-    {lbl:'Espérance de vie en bonne santé',fA:rA?rA.esperance.toFixed(1)+' ans':'—',fB:rB?rB.esperance.toFixed(1)+' ans':'—',hA:rA?rA.esperance:null,hB:rB?rB.esperance:null,hi:'higher'},
-    {lbl:'Décès évitables/an',fA:rA?Math.round(rA.mortEvit*5.1)+'':'—',fB:rB?Math.round(rB.mortEvit*5.1)+'':'—',hA:rA?rA.mortEvit:null,hB:rB?rB.mortEvit:null,hi:'lower'},
-    {lbl:'Inégalités santé (Gini)',fA:rA?rA.gini.toFixed(2)+'':'—',fB:rB?rB.gini.toFixed(2)+'':'—',hA:rA?rA.gini:null,hB:rB?rB.gini:null,hi:'lower'},
+    {lbl:'Renoncement aux soins',fA:rA?rA.renoncement.toFixed(1)+'%':'-',fB:rB?rB.renoncement.toFixed(1)+'%':'-',hA:rA?rA.renoncement:null,hB:rB?rB.renoncement:null,hi:'lower'},
+    {lbl:'Espérance de vie en bonne santé',fA:rA?rA.esperance.toFixed(1)+' ans':'-',fB:rB?rB.esperance.toFixed(1)+' ans':'-',hA:rA?rA.esperance:null,hB:rB?rB.esperance:null,hi:'higher'},
+    {lbl:'Décès évitables/an',fA:rA?Math.round(rA.mortEvit*5.1)+'':'-',fB:rB?Math.round(rB.mortEvit*5.1)+'':'-',hA:rA?rA.mortEvit:null,hB:rB?rB.mortEvit:null,hi:'lower'},
+    {lbl:'Inégalités santé (Gini)',fA:rA?rA.gini.toFixed(2)+'':'-',fB:rB?rB.gini.toFixed(2)+'':'-',hA:rA?rA.gini:null,hB:rB?rB.gini:null,hi:'lower'},
   ];
   var tbl = '<div style="border:1px solid var(--bdr);border-radius:var(--r);overflow:hidden;margin-bottom:10px">'
     + '<div style="display:grid;grid-template-columns:1fr 1fr 1fr">'
@@ -5399,7 +5399,7 @@ function runCompare() {
         ? (ratio >= 1.5 ? Math.round(ratio*10)/10 + 'x plus efficace' : '')
         : (Math.sign(dA) !== Math.sign(dB) ? 'améliore là où ' + loser + ' dégrade' : '');
       verdictText = 'Scénario ' + w + ' est meilleur';
-      if (livesDiff > 0) verdictText += ' — ' + (livesA > livesB ? livesA - livesB : livesB - livesA) + ' vies de plus épargnées/an';
+      if (livesDiff > 0) verdictText += ', ' + (livesA > livesB ? livesA - livesB : livesB - livesA) + ' vies de plus épargnées/an';
       if (renDiff > 0.1) verdictText += ', ' + renDiff + '% de moins de renoncement aux soins';
       if (ratioStr) verdictText += ' (' + ratioStr + ')';
       verdictText += '.';
@@ -5415,7 +5415,7 @@ function openAudit() {
   var ov   = document.getElementById('audit-ov');
   var body = document.getElementById('audit-body');
   var pols = sel.size ? [...sel].map(function(id){return allP().find(function(p){return p.id===id;});}).filter(Boolean) : [];
-  var html = '<div style="margin-bottom:14px;padding:9px 11px;background:var(--aml);border-left:3px solid var(--am);border-radius:0 var(--r) var(--r) 0;font-size:14px;color:var(--am)"><strong>Mode audit</strong> — Chaque estimation est tracée. Les pondérations sont documentées dans la littérature académique.</div>';
+  var html = '<div style="margin-bottom:14px;padding:9px 11px;background:var(--aml);border-left:3px solid var(--am);border-radius:0 var(--r) var(--r) 0;font-size:14px;color:var(--am)"><strong>Mode audit</strong>, Chaque estimation est tracée. Les pondérations sont documentées dans la littérature académique.</div>';
   html += '<p style="font-size:14px;color:var(--ink2);margin-bottom:8px"><strong>Formule du score</strong> (Wagstaff 1989, OCDE 2017)</p>';
   html += '<code style="display:block;font-family:monospace;font-size:13px;background:var(--g1);padding:8px 10px;border-radius:6px;margin-bottom:12px;line-height:1.9;color:var(--ink3)">Score = 50<br>+ (18 − renoncement) × 1.2<br>+ (espérance de vie en bonne santé − 67.8 ans) × 5.0<br>+ (158 − mortalité) × 0.22<br>+ (6.2 − Gini) × 4.0</code>';
   if(pols.length) {
@@ -5753,7 +5753,7 @@ function _quizResults() {
 
   return barsHtml
     + '<div style="font-size:12px;color:var(--ink4);margin:10px 0 6px;text-align:center">'
-    + 'Profil politique — toile d\'araignée'
+    + 'Profil politique, toile d\'araignée'
     + '</div>'
     + radarHtml;
 }
@@ -6057,7 +6057,7 @@ function exportBasketPDF() {
   }
 
   var html = '<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">'
-    + '<title>CareWatch Policy — Simulation</title>'
+    + '<title>CareWatch Policy, Simulation</title>'
     + '<style>@media print{body{margin:0}}</style>'
     + '</head><body style="font-family:system-ui,sans-serif;max-width:800px;margin:0 auto;padding:24px;color:#111">'
     + '<div style="border-bottom:3px solid #1e293b;padding-bottom:14px;margin-bottom:24px">'
@@ -6197,7 +6197,7 @@ function _cwShare(id) {
   }, {passive: true});
 })();
 
-// Peek bar — afficher jusqu'à 3 noms de lois sélectionnées
+// Peek bar, afficher jusqu'à 3 noms de lois sélectionnées
 function updatePeekLaws() {
   var sub = document.getElementById('dsub');
   if (!sub) return;
@@ -6411,7 +6411,7 @@ function _renderCommSubmit(body) {
     + '<p style="font-size:13px;color:var(--ink3);line-height:1.6;margin-bottom:14px">'
     + 'Proposez une loi, initiative ou politique de santé absente de la base. '
     + 'L\'impact sur la santé publique sera estimé automatiquement à partir de données comparatives '
-    + '(OBSAN, OFS, OFSP, études internationales) sur des politiques similaires — '
+    + '(OBSAN, OFS, OFSP, études internationales) sur des politiques similaires, '
     + 'renoncement aux soins, espérance de vie, décès évitables et inégalités.'
     + '</p>'
     + _formField('Titre *', 'text', 'comm-name', 'Ex. : Initiative VD pour la prévention du diabète', 'oninput="_commCheck(this.value)"')
@@ -6683,7 +6683,7 @@ function shareSimulation() {
       if (found.length !== ids.length) {
         toast('⚠️ ' + (ids.length - found.length) + ' loi(s) introuvable(s) dans la simulation partagée.');
       } else {
-        toast('✅ Simulation partagée chargée — ' + found.length + ' loi(s).');
+        toast('✅ Simulation partagée chargée, ' + found.length + ' loi(s).');
       }
     } else {
       attempts++;
@@ -6816,7 +6816,7 @@ function _loadHistoryEntry(idx) {
     try { _ls.setItem('cw_sel', JSON.stringify(Array.from(sel))); } catch(e){}
     updateResults();
     renderGrid();
-    toast('✅ Simulation restaurée — ' + entry.count + ' loi(s)');
+    toast('✅ Simulation restaurée, ' + entry.count + ' loi(s)');
   } catch(e) {}
 }
 
@@ -6847,7 +6847,7 @@ function renderArchive() {
         + '<div style="font-size:10px;color:var(--ink4)">/100</div>'
         + '</div>'
         + '<div style="flex:1;min-width:0">'
-        + '<div style="font-size:13px;font-weight:600;color:var(--ink);margin-bottom:2px">'+entry.count+' loi(s) — '+entry.label+'</div>'
+        + '<div style="font-size:13px;font-weight:600;color:var(--ink);margin-bottom:2px">'+entry.count+' loi(s), '+entry.label+'</div>'
         + '<div style="font-size:11px;color:var(--ink4);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+laws+'</div>'
         + '<div style="font-size:11px;color:var(--ink4);margin-top:2px">'+dateStr+'</div>'
         + '</div>'
@@ -6861,7 +6861,7 @@ function renderArchive() {
   }
 }
 
-// ── MODE DÉBAT — deux paniers Pour/Contre ────────────────────────────────
+// ── MODE DÉBAT, deux paniers Pour/Contre ────────────────────────────────
 var _debateMode = false;
 var _debatePour = new Set();
 var _debateContre = new Set();
@@ -6928,8 +6928,8 @@ function updateDebate() {
     }).join('');
   }
 
-  var scoreP = sP !== null ? '<span style="font-size:22px;font-weight:700;color:'+(sP>=55?'var(--gr)':sP<=45?'var(--rdm)':'var(--am)')+'">'+sP+'</span><span style="font-size:12px;color:var(--ink4)">/100</span>' : '<span style="color:var(--ink4);font-size:13px">—</span>';
-  var scoreC = sC !== null ? '<span style="font-size:22px;font-weight:700;color:'+(sC>=55?'var(--gr)':sC<=45?'var(--rdm)':'var(--am)')+'">'+sC+'</span><span style="font-size:12px;color:var(--ink4)">/100</span>' : '<span style="color:var(--ink4);font-size:13px">—</span>';
+  var scoreP = sP !== null ? '<span style="font-size:22px;font-weight:700;color:'+(sP>=55?'var(--gr)':sP<=45?'var(--rdm)':'var(--am)')+'">'+sP+'</span><span style="font-size:12px;color:var(--ink4)">/100</span>' : '<span style="color:var(--ink4);font-size:13px">-</span>';
+  var scoreC = sC !== null ? '<span style="font-size:22px;font-weight:700;color:'+(sC>=55?'var(--gr)':sC<=45?'var(--rdm)':'var(--am)')+'">'+sC+'</span><span style="font-size:12px;color:var(--ink4)">/100</span>' : '<span style="color:var(--ink4);font-size:13px">-</span>';
   var delta  = (sP !== null && sC !== null) ? (sP - sC) : null;
 
   panel.innerHTML = '<div style="padding:12px 14px">'
@@ -6951,14 +6951,14 @@ function updateDebate() {
     + (delta !== null
        ? '<div style="text-align:center;padding:8px;background:var(--g1);border-radius:8px;font-size:13px;color:var(--ink3)">'
          + 'Écart de score : <strong style="color:'+(delta>0?'var(--gr)':delta<0?'var(--rdm)':'var(--ink4)')+'">'+(delta>0?'+':'')+delta+' pts</strong>'
-         + (delta > 0 ? ' — la position <em>Pour</em> est plus favorable à la santé' : delta < 0 ? ' — la position <em>Contre</em> est plus favorable à la santé' : ' — positions équivalentes')
+         + (delta > 0 ? ', la position <em>Pour</em> est plus favorable à la santé' : delta < 0 ? ', la position <em>Contre</em> est plus favorable à la santé' : ', positions équivalentes')
          + '</div>'
        : '')
     + '</div>';
 }
 
 // ════════════════════════════════════════════════════════════════
-// FEATURE 1 — SCÉNARIOS PERSONNALISÉS
+// FEATURE 1, SCÉNARIOS PERSONNALISÉS
 // ════════════════════════════════════════════════════════════════
 var _scCustomA = new Set();
 var _scCustomB = new Set();
@@ -6990,7 +6990,7 @@ function _scToggleLaw(side, id) {
 }
 
 // ════════════════════════════════════════════════════════════════
-// FEATURE 2 — EMPREINTE POLITIQUE DE SANTÉ
+// FEATURE 2, EMPREINTE POLITIQUE DE SANTÉ
 // ════════════════════════════════════════════════════════════════
 function _quizHealthImpact() {
   if (Object.keys(_quizAnswers).length < 3) return '';
@@ -7026,7 +7026,7 @@ function _quizHealthImpact() {
 }
 
 // ════════════════════════════════════════════════════════════════
-// FEATURE 3 — PARTAGE SOCIAL ENRICHI
+// FEATURE 3, PARTAGE SOCIAL ENRICHI
 // ════════════════════════════════════════════════════════════════
 function _simToURL() {
   var ids = Array.from(sel).join(',');
@@ -7037,7 +7037,7 @@ function _simToURL() {
 }
 function shareToSocial(platform) {
   var s = pS();
-  // Partager même sans simulation — la page est toujours utile
+  // Partager même sans simulation, la page est toujours utile
   var url = _simToURL ? _simToURL() : window.location.href;
   var score = s ? Math.round(s) : null;
   var canton = BASES[_activeCanton] ? BASES[_activeCanton].label : 'Genève';
@@ -7048,11 +7048,11 @@ function shareToSocial(platform) {
 
   var text = score
     ? '🏥 J\'ai simulé ' + sel.size + ' loi' + (sel.size>1?'s':'') + ' de santé sur CareWatch Policy'
-      + ' — score santé ' + score + '/100 pour ' + canton + '.'
+      + ', score santé ' + score + '/100 pour ' + canton + '.'
       + (pols.length ? '\nLois évaluées : ' + pols.join(', ') + (sel.size>3?' + '+(sel.size-3)+' autres…':'.') : '')
       + '\n\nTestez votre propre simulation ↓'
     : '🗳️ J\'ai évalué ' + Object.keys(_quizAnswers).length + ' lois santé sur CareWatch Policy'
-      + ' — outil de démocratie sanitaire suisse.'
+      + ', outil de démocratie sanitaire suisse.'
       + '\n\nDécouvrez l\'impact des votations sur votre santé ↓';
   text += '\n' + url;
 
@@ -7062,13 +7062,13 @@ function shareToSocial(platform) {
     window.open('https://www.linkedin.com/sharing/share-offsite/?url=' + encodeURIComponent(url), '_blank');
   } else if (platform === 'copy') {
     if (navigator.clipboard) {
-      navigator.clipboard.writeText(text).then(function(){ toast('📋 Texte copié — prêt à partager !'); });
+      navigator.clipboard.writeText(text).then(function(){ toast('📋 Texte copié, prêt à partager !'); });
     }
   }
 }
 
 // ════════════════════════════════════════════════════════════════
-// FEATURE 4 — LOI DE LA SEMAINE
+// FEATURE 4, LOI DE LA SEMAINE
 // ════════════════════════════════════════════════════════════════
 function _featuredLaw() {
   // Loi la plus récente avec statut proj/prop ou impact fort
@@ -7105,7 +7105,7 @@ function _renderFeaturedLaw() {
 
 
 // ════════════════════════════════════════════════════════════════
-// FEATURE 5 — MULTILINGUE FR / DE / EN
+// FEATURE 5, MULTILINGUE FR / DE / EN
 // ════════════════════════════════════════════════════════════════
 var _lang = (function(){
   try { return localStorage.getItem('cw_lang') || 'fr'; } catch(e){ return 'fr'; }
@@ -7234,7 +7234,7 @@ function _applyLang() {
     <div style="position:sticky;top:0;background:var(--bl);color:#fff;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;border-radius:var(--r) var(--r) 0 0">
       <div>
         <div style="font-size:17px;font-weight:700">🗳️ Quel parti vote comme moi ?</div>
-        <div style="font-size:12px;opacity:.75;margin-top:2px">Positionnez-vous sur des lois clés — découvrez votre alignement</div>
+        <div style="font-size:12px;opacity:.75;margin-top:2px">Positionnez-vous sur des lois clés, découvrez votre alignement</div>
       </div>
       <button onclick="closeQuiz()" style="background:none;border:none;color:#fff;font-size:22px;cursor:pointer;padding:4px 8px">×</button>
     </div>
@@ -7287,7 +7287,7 @@ function _applyLang() {
     <div style="background:linear-gradient(135deg,var(--bl),var(--vi));padding:18px 20px 14px;color:#fff;text-align:center">
       <div style="font-size:32px;margin-bottom:8px">🏥</div>
       <div style="font-family:var(--FS);font-size:20px;font-weight:700;margin-bottom:4px">CareWatch Policy</div>
-      <div style="font-size:13px;opacity:.85">Observatoire participatif de l'équité sanitaire en Suisse</div>
+      <div style="font-size:13px;opacity:.85">Plateforme participative pour l'équité sanitaire en Suisse</div>
       <div style="font-size:12px;opacity:.7;margin-top:4px;font-style:italic">Volet Policy · Impact des lois et votations sur votre santé</div>
     </div>
 
@@ -7297,7 +7297,7 @@ function _applyLang() {
       <div id="onb-step-1">
         <div style="font-size:20px;margin-bottom:8px">📋 174 lois documentées</div>
         <p style="font-size:13px;color:var(--ink2);line-height:1.7;margin-bottom:12px">
-          Chaque loi, initiative ou votation suisse est chiffrée sur <strong>4 indicateurs de santé publique</strong> — renoncement aux soins, espérance de vie, décès évitables, inégalités — à partir des données OBSAN, OFS et OFSP.
+          Chaque loi, initiative ou votation suisse est chiffrée sur <strong>4 indicateurs de santé publique</strong>, renoncement aux soins, espérance de vie, décès évitables, inégalités, à partir des données OBSAN, OFS et OFSP.
         </p>
         <div style="background:var(--bll);border-radius:8px;padding:10px 12px;font-size:12px;color:var(--bl)">
           🔍 Recherchez, filtrez par niveau (fédéral / cantonal), catégorie ou époque
@@ -7319,10 +7319,10 @@ function _applyLang() {
       <div id="onb-step-3" style="display:none">
         <div style="font-size:20px;margin-bottom:8px">✦ Analyse IA & export</div>
         <p style="font-size:13px;color:var(--ink2);line-height:1.7;margin-bottom:10px">
-          Une fois des lois sélectionnées, l'onglet <strong>Analyse IA</strong> génère un rapport structuré — bénéficiaires, coûts, verdict, précautions — exportable en Markdown ou PDF.
+          Une fois des lois sélectionnées, l'onglet <strong>Analyse IA</strong> génère un rapport structuré, bénéficiaires, coûts, verdict, précautions, exportable en Markdown ou PDF.
         </p>
         <div style="background:var(--vil);border-radius:8px;padding:10px 12px;font-size:12px;color:var(--vi)">
-          💡 Testez aussi <strong>Simuler une loi hypothétique</strong> dans le menu — l'IA estime ses effets
+          💡 Testez aussi <strong>Simuler une loi hypothétique</strong> dans le menu, l'IA estime ses effets
         </div>
       </div>
 
@@ -7354,9 +7354,9 @@ function _applyLang() {
           Adaptez la baseline, la population et les lois affichées à votre contexte cantonal ou fédéral.
         </p>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;max-height:220px;overflow-y:auto">
-          <div onclick="_closeOnboarding(true);setActiveCanton('CH');var t=document.getElementById('canton-sel-btn');if(t){var v=t.querySelector('.cw-dd-val');if(v)v.textContent='🇨🇭 Suisse — fédéral';}"
+          <div onclick="_closeOnboarding(true);setActiveCanton('CH');var t=document.getElementById('canton-sel-btn');if(t){var v=t.querySelector('.cw-dd-val');if(v)v.textContent='🇨🇭 Suisse, fédéral';}"
             style="padding:9px;background:var(--g1);border:1.5px solid var(--bdr);border-radius:8px;cursor:pointer;text-align:center;font-size:12px;font-weight:700">
-            🇨🇭 Suisse — fédéral
+            🇨🇭 Suisse, fédéral
           </div>
           <div onclick="_closeOnboarding(true);setActiveCanton('GE');var t=document.getElementById('canton-sel-btn');if(t){var v=t.querySelector('.cw-dd-val');if(v)v.textContent='🏛 GE · Genève';}"
             style="padding:9px;background:var(--g1);border:1.5px solid var(--bdr);border-radius:8px;cursor:pointer;text-align:center;font-size:12px;font-weight:700">
