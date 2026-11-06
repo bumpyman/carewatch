@@ -10783,6 +10783,8 @@ function FormationsView() {
   const [activeTab, setActiveTab] = useState('catalogue');
   useScrollOnChange(activeTab);
   const [registrations, setRegistrations] = useState([]);
+  const [courrielInscription, setCourrielInscription] = useState('');
+  const courrielValide = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(courrielInscription.trim());
   const [selectedFormation, setSelectedFormation] = useState(null);
   const [filterLevel, setFilterLevel] = useState('');
   const [filterProvider, setFilterProvider] = useState('');
@@ -10826,6 +10828,7 @@ function FormationsView() {
   });
 
   const handleRegister = async (formation) => {
+    if (!courrielValide) return;
     if (!registrations.includes(formation.id)) {
       setRegistrations([...registrations, formation.id]);
       // Envoi email d'inscription via FormSubmit
@@ -10836,6 +10839,7 @@ function FormationsView() {
           body: JSON.stringify({
             _subject: `[CareWatch™] Inscription formation : ${formation.title}`,
             _captcha: false,
+            courriel_reponse: courrielInscription.trim(),
             formation: formation.title,
             provider: formation.provider,
             date: formation.date,
@@ -10860,7 +10864,7 @@ function FormationsView() {
   const parcoursComplet = (p) => p.formations.every(id => registrations.includes(id) || (formations.find(f => f.id === id) || {}).spotsLeft === 0);
   const handleRegisterParcours = async (p) => {
     const ids = p.formations.filter(id => !registrations.includes(id) && ((formations.find(f => f.id === id) || {}).spotsLeft || 0) > 0);
-    if (ids.length === 0) return;
+    if (ids.length === 0 || !courrielValide) return;
     setRegistrations(prev => [...new Set([...prev, ...ids])]);
     try {
       await fetch(CW_NOTIFIER_URL, {
@@ -10869,6 +10873,7 @@ function FormationsView() {
         body: JSON.stringify({
           _subject: `[CareWatch™] Inscription parcours : ${p.title}`,
           _captcha: false,
+          courriel_reponse: courrielInscription.trim(),
           parcours: p.title,
           formations: ids.map(id => (formations.find(f => f.id === id) || {}).title).join(' ; '),
           type: 'inscription_parcours',
@@ -10971,6 +10976,11 @@ function FormationsView() {
             </p>
           </Card>
 
+          <Card className="p-4">
+            <Input label="Votre adresse e-mail, pour demander une place" type="email" autoComplete="email" value={courrielInscription} onChange={setCourrielInscription} placeholder="prenom.nom@exemple.ch" />
+            <p className="text-xs text-gray-600 mt-1">Il n’y a pas de compte : l’adresse est transmise à l’équipe pour vous répondre, elle n’est pas conservée sur le site.</p>
+          </Card>
+
           {parcours.map(p => (
             <Card key={p.title} className="p-5">
               <div className="flex items-start gap-4">
@@ -10994,7 +11004,7 @@ function FormationsView() {
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-700">Durée totale : {p.duration}{parcoursNb(p) > 0 ? ` · ${parcoursNb(p)}/${p.formations.length} demandée${parcoursNb(p) > 1 ? 's' : ''}` : ''}</span>
-                    <Button size="sm" variant="outline" onClick={() => handleRegisterParcours(p)} disabled={parcoursComplet(p)}>{parcoursComplet(p) ? 'Demande envoyée' : "S'inscrire au parcours"}</Button>
+                    <Button size="sm" variant="outline" onClick={() => handleRegisterParcours(p)} disabled={parcoursComplet(p) || !courrielValide}>{parcoursComplet(p) ? 'Demande envoyée' : "S'inscrire au parcours"}</Button>
                   </div>
                 </div>
               </div>
@@ -11060,9 +11070,16 @@ function FormationsView() {
               <p className="text-xs text-gray-600">Le certificat peut servir à faire attester cette formation sur la fiche de l’annuaire.</p>
             )}
 
+            {selectedFormation.spotsLeft > 0 && !registrations.includes(selectedFormation.id) && (
+              <div>
+                <Input label="Votre adresse e-mail" type="email" autoComplete="email" value={courrielInscription} onChange={setCourrielInscription} placeholder="prenom.nom@exemple.ch" required />
+                <p className="text-xs text-gray-600 mt-1">Il n’y a pas de compte : l’adresse est transmise à l’équipe pour vous répondre, elle n’est pas conservée sur le site.</p>
+              </div>
+            )}
+
             <div className="flex gap-3 pt-2">
               <Button variant="secondary" onClick={() => setSelectedFormation(null)} className="flex-1">Fermer</Button>
-              <Button onClick={() => handleRegister(selectedFormation)} className="flex-1" disabled={selectedFormation.spotsLeft === 0}>
+              <Button onClick={() => handleRegister(selectedFormation)} className="flex-1" disabled={selectedFormation.spotsLeft === 0 || !courrielValide || registrations.includes(selectedFormation.id)}>
                 {selectedFormation.spotsLeft > 0 ? 'S\'inscrire' : 'Complet'}
               </Button>
             </div>
