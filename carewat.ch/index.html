@@ -1885,7 +1885,7 @@ function NdaGate({ invitation, onSigne }) {
       <div className="max-w-2xl w-full">
         <div className="flex justify-center mb-3"><Logo size="xl" /></div>
         <h1 className="text-2xl font-extrabold text-gray-900 text-center mb-1">Accord de confidentialité</h1>
-        <p className="text-sm text-gray-600 text-center mb-5">Version de test CareWatch™ {CW_VERSION} · version de l’accord du {CW_NDA_VERSION}{invitation && invitation.attribue_a ? ` · invitation : ${invitation.attribue_a}` : ''}</p>
+        <p className="text-sm text-gray-600 text-center mb-5">Alpha fermée CareWatch™ {CW_VERSION} · version de l’accord du {CW_NDA_VERSION}{invitation && invitation.attribue_a ? ` · invitation : ${invitation.attribue_a}` : ''}</p>
         <Card className="p-5 mb-4">
           <div onScroll={surDefilement} style={{ paddingRight: 8, maxHeight: '46vh', overflowY: 'auto' }}>
             {NDA_SECTIONS.map(s => (
@@ -1980,7 +1980,7 @@ function AlphaGate({ onUnlock }) {
         <h1 className="text-3xl font-extrabold text-gray-900 mb-2">CareWatch™</h1>
         <p className="text-lg text-teal-600 font-medium mb-1">Plateforme participative pour l'équité des soins</p>
         <p className="text-base text-gray-700 font-semibold mb-2">Signalez. Observez. Améliorez les soins.</p>
-        <p className="text-sm text-gray-400 mb-8">Version de test {CW_VERSION} · Accès sur invitation · Suisse romande</p>
+        <p className="text-sm text-gray-400 mb-8">Alpha fermée {CW_VERSION} · Accès sur invitation · Suisse romande</p>
         
         <div className={`bg-white rounded-2xl shadow-lg border p-6 ${shaking ? 'animate-shake' : ''}`}>
           <p className="text-gray-600 mb-4">Saisissez votre code d'invitation pour accéder à la plateforme.</p>
@@ -2854,7 +2854,7 @@ function InstitutionModal({ institution: inst, onClose }) {
             <RatingBadge rating={inst.rating} size="md" />
             <Stars rating={inst.rating} />
             {showDemo ? <span className="text-sm text-gray-500 ml-auto">{inst.trend === 'up' ? '↑ En amélioration' : inst.trend === 'down' ? '↓ En baisse' : '→ Stable'}</span>
-              : <span className="text-sm text-gray-700 ml-auto">{inst.indice != null ? `Note d’équité ${inst.indice}/100` : 'Pas encore de note'}</span>}
+              : <span className="text-sm text-gray-700 ml-auto">{inst.indice != null ? `Indice d’équité ${inst.indice}/100` : 'Pas encore de note'}</span>}
           </div>
         </div>
 
@@ -7819,7 +7819,7 @@ function InstitutionsView() {
             <Building className={`w-5 h-5 text-${DB.ratings[i.rating].color}-500`} />
             <div className="flex-1 min-w-0">
               <p className="font-medium truncate">{i.fullName}</p>
-              <p className="text-sm text-gray-600">{i.city} ({i.canton}) • {(i.reports || 0) + (i.positiveReports || 0) + (i.enquetes || 0)} témoignage{((i.reports || 0) + (i.positiveReports || 0) + (i.enquetes || 0)) === 1 ? '' : 's'}{showDemo ? ` • ${i.reliability}% fiabilité` : ` • ${i.verified} vérifié${i.verified === 1 ? '' : 's'}${i.positiveReports ? ` • ${i.positiveReports} positif${i.positiveReports === 1 ? '' : 's'}` : ''}${i.indice != null ? ` • note d’équité ${i.indice}/100` : ''}`}</p>
+              <p className="text-sm text-gray-600">{i.city} ({i.canton}) • {(i.reports || 0) + (i.positiveReports || 0) + (i.enquetes || 0)} témoignage{((i.reports || 0) + (i.positiveReports || 0) + (i.enquetes || 0)) === 1 ? '' : 's'}{showDemo ? ` • ${i.reliability}% fiabilité` : ` • ${i.verified} vérifié${i.verified === 1 ? '' : 's'}${i.positiveReports ? ` • ${i.positiveReports} positif${i.positiveReports === 1 ? '' : 's'}` : ''}${i.indice != null ? ` • indice d’équité ${i.indice}/100` : ''}`}</p>
             </div>
             <RatingBadge rating={i.rating} />
           </Card>
@@ -9619,7 +9619,7 @@ function LegalGuide() {
           </div>
           <div>
             <h2 className="text-xl font-bold text-gray-900 mb-1">Guide juridique</h2>
-      <div className="rounded-xl bg-amber-50 border border-amber-200 p-3 mb-4 text-sm text-amber-900"><span className="font-semibold">Version de test.</span> Les modèles de courriers sont en relecture par des juristes partenaires. Vérifiez les délais et les adresses avant tout envoi ; en cas de doute, adressez-vous au Centre LAVI de votre canton.</div>
+      <div className="rounded-xl bg-amber-50 border border-amber-200 p-3 mb-4 text-sm text-amber-900"><span className="font-semibold">Alpha fermée.</span> Les modèles de courriers sont en relecture par des juristes partenaires. Vérifiez les délais et les adresses avant tout envoi ; en cas de doute, adressez-vous au Centre LAVI de votre canton.</div>
             <p className="text-sm text-gray-600">Droits, cadre légal, voies de recours et délais, adapté au contexte de la discrimination dans les soins en Suisse</p>
             <p className="text-sm text-indigo-600 mt-2 bg-indigo-100 px-3 py-1 rounded-lg inline-block"><strong>Avertissement :</strong> Ce guide est informatif. Pour une situation concrète, consultez un·e avocat·e.</p>
             <p className="text-sm text-teal-700 mt-1 bg-teal-50 px-3 py-1 rounded-lg inline-block"><Shield className="w-3.5 h-3.5 inline mr-1" /> Consulter ce guide est anonyme, aucune trace n'est conservée.</p>
@@ -12519,7 +12519,7 @@ function EtatProjetPage() {
     ['Retour positif', 'Bonnes pratiques vécues, mêmes garanties', 'Opérationnel'],
     ['Questionnaire rapide', 'Questions à cocher pour les patient·e·s, les proches et le personnel : traitement, partenariat, qualité de vie au travail', 'Alpha'],
     ['Modération et vérification', 'Relecture par l’équipe, journal des décisions, second facteur', 'Opérationnel'],
-    ['Note d’équité et niveaux', 'Calculés automatiquement, la même formule pour tous', 'Opérationnel'],
+    ['Indice d’équité et niveaux', 'Calculés automatiquement, la même formule pour tous', 'Opérationnel'],
     ['Fiches résumées et données ouvertes', 'Anonymisées, avec l’accord de la personne, en CSV', 'Opérationnel'],
     ['Droit de réponse des établissements', 'Compte établissement, réponse sous 14 jours visible par la personne et sur la fiche publiée', 'En test'],
     ['Tableau de bord par établissement', 'Indicateurs par service, par motif et par mois, sans texte libre, export CSV', 'En test'],
@@ -12623,7 +12623,7 @@ function MethodologyPage() {
           <p className="text-gray-600">Elle est posée dans les signalements et dans le questionnaire rapide, ouvert à toute personne soignée. Les réponses au questionnaire comptent dans la discrimination perçue de l’établissement, comme les signalements vérifiés.</p>
         </Card>
         <Card className="p-6">
-          <h3 className="font-semibold mb-3">2. Note d’équité par établissement</h3>
+          <h3 className="font-semibold mb-3">2. Indice d’équité par établissement</h3>
           <p className="text-gray-600 mb-2">Calculé automatiquement, uniquement à partir des témoignages <strong>vérifiés</strong> par la modération, et seulement à partir de <strong>5 témoignages vérifiés</strong> pour un établissement. En dessous, l’établissement affiche « Pas encore d’évaluation ».</p>
           <p className="text-gray-600 mb-2"><strong>Indice (0 à 100) = 70 × (1 − discrimination perçue) + 30 × part des retours positifs.</strong> La discrimination perçue est la moyenne des réponses à l’échelle DMS (0 = jamais, 1 = toujours) sur les signalements vérifiés ; la part des retours positifs est le nombre de retours positifs vérifiés divisé par le total des témoignages vérifiés.</p>
           <p className="text-gray-600">Niveaux : 75 et plus, Exemplaire · 50 à 74, Satisfaisant · 25 à 49, À améliorer · moins de 25, Insuffisant. La formule est appliquée dans la base elle-même, identique pour le site et les données ouvertes, sans autre pondération.</p>
@@ -12645,7 +12645,7 @@ function MethodologyPage() {
             <li>Vérification du code postal</li>
             <li>Modération sous 48h</li>
             <li>Droit de contestation (14 jours)</li>
-            <li>Note d’équité calculée seulement dès 5 témoignages vérifiés</li>
+            <li>Indice d’équité calculée seulement dès 5 témoignages vérifiés</li>
           </ul>
         </Card>
         <Card className="p-6 bg-blue-50 border-blue-200">
@@ -13758,7 +13758,7 @@ function OpenDataPage({ integre }) {
           )}
         </Bloc>
 
-        <Bloc titre="2. Établissements : comptes et note d’équité">
+        <Bloc titre="2. Établissements : comptes et indice d’équité">
           <p className="text-sm text-gray-600 mb-3">{DB.institutions.length} établissements référencés en Suisse romande. La note (0 à 100) n’est calculée qu’à partir de 5 témoignages vérifiés, selon la formule de la page Méthodologie.</p>
           <div className="overflow-x-auto mb-3">
             <table className="cw-tableau w-full text-sm">
@@ -13919,7 +13919,7 @@ function PrivacyPage() {
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4"><Logo size="xl" /></div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Confidentialité et mentions légales</h1>
-          <p className="text-sm text-gray-500">Dernière mise à jour : {PRIVACY_MAJ} · Version de test {CW_VERSION}</p>
+          <p className="text-sm text-gray-500">Dernière mise à jour : {PRIVACY_MAJ} · Alpha fermée {CW_VERSION}</p>
         </div>
         <Card className="p-4 mb-6 border-amber-200 bg-amber-50">
           <p className="text-sm text-amber-800">Ce document est en cours de validation juridique. Les passages entre crochets seront complétés avant l'ouverture publique du site.</p>
@@ -14348,7 +14348,7 @@ function PublicPageContenu() {
                 <Award className="w-6 h-6 text-indigo-600" />
               </div>
               <div>
-                <h2 className="text-xl font-bold text-gray-900">Note d’équité par établissement</h2>
+                <h2 className="text-xl font-bold text-gray-900">Indice d’équité par établissement</h2>
                 <p className="text-sm text-indigo-600">Une formule publique, appliquée dans la base de données elle-même</p>
               </div>
             </div>
@@ -14481,7 +14481,7 @@ function PublicPageContenu() {
         icon: Building,
         color: 'amber',
         items: [
-          { q: 'Comment sont calculées les notes des établissements ?', a: 'Le niveau (Exemplaire, Satisfaisant, À améliorer, Insuffisant) découle directement de l\'indice d\'équité : 75 et plus, 50 à 74, 25 à 49, moins de 25. L\'indice n\'est calculé qu\'à partir de 5 témoignages vérifiés, selon la seule formule publique. L\'objectif est d\'accompagner l\'amélioration et de protéger les patient·e·s.' },
+          { q: 'Comment sont calculées les indices des établissements ?', a: 'Le niveau (Exemplaire, Satisfaisant, À améliorer, Insuffisant) découle directement de l\'indice d\'équité : 75 et plus, 50 à 74, 25 à 49, moins de 25. L\'indice n\'est calculé qu\'à partir de 5 témoignages vérifiés, selon la seule formule publique. L\'objectif est d\'accompagner l\'amélioration et de protéger les patient·e·s.' },
           { q: 'Un établissement peut-il améliorer sa note ?', a: 'Oui, c\'est tout l\'objectif. Les établissements peuvent s\'engager dans une démarche d\'amélioration, former leur personnel, et voir leur note évoluer positivement. CareWatch™ n\'est pas un tribunal — c\'est un levier d\'amélioration, en toute confidentialité pour les témoins. Chaque signalement contribue à des soins plus justes pour tout le monde.' },
           { q: 'Que signifie chaque niveau d\'évaluation ?', a: 'Exemplaire : excellence dans tous les critères. Satisfaisant : bon niveau avec points d\'amélioration. À améliorer : actions nécessaires. Insuffisant : actions correctives urgentes requises. Ces évaluations sont toujours basées sur des données regroupées, anonymes et vérifiées — jamais sur un seul témoignage isolé. Votre signalement individuel n\'est jamais identifiable.' },
         ]
