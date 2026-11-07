@@ -546,9 +546,9 @@ function Onglets({ valeur, onChange, options }) {
     </div>
   );
 }
-// Légende des indicateurs : une seule, repliable, partagée par le baromètre et l'espace établissement.
+// Légende des indicateurs : une seule, repliable, partagée par le questionnaire rapide et l'espace établissement.
 const CW_GLOSSAIRE = [
-  ['Discrimination perçue', 'Part des situations où l’on a été moins bien traité·e que les autres (courtoisie, respect, qualité reçue), de 0 % (jamais) à 100 % (toujours). Plus c’est bas, mieux c’est.'],
+  ['Discrimination vécue', 'Part des situations où l’on a été moins bien traité·e que les autres (courtoisie, respect, qualité reçue), de 0 % (jamais) à 100 % (toujours). Plus c’est bas, mieux c’est.'],
   ['Partenariat vu par les patient·e·s', 'À quel point les patient·e·s et leurs proches ont compris leur situation, ont été écouté·e·s et ont participé aux décisions. Moyenne de trois questions, de 0 à 10. Plus c’est haut, mieux c’est.'],
   ['Partenariat vu par le personnel', 'La même chose, vue par les soignant·e·s de leur service, de 0 à 10. Plus c’est haut, mieux c’est.'],
   ['Sens de cohérence des patient·e·s', 'Comprendre sa situation de santé, se sentir capable d’y faire face, lui trouver du sens, de 0 à 10. Plus c’est haut, mieux c’est.'],
@@ -684,7 +684,7 @@ function useVeille() {
   return { ...etat, visibles, masquer };
 } // notification par courriel, hébergée sur Infomaniak (remplace FormSubmit)
 const VUE_TITRES = {
-  'rapports': 'Rapports', 'admin-annuaire': 'Annuaire', 'temoigner': 'Témoigner', 'evaluer': 'Questionnaire rapide',
+  'rapports': 'Rapports', 'admin-annuaire': 'Annuaire', 'temoigner': 'Trois façons d’agir', 'evaluer': 'Questionnaire rapide',
   'barometre': 'Résultats du questionnaire', 'etat': 'État du projet', 'maturite': 'Maturité en équité', 'glossaire': 'Glossaire', 'feedback': 'Bug ou avis', 'questions': 'Poser une question', 'admin-questions': 'Questions', 'situations': 'Votre situation', 'aide': 'Trouver de l’aide',
   'patient-home': 'Accueil', 'professional-home': 'Accueil', 'new-report': 'Signaler une discrimination', 'positive-report': 'Retour positif',
   'my-reports': 'Mes témoignages', 'institutions': 'Établissements', 'access-care': 'Accès aux soins', 'directory': 'Annuaire',
@@ -760,7 +760,7 @@ function SuiviCheckboxes({ data, setData, positif, partie }) {
         <Card className="p-4">
           <h3 className="font-medium mb-1 flex items-center gap-2"><Shield className="w-5 h-5 text-indigo-600" /> Recherche</h3>
           <p className="text-sm text-gray-600 mb-3">Vos données anonymes servent à la recherche, sans recontact.</p>
-          <CwSwitch id="cwResearchUse" checked={data.researchUse} onChange={set('researchUse')} titre="J’accepte que mes données dé-identifiées soient utilisées à des fins de recherche, de sensibilisation et de formation" detail="Données générales uniquement. Modifiable avec votre numéro et votre code." />
+          <CwSwitch id="cwResearchUse" checked={data.researchUse} onChange={set('researchUse')} titre="J’accepte que mes données anonymisées soient utilisées à des fins de recherche, de sensibilisation et de formation" detail="Données générales uniquement. Modifiable avec votre numéro et votre code." />
         </Card>
       )}
 
@@ -1885,7 +1885,7 @@ function NdaGate({ invitation, onSigne }) {
       <div className="max-w-2xl w-full">
         <div className="flex justify-center mb-3"><Logo size="xl" /></div>
         <h1 className="text-2xl font-extrabold text-gray-900 text-center mb-1">Accord de confidentialité</h1>
-        <p className="text-sm text-gray-600 text-center mb-5">Alpha fermée CareWatch™ {CW_VERSION} · version de l’accord du {CW_NDA_VERSION}{invitation && invitation.attribue_a ? ` · invitation : ${invitation.attribue_a}` : ''}</p>
+        <p className="text-sm text-gray-600 text-center mb-5">Version de test CareWatch™ {CW_VERSION} · version de l’accord du {CW_NDA_VERSION}{invitation && invitation.attribue_a ? ` · invitation : ${invitation.attribue_a}` : ''}</p>
         <Card className="p-5 mb-4">
           <div onScroll={surDefilement} style={{ paddingRight: 8, maxHeight: '46vh', overflowY: 'auto' }}>
             {NDA_SECTIONS.map(s => (
@@ -1980,7 +1980,7 @@ function AlphaGate({ onUnlock }) {
         <h1 className="text-3xl font-extrabold text-gray-900 mb-2">CareWatch™</h1>
         <p className="text-lg text-teal-600 font-medium mb-1">Plateforme participative pour l'équité des soins</p>
         <p className="text-base text-gray-700 font-semibold mb-2">Signalez. Observez. Améliorez les soins.</p>
-        <p className="text-sm text-gray-400 mb-8">Alpha fermée {CW_VERSION} · Accès sur invitation · Suisse romande</p>
+        <p className="text-sm text-gray-400 mb-8">Version de test {CW_VERSION} · Accès sur invitation · Suisse romande</p>
         
         <div className={`bg-white rounded-2xl shadow-lg border p-6 ${shaking ? 'animate-shake' : ''}`}>
           <p className="text-gray-600 mb-4">Saisissez votre code d'invitation pour accéder à la plateforme.</p>
@@ -2305,12 +2305,12 @@ function Landing() {
       <div className="sticky top-0 z-40">
         {/* ALPHA BANNER */}
         {alphaBanner && (
-          <div role="region" aria-label="Avertissement alpha" className="cw-banniere bg-amber-700 text-white px-4 py-2 text-center text-sm shadow-sm relative" style={{ paddingRight: 40 }}>
+          <div role="region" aria-label="Avertissement version de test" className="cw-banniere bg-amber-700 text-white px-4 py-2 text-center text-sm shadow-sm relative" style={{ paddingRight: 40 }}>
             <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-center gap-2">
               <span>
-                <span className="font-bold">⚠️ Alpha fermée {CW_VERSION}</span>
-                <span className="hidden sm:inline">{' — '}{showDemo ? 'Vos signalements sont réels. Les chiffres affichés sont fictifs.' : 'Vos signalements sont réels. Données fictives masquées.'}</span>
-                <span className="sm:hidden">{' · '}{showDemo ? 'signalements réels, chiffres de démonstration' : 'signalements réels'}</span>
+                <span className="font-bold">⚠️ Version de test {CW_VERSION}</span>
+                <span className="hidden sm:inline">{'. '}{showDemo ? 'Vos signalements sont réels et enregistrés. Les notes, chiffres et annuaire sont fictifs.' : 'Vos signalements sont réels et enregistrés.'}</span>
+                <span className="sm:hidden">{' · '}{showDemo ? 'signalements réels, chiffres fictifs' : 'signalements réels'}</span>
                 {' '}<button onClick={() => setView('feedback')} className="cw-lien underline font-semibold whitespace-nowrap">Un bug ? Un avis ?</button>
               </span>
               <label className="flex items-center gap-1.5 text-xs rounded-full px-2.5 py-1 cursor-pointer whitespace-nowrap" style={{ backgroundColor: "rgba(0,0,0,0.3)" }}>
@@ -2387,7 +2387,7 @@ function Landing() {
       {/* ===== HERO ===== */}
       <section className="bg-gradient-to-b from-teal-50/80 to-white">
         <div className="max-w-3xl mx-auto px-6 pt-12 pb-10 md:pt-20 md:pb-14 text-center">
-          <p className="text-xs font-semibold uppercase tracking-wider text-teal-700 mb-4">Observatoire participatif</p>
+          <p className="text-xs font-semibold uppercase tracking-wider text-teal-700 mb-4">Plateforme participative</p>
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-gray-900 leading-[1.08] tracking-tight mb-5">
             L’équité des soins,<br className="sm:hidden" /> documentée par celles et ceux qui la vivent.
           </h1>
@@ -2425,7 +2425,7 @@ function Landing() {
           <div className="space-y-8 md:space-y-0 md:grid md:grid-cols-3 md:gap-10">
             {[
               { icon: ClipboardList, color: 'teal', n: '1', title: 'Documenter', desc: 'Témoignages anonymes, recueillis et vérifiés avant publication.' },
-              { icon: TrendingUp, color: 'indigo', n: '2', title: 'Mesurer', desc: 'Un indice d’équité par établissement, à partir de témoignages vérifiés.' },
+              { icon: TrendingUp, color: 'indigo', n: '2', title: 'Mesurer', desc: 'Une note d’équité par établissement, à partir de témoignages vérifiés.' },
               { icon: ShieldCheck, color: 'amber', n: '3', title: 'Restituer', desc: 'Données ouvertes, droit de réponse, indicateurs lisibles par tous.' },
             ].map(s => (
               <div key={s.n} className="flex items-start gap-5">
@@ -2604,7 +2604,7 @@ function Landing() {
             </div>
           </div>
           <div className="border-t border-gray-300 pt-5 text-sm text-gray-500 text-center">
-            © 2026 CareWatch™ · Alpha fermée {CW_VERSION} · Hébergé en Suisse · Données CC BY-NC-SA 4.0
+            © 2026 CareWatch™ · Version de test {CW_VERSION} · Hébergé en Suisse · Données CC BY-NC-SA 4.0
             {' · '}
             <button onClick={() => setView('privacy-public')} className="underline hover:text-teal-700">Confidentialité et mentions légales</button>
           </div>
@@ -2854,7 +2854,7 @@ function InstitutionModal({ institution: inst, onClose }) {
             <RatingBadge rating={inst.rating} size="md" />
             <Stars rating={inst.rating} />
             {showDemo ? <span className="text-sm text-gray-500 ml-auto">{inst.trend === 'up' ? '↑ En amélioration' : inst.trend === 'down' ? '↓ En baisse' : '→ Stable'}</span>
-              : <span className="text-sm text-gray-700 ml-auto">{inst.indice != null ? `Indice d’équité ${inst.indice}/100` : 'Pas encore de note'}</span>}
+              : <span className="text-sm text-gray-700 ml-auto">{inst.indice != null ? `Note d’équité ${inst.indice}/100` : 'Pas encore de note'}</span>}
           </div>
         </div>
 
@@ -2937,7 +2937,7 @@ function InstitutionModal({ institution: inst, onClose }) {
           return (
             <div className="bg-amber-50 border border-amber-100 rounded-xl p-4">
               <p className="text-xs text-amber-800 mb-1">Exemple fictif (mode démonstration).</p>
-              <h4 className="font-semibold text-gray-900 mb-3">Discrimination perçue par service, du plus bas au plus élevé</h4>
+              <h4 className="font-semibold text-gray-900 mb-3">Discrimination vécue par service, du plus bas au plus élevé</h4>
               <div className="text-sm text-gray-800 space-y-1.5">
                 {services.map((x, i) => (
                   <div key={x.svc} className="flex items-center gap-3">
@@ -2948,7 +2948,7 @@ function InstitutionModal({ institution: inst, onClose }) {
                   </div>
                 ))}
               </div>
-              <p className="text-xs text-gray-600 mt-3">0 % jamais, 100 % toujours.</p>
+              <p className="text-xs text-gray-600 mt-3">0 % : jamais vécue. 100 % : toujours vécue.</p>
             </div>
           );
         })()}
@@ -3044,7 +3044,7 @@ function InstitutionModal({ institution: inst, onClose }) {
           );
         })()}
 
-        {!showDemo && <p className="text-xs text-gray-500">Indice d’équité sur 100 : 70 % discrimination perçue (moins, c’est mieux), 30 % retours positifs. <button onClick={() => { onClose(); setView('methodology'); }} className="underline text-teal-700">Méthodologie</button></p>}
+        {!showDemo && <p className="text-xs text-gray-500">Note d’équité sur 100 : 70 % discrimination vécue (moins, c’est mieux), 30 % retours positifs. <button onClick={() => { onClose(); setView('methodology'); }} className="underline text-teal-700">Méthodologie</button></p>}
 
         {/* Actions */}
         <div className="flex flex-col sm:flex-row gap-3">
@@ -3095,8 +3095,8 @@ function AppShell() {
   const menus = {
     patient: [
       { icon: Home, label: 'Accueil', v: 'patient-home' },
-      { icon: Plus, label: 'Témoigner', v: 'temoigner' },
-      { icon: TrendingUp, label: 'Baromètre', v: 'barometre' },
+      { icon: Plus, label: 'Signaler une discrimination', v: 'new-report' },
+      { icon: TrendingUp, label: 'Questionnaire rapide', v: 'barometre' },
       { icon: BarChart3, label: 'Rapports', v: 'rapports' },
       { icon: ClipboardList, label: 'Mes témoignages', v: 'my-reports' },
       { icon: Building, label: 'Établissements', v: 'institutions' },
@@ -3114,12 +3114,12 @@ function AppShell() {
     ],
     professional: [
       { icon: Home, label: 'Accueil', v: 'professional-home' },
-      { icon: Plus, label: 'Témoigner', v: 'temoigner' },
+      { icon: Plus, label: 'Signaler une discrimination', v: 'new-report' },
       { icon: ClipboardList, label: 'Mes témoignages', v: 'my-reports' },
       { icon: Users, label: 'Pair-aidance', v: 'peer-support' },
       { icon: GraduationCap, label: 'Formations', v: 'formations' },
       { icon: TrendingUp, label: 'Maturité en équité', v: 'maturite' },
-      { icon: TrendingUp, label: 'Baromètre', v: 'barometre' },
+      { icon: TrendingUp, label: 'Questionnaire rapide', v: 'barometre' },
       { icon: BarChart3, label: 'Rapports', v: 'rapports' },
       { icon: Building, label: 'Établissements', v: 'institutions' },
       { icon: Users, label: 'Votre situation', v: 'situations' },
@@ -3334,7 +3334,7 @@ function AppShell() {
 
       {/* Institution modal, accessible from any view */}
       {selectedInstitution && <InstitutionModal institution={selectedInstitution} onClose={() => setSelectedInstitution(null)} />}
-      {userType !== 'admin' && <BoutonsFlottants temoigner={() => setView('temoigner')} libelle="Témoigner" />}
+      {userType !== 'admin' && <BoutonsFlottants temoigner={() => setView('new-report')} libelle="Signaler une discrimination" />}
     </div>
   );
 }
@@ -3389,7 +3389,7 @@ function ChoixTemoignerPage() {
   const k = userType === 'professional' ? 'professional' : 'patient';
   return (
     <div className="p-4 md:p-8 max-w-4xl mx-auto">
-      <h2 className="text-xl font-bold mb-1">Témoigner</h2>
+      <h2 className="text-xl font-bold mb-1">Trois façons d’agir</h2>
       <p className="text-gray-600 mb-5">Un questionnaire rapide, un signalement ou un retour positif.</p>
       <TuilesEspace tuiles={CW_TUILES_TEMOIGNER[k]} />
     </div>
@@ -3399,7 +3399,7 @@ function ChoixTemoignerPage() {
 function PatientHome() {
   return (
     <div className="p-4 md:p-8 max-w-4xl mx-auto">
-      <h2 className="text-2xl font-bold mb-4">Témoigner</h2>
+      <h2 className="text-2xl font-bold mb-4">Trois façons d’agir</h2>
       <TuilesEspace tuiles={CW_TUILES_TEMOIGNER.patient} />
       <h2 className="text-2xl font-bold mt-8 mb-4">Consulter</h2>
       <TuilesEspace tuiles={CW_TUILES_CONSULTER.patient} />
@@ -3410,7 +3410,7 @@ function PatientHome() {
 function ProfessionalHome() {
   return (
     <div className="p-4 md:p-8 max-w-4xl mx-auto">
-      <h2 className="text-2xl font-bold mb-1">Témoigner</h2>
+      <h2 className="text-2xl font-bold mb-1">Trois façons d’agir</h2>
       <p className="text-gray-600 mb-4">Votre employeur ne voit que des chiffres d’ensemble.</p>
       <TuilesEspace tuiles={CW_TUILES_TEMOIGNER.professional} />
       <h2 className="text-2xl font-bold mt-8 mb-4">Consulter</h2>
@@ -3740,7 +3740,7 @@ function OrientationRecours({ data, code, dms, isPro }) {
               'Canton : ' + cantonLabel + '\n\n' +
               'Résumé de la situation :\n' +
               '[Décrivez brièvement les faits, vous pouvez reprendre la description de votre signalement CareWatch™]\n\n' +
-              'Impact ressenti :\n' +
+              'Conséquences pour vous :\n' +
               (data.impact || '[Décrivez les conséquences sur votre santé, votre confiance, votre parcours de soins]') + '\n\n' +
               'Je souhaiterais bénéficier d\'une médiation pour que cette situation soit entendue et, si possible, qu\'elle contribue à améliorer la prise en charge.\n\n' +
               'Mes coordonnées :\n' +
@@ -3855,7 +3855,7 @@ function OrientationRecours({ data, code, dms, isPro }) {
             </div>
             <div>
               <h3 className="font-semibold text-gray-900">Préparer mon dossier</h3>
-              <p className="text-sm text-gray-700 mt-0.5">Générez un résumé de votre signalement avec les contacts utiles de votre canton, à transmettre à un·e délégué·e, un médiateur, une commission ou un·e avocat·e. <strong>Aucune donnée n'est envoyée — tout reste sur votre appareil.</strong></p>
+              <p className="text-sm text-gray-700 mt-0.5">Générez un résumé de votre signalement avec les contacts utiles de votre canton, à transmettre à un·e délégué·e, un médiateur, une commission ou un·e avocat·e. <strong>Aucune donnée n'est envoyée, tout reste sur votre appareil.</strong></p>
             </div>
           </div>
           {!showDossier ? (
@@ -4133,12 +4133,12 @@ function NewReport() {
   
   const roleTexts = {
     victim: {
-      step2Title: 'Racontez votre expérience',
+      step2Title: 'Raconter ce qui s’est passé',
       step2Sub: 'Prenez le temps qu’il vous faut. Votre témoignage est lu avec respect.',
       step2Hint: 'Il peut s’agir d’une <strong>situation isolée</strong> ou d’une <strong>accumulation de situations</strong>. Les micro-agressions répétées comptent autant.',
       step4Sub: 'Sélectionnez la catégorie qui correspond le mieux à votre expérience :',
       step5Explain: 'C’est la raison pour laquelle vous pensez avoir été traité·e différemment. Par exemple, moins d’attention à cause de votre accent : le motif serait « Langue ou accent ».',
-      step5Sub: 'Selon vous, sur quel(s) motif(s) pourrait reposer la discrimination perçue ?',
+      step5Sub: 'Selon vous, sur quel(s) motif(s) pourrait reposer la discrimination vécue ?',
       step5Ressenti: 'Rien à prouver : votre perception est légitime. Vous pouvez choisir un ou plusieurs motifs.',
       descLabel: 'Décrivez la situation',
       descPlaceholder: 'Que s’est-il passé ? Quels mots ou comportements ? Comment vous êtes-vous senti·e ? Restez factuel·le et aussi précis·e que possible…',
@@ -5276,7 +5276,7 @@ function NewReport() {
                         </a>
                       );
                     })()}
-                    <p className="text-xs text-gray-500 mt-1">Courriel préparé sur votre appareil, non conservé par l’observatoire.</p>
+                    <p className="text-xs text-gray-500 mt-1">Courriel préparé sur votre appareil, rien n’est conservé par la plateforme.</p>
                   </div>
                 )}
               </div>
@@ -5486,21 +5486,21 @@ function EspaceEtablissement() {
       {ongletEtab === 'tableau' && (<>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
         <Tuile v={t.verifies || 0} l="Témoignages vérifiés" c={`${t.signalements || 0} signalements · ${t.positifs || 0} positifs · ${t.enquetes || 0} questionnaire`} />
-        <Tuile v={t.ressenti != null ? Math.round(t.ressenti * 100) + ' %' : '—'} l="Discrimination perçue" c="0 % jamais, 100 % toujours" />
+        <Tuile v={t.ressenti != null ? Math.round(t.ressenti * 100) + ' %' : '-'} l="Discrimination vécue" c="0 % : jamais vécue. 100 % : toujours vécue" />
         <Tuile v={pct(t.repondus_14j || 0, (t.repondus || 0) + (t.en_retard || 0))} l="Réponses dans les 14 jours" c={`${t.a_repondre || 0} en attente · ${t.en_retard || 0} en retard`} />
-        <Tuile v={t.renoncement_repondu ? pct(t.renoncement_oui || 0, t.renoncement_repondu) : '—'} l="Renoncement aux soins" c="part des personnes ayant renoncé après l’expérience" />
-        <Tuile v={t.epuisement != null ? t.epuisement + ' / 10' : '—'} l="Épuisement du personnel" c={t.personnel ? `${t.personnel} réponses du personnel, quatre dernières semaines` : 'pas encore assez de réponses'} />
-        <Tuile v={t.leadership != null ? t.leadership + ' / 10' : '—'} l="Leadership vécu" c="« ma ou mon responsable se met au service de l’équipe »" />
-        <Tuile v={t.partenariat_patients != null ? t.partenariat_patients + ' / 10' : '—'} l="Partenariat de soins" c={t.n_part_patients ? `vu par les patient·e·s, ${t.n_part_patients} réponses` : 'pas encore assez de réponses'} />
-        <Tuile v={t.partenariat_personnel != null ? t.partenariat_personnel + ' / 10' : '—'} l="Partenariat, vu par le personnel" c={t.n_part_personnel ? `${t.n_part_personnel} réponses du personnel` : 'pas encore assez de réponses'} />
+        <Tuile v={t.renoncement_repondu ? pct(t.renoncement_oui || 0, t.renoncement_repondu) : '-'} l="Renoncement aux soins" c="part des personnes ayant renoncé après l’expérience" />
+        <Tuile v={t.epuisement != null ? t.epuisement + ' / 10' : '-'} l="Épuisement du personnel" c={t.personnel ? `${t.personnel} réponses du personnel, quatre dernières semaines` : 'pas encore assez de réponses'} />
+        <Tuile v={t.leadership != null ? t.leadership + ' / 10' : '-'} l="Leadership vécu" c="« ma ou mon responsable se met au service de l’équipe »" />
+        <Tuile v={t.partenariat_patients != null ? t.partenariat_patients + ' / 10' : '-'} l="Partenariat de soins" c={t.n_part_patients ? `vu par les patient·e·s, ${t.n_part_patients} réponses` : 'pas encore assez de réponses'} />
+        <Tuile v={t.partenariat_personnel != null ? t.partenariat_personnel + ' / 10' : '-'} l="Partenariat, vu par le personnel" c={t.n_part_personnel ? `${t.n_part_personnel} réponses du personnel` : 'pas encore assez de réponses'} />
       </div>
 
       <Card className="p-4 mb-4">
         <div className="flex items-center justify-between mb-3"><h3 className="font-semibold">Par service</h3><Button size="sm" variant="secondary" onClick={exporter}>Exporter (CSV)</Button></div>
         <div className="overflow-x-auto">
           <table className="cw-tableau w-full text-sm">
-            <thead><tr className="text-left text-xs text-gray-500 border-b"><th className="py-1 pr-3">Service</th><th className="py-1 pr-3">Témoignages</th><th className="py-1 pr-3">Discrimination perçue</th><th className="py-1 pr-3">Positifs</th><th className="py-1 pr-3">Épuisement</th><th className="py-1 pr-3">Leadership</th></tr></thead>
-            <tbody>{tb.par_service.map(x => <tr key={x.service} className="border-b border-gray-100"><td data-label="Service" className="py-1 pr-3">{x.service}</td><td data-label="Témoignages" className="py-1 pr-3">{x.masque ? 'moins de 3' : x.n}</td><td data-label="Discrimination perçue" className="py-1 pr-3">{x.ressenti != null ? Math.round(x.ressenti * 100) + ' %' : '—'}</td><td data-label="Positifs" className="py-1 pr-3">{x.positifs ?? '—'}</td><td data-label="Épuisement" className="py-1 pr-3">{x.epuisement != null ? x.epuisement + ' / 10' : '—'}</td><td data-label="Leadership" className="py-1 pr-3">{x.leadership != null ? x.leadership + ' / 10' : '—'}</td></tr>)}</tbody>
+            <thead><tr className="text-left text-xs text-gray-500 border-b"><th className="py-1 pr-3">Service</th><th className="py-1 pr-3">Témoignages</th><th className="py-1 pr-3">Discrimination vécue</th><th className="py-1 pr-3">Positifs</th><th className="py-1 pr-3">Épuisement</th><th className="py-1 pr-3">Leadership</th></tr></thead>
+            <tbody>{tb.par_service.map(x => <tr key={x.service} className="border-b border-gray-100"><td data-label="Service" className="py-1 pr-3">{x.service}</td><td data-label="Témoignages" className="py-1 pr-3">{x.masque ? 'moins de 3' : x.n}</td><td data-label="Discrimination vécue" className="py-1 pr-3">{x.ressenti != null ? Math.round(x.ressenti * 100) + ' %' : '-'}</td><td data-label="Positifs" className="py-1 pr-3">{x.positifs ?? '-'}</td><td data-label="Épuisement" className="py-1 pr-3">{x.epuisement != null ? x.epuisement + ' / 10' : '-'}</td><td data-label="Leadership" className="py-1 pr-3">{x.leadership != null ? x.leadership + ' / 10' : '-'}</td></tr>)}</tbody>
           </table>
         </div>
       </Card>
@@ -5509,7 +5509,7 @@ function EspaceEtablissement() {
         <div className="overflow-x-auto">
           <table className="cw-tableau w-full text-sm">
             <thead><tr className="text-left text-xs text-gray-500 border-b"><th className="py-1 pr-3">Service</th><th className="py-1 pr-3">Vu par les patient·e·s</th><th className="py-1 pr-3">Vu par le personnel</th></tr></thead>
-            <tbody>{tb.par_service.map(x => <tr key={x.service} className="border-b border-gray-100"><td data-label="Service" className="py-1.5 pr-3">{x.service}</td><td data-label="Patient·e·s" className="py-1.5 pr-3">{x.partenariat != null ? x.partenariat + ' / 10' : '—'}</td><td data-label="Personnel" className="py-1.5 pr-3">{x.partenariat_personnel != null ? x.partenariat_personnel + ' / 10' : '—'}</td></tr>)}</tbody>
+            <tbody>{tb.par_service.map(x => <tr key={x.service} className="border-b border-gray-100"><td data-label="Service" className="py-1.5 pr-3">{x.service}</td><td data-label="Patient·e·s" className="py-1.5 pr-3">{x.partenariat != null ? x.partenariat + ' / 10' : '-'}</td><td data-label="Personnel" className="py-1.5 pr-3">{x.partenariat_personnel != null ? x.partenariat_personnel + ' / 10' : '-'}</td></tr>)}</tbody>
           </table>
         </div>
       </Card>
@@ -5519,8 +5519,8 @@ function EspaceEtablissement() {
           <table className="cw-tableau w-full text-sm">
             <thead><tr className="text-left text-xs text-gray-500 border-b"><th className="py-1 pr-3">Service</th><th className="py-1 pr-3">Cohérence au travail</th><th className="py-1 pr-3">Ressources</th><th className="py-1 pr-3">Stresseurs</th><th className="py-1 pr-3">Cohérence des patient·e·s</th></tr></thead>
             <tbody>
-              <tr className="border-b border-gray-200 font-semibold"><td data-label="Service" className="py-1.5 pr-3">Ensemble</td>{[t.qvt_soc, t.qvt_ress, t.qvt_stress, t.sc_patients].map((v, i) => <td key={i} data-label={['Cohérence au travail', 'Ressources', 'Stresseurs', 'Cohérence des patient·e·s'][i]} className="py-1.5 pr-3">{v != null ? v + ' / 10' : '—'}</td>)}</tr>
-              {tb.par_service.map(x => <tr key={x.service} className="border-b border-gray-100"><td data-label="Service" className="py-1.5 pr-3">{x.service}</td>{[x.qvt_soc, x.qvt_ress, x.qvt_stress, x.sc_pat].map((v, i) => <td key={i} data-label={['Cohérence au travail', 'Ressources', 'Stresseurs', 'Cohérence des patient·e·s'][i]} className="py-1.5 pr-3">{v != null ? v + ' / 10' : '—'}</td>)}</tr>)}
+              <tr className="border-b border-gray-200 font-semibold"><td data-label="Service" className="py-1.5 pr-3">Ensemble</td>{[t.qvt_soc, t.qvt_ress, t.qvt_stress, t.sc_patients].map((v, i) => <td key={i} data-label={['Cohérence au travail', 'Ressources', 'Stresseurs', 'Cohérence des patient·e·s'][i]} className="py-1.5 pr-3">{v != null ? v + ' / 10' : '-'}</td>)}</tr>
+              {tb.par_service.map(x => <tr key={x.service} className="border-b border-gray-100"><td data-label="Service" className="py-1.5 pr-3">{x.service}</td>{[x.qvt_soc, x.qvt_ress, x.qvt_stress, x.sc_pat].map((v, i) => <td key={i} data-label={['Cohérence au travail', 'Ressources', 'Stresseurs', 'Cohérence des patient·e·s'][i]} className="py-1.5 pr-3">{v != null ? v + ' / 10' : '-'}</td>)}</tr>)}
             </tbody>
           </table>
         </div>
@@ -5546,7 +5546,7 @@ function EspaceEtablissement() {
           {aRepondre.map(x => (
             <div key={x.numero} className={`border rounded-xl p-3 ${new Date(x.echeance) < new Date() ? 'border-rose-200 bg-rose-50' : 'border-gray-200'}`}>
               <p className="text-sm"><span className="font-mono font-semibold">{x.numero}</span> · {cwTypeLibelle(x.type)} · {x.service || 'service non précisé'} · {x.mois}</p>
-              <p className="text-xs text-gray-600 mb-2">{x.type_incident || ''}{Array.isArray(x.motifs) && x.motifs.length ? ' · ' + x.motifs.map(motifLibelle).join(', ') : ''}{x.dms_score != null ? ` · ressenti ${x.dms_score}/${x.dms_max}` : ''} · échéance {cwDateCourte(String(x.echeance).slice(0, 10))}</p>
+              <p className="text-xs text-gray-600 mb-2">{x.type_incident || ''}{Array.isArray(x.motifs) && x.motifs.length ? ' · ' + x.motifs.map(motifLibelle).join(', ') : ''}{x.dms_score != null ? ` · discrimination vécue ${x.dms_score}/${x.dms_max}` : ''} · échéance {cwDateCourte(String(x.echeance).slice(0, 10))}</p>
               <textarea value={reponses[x.numero] || ''} onChange={e => setReponses(p => ({ ...p, [x.numero]: e.target.value }))} maxLength={2000} rows={3} placeholder="Votre réponse : compréhension de l’établissement, actions, contact." className="w-full px-3 py-2 rounded-xl border-2 border-gray-200 focus:border-teal-500 focus:outline-none text-sm mb-2" />
               <Button size="sm" onClick={() => repondre(x.numero)} disabled={busy}>Envoyer la réponse</Button>
             </div>
@@ -5841,7 +5841,7 @@ function QuestionsPage() {
   return (
     <div className="p-4 md:p-8 max-w-3xl mx-auto">
       <p className="text-sm text-rose-800 bg-rose-50 border border-rose-100 rounded-xl px-3 py-2 mb-4">En cas d’urgence : ambulance 144 · police 117 · La Main Tendue 143.</p>
-      <div className="flex items-center gap-2 mb-1"><h2 className="text-2xl font-bold">Posez vos questions</h2><span className="px-2 py-0.5 rounded text-xs bg-amber-100 text-amber-800">alpha</span></div>
+      <div className="flex items-center gap-2 mb-1"><h2 className="text-2xl font-bold">Posez vos questions</h2><span className="px-2 py-0.5 rounded text-xs bg-amber-100 text-amber-800">en test</span></div>
       <p className="text-gray-600 mb-2">Une question ? Posez-la ici, anonymement.</p>
       <p className="text-gray-600 mb-5">Réponse publiée sous dix jours ouvrables, sans vous identifier.</p>
 
@@ -6093,13 +6093,13 @@ function BoutonsFlottants({ temoigner, libelle }) {
   return (
     <div ref={cont} className="fixed z-40 right-3 flex flex-col items-end gap-2" style={{ bottom: 88, opacity: masque ? 0 : 1, pointerEvents: masque ? 'none' : 'auto' }}>
       {haut && <button type="button" onClick={remonter} title="Retour en haut de la page" aria-label="Retour en haut" className="w-10 h-10 rounded-full bg-white border border-gray-300 text-gray-700 shadow-lg flex items-center justify-center text-lg font-bold">↑</button>}
-      {temoigner && <button type="button" onClick={temoigner} className="cw-flot-temoigner rounded-full bg-teal-600 hover:bg-teal-700 text-white text-xs font-semibold px-4 py-2 shadow-lg">{libelle || 'Témoigner'}</button>}
+      {temoigner && <button type="button" onClick={temoigner} className="cw-flot-temoigner rounded-full bg-teal-600 hover:bg-teal-700 text-white text-xs font-semibold px-4 py-2 shadow-lg">{libelle || 'Signaler une discrimination'}</button>}
       <button type="button" onClick={quitter} title="Quitter rapidement le site (touche Échap)" className="rounded-full bg-gray-900 text-white text-xs font-semibold px-3 py-2 shadow-lg flex items-center justify-center gap-1.5"><X className="w-5 h-5 cw-quit-icone" aria-hidden="true" /><span className="cw-quit-txt">Quitter le site<span className="cw-echap"> (Échap)</span></span></button>
     </div>
   );
 }
 
-// Baromètre d'expérience : mesure systématique de l'expérience de traitement, avec ou sans incident, sans récit.
+// Questionnaire rapide : mesure systématique de l'expérience de traitement, avec ou sans incident, sans récit.
 function BarometreExperience({ mode }) {
   const { DB, setView, ref, showDemo, userType } = useApp();
   const [etape, setEtape] = useState(0);
@@ -6179,7 +6179,7 @@ function BarometreExperience({ mode }) {
         <Card className="p-4 mb-4 bg-amber-50 border-amber-100">
           <p className="text-sm font-semibold text-gray-900 mb-3">Patient·e·s et proches, par service <span className="ml-2 px-2 py-0.5 rounded text-xs font-normal bg-amber-100 text-amber-800">exemple fictif</span></p>
           <Grille colonnes="minmax(110px, 1.2fr) 2fr 52px" lignes={[['Maternité', 412, 0.09], ['Pédiatrie', 268, 0.11], ['Oncologie', 187, 0.13], ['Chirurgie', 305, 0.17], ['Consultation externe', 640, 0.19], ['Médecine interne', 351, 0.24], ['Psychiatrie', 142, 0.27], ['Urgences adultes', 1024, 0.31], ['Accueil et admissions', 288, 0.34]]}
-            rendu={{ entetes: ['Service', 'Discrimination perçue', 'Réponses'], ligne: ([svc, nb, r]) => <React.Fragment key={svc}><span className="cw-nom truncate text-gray-800">{svc}</span><Barre v={r} max={1} lib="Discrimination" /><span className="cw-nb text-xs text-gray-500 text-right">{nb}<span className="cw-barre-lib">{' réponses'}</span></span></React.Fragment> }} />
+            rendu={{ entetes: ['Service', 'Discrimination vécue', 'Réponses'], ligne: ([svc, nb, r]) => <React.Fragment key={svc}><span className="cw-nom truncate text-gray-800">{svc}</span><Barre v={r} max={1} lib="Discrimination" /><span className="cw-nb text-xs text-gray-500 text-right">{nb}<span className="cw-barre-lib">{' réponses'}</span></span></React.Fragment> }} />
         </Card>
       )}
       {onglet === 'resultats' && showDemo && lecture === 'patients' && (
@@ -6542,7 +6542,7 @@ function RapportsPage() {
   const couleursNiveaux = { 'Exemplaire': '#10b981', 'Satisfaisant': '#14b8a6', 'À améliorer': '#f59e0b', 'Insuffisant': '#f43f5e', 'Pas encore d’évaluation': '#d1d5db' };
   const niveaux = Object.keys(couleursNiveaux).map(k => ({ cle: k, libelle: k, valeur: parEtab.filter(x => niveauIndice(x.indice) === k).length, couleur: couleursNiveaux[k] }));
   const parCanton = Object.values(parEtab.reduce((acc, x) => {
-    const c = x.canton || '—'; const o = acc[c] || (acc[c] = { cle: c, etablissements: 0, n: 0, verifies: 0, positifs: 0, ressSomme: 0, ressN: 0 });
+    const c = x.canton || '-'; const o = acc[c] || (acc[c] = { cle: c, etablissements: 0, n: 0, verifies: 0, positifs: 0, ressSomme: 0, ressN: 0 });
     o.etablissements++; o.n += x.n || 0; o.verifies += x.verifies || 0; o.positifs += x.positifs || 0;
     if (x.ressenti != null) { o.ressSomme += x.ressenti * (x.n || 1); o.ressN += (x.n || 1); }
     return acc;
@@ -6616,8 +6616,8 @@ function RapportsPage() {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
         <Tuile v={synthese.n} l="Témoignages" c={`${synthese.signalements} signalements · ${synthese.positifs} positifs · ${synthese.enquetes} questionnaire`} />
         <Tuile v={synthese.verifies} l="Vérifiés" c="Lus et validés par la modération" />
-        <Tuile v={cwPct(synthese.ressenti)} l="Discrimination perçue" c="0 % jamais, 100 % toujours" />
-        <Tuile v={partPositive == null ? '—' : `${partPositive} %`} l="Positifs" c="Part des retours positifs" />
+        <Tuile v={cwPct(synthese.ressenti)} l="Discrimination vécue" c="0 % : jamais vécue. 100 % : toujours vécue" />
+        <Tuile v={partPositive == null ? '-' : `${partPositive} %`} l="Positifs" c="Part des retours positifs" />
       </div>
       <Card className="p-4 mb-4">
         <h3 className="font-semibold mb-3">Niveaux des établissements</h3>
@@ -6636,7 +6636,7 @@ function RapportsPage() {
             </div>
             <div className="overflow-x-auto">
               <table className="cw-tableau w-full text-sm">
-                <thead><tr className="text-left text-xs text-gray-500 border-b"><th className="py-1 pr-3">Canton</th><th className="py-1 pr-3">Établissements</th><th className="py-1 pr-3">Témoignages</th><th className="py-1 pr-3">Vérifiés</th><th className="py-1 pr-3">Positifs</th><th className="py-1 pr-3">Discrimination perçue</th></tr></thead>
+                <thead><tr className="text-left text-xs text-gray-500 border-b"><th className="py-1 pr-3">Canton</th><th className="py-1 pr-3">Établissements</th><th className="py-1 pr-3">Témoignages</th><th className="py-1 pr-3">Vérifiés</th><th className="py-1 pr-3">Positifs</th><th className="py-1 pr-3">Discrimination vécue</th></tr></thead>
                 <tbody>
                   {parCanton.map(x => (
                     <tr key={x.cle} className="border-b border-gray-100">
@@ -6645,7 +6645,7 @@ function RapportsPage() {
                       <td data-label="Témoignages" className="py-1 pr-3">{x.n}</td>
                       <td data-label="Vérifiés" className="py-1 pr-3">{x.verifies}</td>
                       <td data-label="Positifs" className="py-1 pr-3">{x.positifs}</td>
-                      <td data-label="Discrimination perçue" className="py-1 pr-3">{cwPct(x.ressenti)}</td>
+                      <td data-label="Discrimination vécue" className="py-1 pr-3">{cwPct(x.ressenti)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -6667,7 +6667,7 @@ function RapportsPage() {
             </div>
             <div className="overflow-x-auto">
               <table className="cw-tableau w-full text-sm">
-                <thead><tr className="text-left text-xs text-gray-500 border-b"><th className="py-1 pr-3">Établissement</th><th className="py-1 pr-3">Canton</th><th className="py-1 pr-3">Témoignages</th><th className="py-1 pr-3">Vérifiés</th><th className="py-1 pr-3">Discrimination perçue</th><th className="py-1 pr-3">Positifs</th><th className="py-1 pr-3">Indice</th></tr></thead>
+                <thead><tr className="text-left text-xs text-gray-500 border-b"><th className="py-1 pr-3">Établissement</th><th className="py-1 pr-3">Canton</th><th className="py-1 pr-3">Témoignages</th><th className="py-1 pr-3">Vérifiés</th><th className="py-1 pr-3">Discrimination vécue</th><th className="py-1 pr-3">Positifs</th><th className="py-1 pr-3">Indice</th></tr></thead>
                 <tbody>
                   {parEtab.map(x => (
                     <tr key={x.cle} className="border-b border-gray-100">
@@ -6675,7 +6675,7 @@ function RapportsPage() {
                       <td data-label="Canton" className="py-1 pr-3">{x.canton}</td>
                       <td data-label="Témoignages" className="py-1 pr-3">{x.n}</td>
                       <td data-label="Vérifiés" className="py-1 pr-3">{x.verifies}</td>
-                      <td data-label="Discrimination perçue" className="py-1 pr-3">{cwPct(x.ressenti)}</td>
+                      <td data-label="Discrimination vécue" className="py-1 pr-3">{cwPct(x.ressenti)}</td>
                       <td data-label="Positifs" className="py-1 pr-3">{x.positifs}</td>
                       <td data-label="Note" className="py-1 pr-3">{x.indice != null ? `${x.indice}/100` : '-'}</td>
                     </tr>
@@ -6694,11 +6694,11 @@ function RapportsPage() {
         {parService.length === 0 ? <Vide texte="La lecture par service apparaît dès la première fiche publiée." /> : (
           <>
             <div className="mt-3 mb-4">
-              <BarresH lignes={parService.map(x => ({ cle: x.cle, libelle: x.cle, valeur: x.ressenti == null ? 0 : Math.round(x.ressenti * 100), couleur: cwRessentiCouleur(x.ressenti), detail: `${x.n} témoignages · ${x.signalements} signalements · ${x.positifs} positifs · ${x.enquetes} questionnaire` }))} format={v => v ? `${v} % ressenti` : '—'} largeurLibelle={200} />
+              <BarresH lignes={parService.map(x => ({ cle: x.cle, libelle: x.cle, valeur: x.ressenti == null ? 0 : Math.round(x.ressenti * 100), couleur: cwRessentiCouleur(x.ressenti), detail: `${x.n} témoignages · ${x.signalements} signalements · ${x.positifs} positifs · ${x.enquetes} questionnaire` }))} format={v => v ? `${v} % ressenti` : '-'} largeurLibelle={200} />
             </div>
             <div className="overflow-x-auto">
               <table className="cw-tableau w-full text-sm">
-                <thead><tr className="text-left text-xs text-gray-500 border-b"><th className="py-1 pr-3">Service</th><th className="py-1 pr-3">Témoignages</th><th className="py-1 pr-3">Signalements</th><th className="py-1 pr-3">Positifs</th><th className="py-1 pr-3">Questionnaire</th><th className="py-1 pr-3">Discrimination perçue</th></tr></thead>
+                <thead><tr className="text-left text-xs text-gray-500 border-b"><th className="py-1 pr-3">Service</th><th className="py-1 pr-3">Témoignages</th><th className="py-1 pr-3">Signalements</th><th className="py-1 pr-3">Positifs</th><th className="py-1 pr-3">Questionnaire</th><th className="py-1 pr-3">Discrimination vécue</th></tr></thead>
                 <tbody>
                   {parService.map(x => (
                     <tr key={x.cle} className="border-b border-gray-100">
@@ -6707,7 +6707,7 @@ function RapportsPage() {
                       <td data-label="Signalements" className="py-1 pr-3">{x.signalements}</td>
                       <td data-label="Positifs" className="py-1 pr-3">{x.positifs}</td>
                       <td data-label="Questionnaire" className="py-1 pr-3">{x.enquetes}</td>
-                      <td data-label="Discrimination perçue" className="py-1 pr-3">{cwPct(x.ressenti)}</td>
+                      <td data-label="Discrimination vécue" className="py-1 pr-3">{cwPct(x.ressenti)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -6729,13 +6729,13 @@ function RapportsPage() {
                 <Evolution points={parPeriode.map(x => ({ cle: x.cle, libelle: cwPeriodeLibelle(x.cle), valeur: x.n }))} mode="barres" />
               </div>
               <div>
-                <p className="text-xs font-semibold text-gray-700 mb-1">Discrimination perçue moyenne par période</p>
+                <p className="text-xs font-semibold text-gray-700 mb-1">Discrimination vécue moyenne par période</p>
                 <Evolution points={parPeriode.map(x => ({ cle: x.cle, libelle: cwPeriodeLibelle(x.cle), valeur: x.ressenti == null ? null : Math.round(x.ressenti * 100) }))} mode="ligne" format={v => `${v} %`} couleur={CW_RAPPORTS_COULEURS.ressenti} maxFixe={Math.max(50, ...parPeriode.map(x => x.ressenti == null ? 0 : Math.round(x.ressenti * 100) + 10))} />
               </div>
             </div>
             <div className="overflow-x-auto">
               <table className="cw-tableau w-full text-sm">
-                <thead><tr className="text-left text-xs text-gray-500 border-b"><th className="py-1 pr-3">Période</th><th className="py-1 pr-3">Témoignages</th><th className="py-1 pr-3">Signalements</th><th className="py-1 pr-3">Positifs</th><th className="py-1 pr-3">Questionnaire</th><th className="py-1 pr-3">Discrimination perçue</th></tr></thead>
+                <thead><tr className="text-left text-xs text-gray-500 border-b"><th className="py-1 pr-3">Période</th><th className="py-1 pr-3">Témoignages</th><th className="py-1 pr-3">Signalements</th><th className="py-1 pr-3">Positifs</th><th className="py-1 pr-3">Questionnaire</th><th className="py-1 pr-3">Discrimination vécue</th></tr></thead>
                 <tbody>
                   {parPeriode.map(x => (
                     <tr key={x.cle} className="border-b border-gray-100">
@@ -6744,7 +6744,7 @@ function RapportsPage() {
                       <td data-label="Signalements" className="py-1 pr-3">{x.signalements}</td>
                       <td data-label="Positifs" className="py-1 pr-3">{x.positifs}</td>
                       <td data-label="Questionnaire" className="py-1 pr-3">{x.enquetes}</td>
-                      <td data-label="Discrimination perçue" className="py-1 pr-3">{cwPct(x.ressenti)}</td>
+                      <td data-label="Discrimination vécue" className="py-1 pr-3">{cwPct(x.ressenti)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -6760,8 +6760,8 @@ function RapportsPage() {
         <h3 className="font-semibold mb-2">Méthode</h3>
         <ul className="text-sm text-gray-700 space-y-1.5 list-disc pl-6">
           <li>Trois sources : signalements, retours positifs et questionnaire rapide.</li>
-          <li>La discrimination perçue est la moyenne des sept questions de l’échelle DMS, de 0 % (jamais) à 100 % (toujours).</li>
-          <li>Indice d’équité = 70 × (1 − discrimination perçue) + 30 × part des retours positifs, sur témoignages vérifiés.</li>
+          <li>La discrimination vécue est la moyenne des sept questions du questionnaire, de 0 % (jamais vécue) à 100 % (toujours vécue).</li>
+          <li>Note d’équité = 70 × (1 − discrimination vécue) + 30 × part des retours positifs, sur témoignages vérifiés.</li>
           <li>Les totaux par établissement comptent tous les témoignages vérifiés ; le détail par service et par période repose sur les fiches publiées avec accord.</li>
           <li>Les exports CSV reprennent les tableaux affichés, séparés par des points-virgules, sous licence CC BY-NC-SA 4.0.</li>
         </ul>
@@ -7819,7 +7819,7 @@ function InstitutionsView() {
             <Building className={`w-5 h-5 text-${DB.ratings[i.rating].color}-500`} />
             <div className="flex-1 min-w-0">
               <p className="font-medium truncate">{i.fullName}</p>
-              <p className="text-sm text-gray-600">{i.city} ({i.canton}) • {(i.reports || 0) + (i.positiveReports || 0) + (i.enquetes || 0)} témoignage{((i.reports || 0) + (i.positiveReports || 0) + (i.enquetes || 0)) === 1 ? '' : 's'}{showDemo ? ` • ${i.reliability}% fiabilité` : ` • ${i.verified} vérifié${i.verified === 1 ? '' : 's'}${i.positiveReports ? ` • ${i.positiveReports} positif${i.positiveReports === 1 ? '' : 's'}` : ''}${i.indice != null ? ` • indice d’équité ${i.indice}/100` : ''}`}</p>
+              <p className="text-sm text-gray-600">{i.city} ({i.canton}) • {(i.reports || 0) + (i.positiveReports || 0) + (i.enquetes || 0)} témoignage{((i.reports || 0) + (i.positiveReports || 0) + (i.enquetes || 0)) === 1 ? '' : 's'}{showDemo ? ` • ${i.reliability}% fiabilité` : ` • ${i.verified} vérifié${i.verified === 1 ? '' : 's'}${i.positiveReports ? ` • ${i.positiveReports} positif${i.positiveReports === 1 ? '' : 's'}` : ''}${i.indice != null ? ` • note d’équité ${i.indice}/100` : ''}`}</p>
             </div>
             <RatingBadge rating={i.rating} />
           </Card>
@@ -8426,7 +8426,7 @@ function PLAFAModule() {
               <div className="space-y-4">
 
                 <div className="bg-teal-50 rounded-xl p-3">
-                  <p className="text-sm text-teal-700 font-medium mb-1">Section 1 — État cognitif de référence</p>
+                  <p className="text-sm text-teal-700 font-medium mb-1">Section 1, État cognitif de référence</p>
                   <p className="text-sm text-teal-600">Votre description constitue votre <em>baseline</em>. Un médecin qui allègue une « inaptitude soudaine » face à ce document aura un problème de crédibilité.</p>
                 </div>
                 <TextArea
@@ -8439,7 +8439,7 @@ function PLAFAModule() {
                 />
 
                 <div className="bg-teal-50 rounded-xl p-3">
-                  <p className="text-sm text-teal-700 font-medium mb-1">Section 2 — Craintes spécifiques</p>
+                  <p className="text-sm text-teal-700 font-medium mb-1">Section 2, Craintes spécifiques</p>
                   <p className="text-sm text-teal-600">Nommez précisément vos craintes. Un document qui anticipe exactement le scénario qui se produit a une force probante considérable.</p>
                 </div>
                 <TextArea
@@ -8451,7 +8451,7 @@ function PLAFAModule() {
                 />
 
                 <div className="bg-teal-50 rounded-xl p-3">
-                  <p className="text-sm text-teal-700 font-medium mb-1">Section 3 — Valeurs et volontés</p>
+                  <p className="text-sm text-teal-700 font-medium mb-1">Section 3, Valeurs et volontés</p>
                   <p className="text-sm text-teal-600">Vos souhaits à respecter, même en situation de crise.</p>
                 </div>
                 <TextArea
@@ -8463,7 +8463,7 @@ function PLAFAModule() {
                 />
 
                 <div className="bg-teal-50 rounded-xl p-3">
-                  <p className="text-sm text-teal-700 font-medium mb-1">Section 4 — Refus explicites</p>
+                  <p className="text-sm text-teal-700 font-medium mb-1">Section 4, Refus explicites</p>
                   <p className="text-sm text-teal-600">Vos refus exprès. Un refus documenté à l'avance est juridiquement plus fort qu'un refus exprimé en situation de crise.</p>
                 </div>
                 <TextArea
@@ -8759,7 +8759,7 @@ function PLAFAModule() {
           ))}
 
           <Card className="p-4 bg-rose-50 border-rose-100">
-            <h3 className="font-medium text-rose-900 mb-2">Abus de PLAFA — Actes punissables</h3>
+            <h3 className="font-medium text-rose-900 mb-2">Abus de PLAFA, Actes punissables</h3>
             <div className="space-y-2">
               {[
                 { art: 'Art. 312 CP', desc: 'Abus d\'autorité : un fonctionnaire (médecin hospitalier) qui abuse de son pouvoir' },
@@ -8971,7 +8971,7 @@ CATÉGORIES D'ANALYSE, examine chaque document pour :
 
 3. **Décisions hâtives** : Évaluation insuffisante avant une décision lourde, absence d'avis secondaire, temps d'observation trop court.
 
-4. **Discrimination perçue** : Langage stigmatisant, stéréotypes, traitement différentiel basé sur l'origine, le genre, la maladie, la langue, le statut social ou migratoire.
+4. **Discrimination vécue** : Langage stigmatisant, stéréotypes, traitement différentiel basé sur l'origine, le genre, la maladie, la langue, le statut social ou migratoire.
 
 5. **Accusations sans preuve** : Allégations non documentées dans le dossier (ex. "patient agressif" sans description factuelle, "non compliant" sans contexte).
 
@@ -9098,7 +9098,7 @@ FORMAT DE RÉPONSE, Réponds UNIQUEMENT en JSON valide (pas de markdown, pas de 
         </div>
         <div>
           <h2 className="text-xl font-bold text-gray-900">Analyse de dossier patient</h2>
-          <p className="text-gray-600 mt-1">Importez des pages de votre dossier médical — l'IA détecte les incohérences, injustices et violations de vos droits. <strong>Analyse confidentielle — documents non conservés.</strong></p>
+          <p className="text-gray-600 mt-1">Importez des pages de votre dossier médical, l'IA détecte les incohérences, injustices et violations de vos droits. <strong>Analyse confidentielle, documents non conservés.</strong></p>
         </div>
       </div>
 
@@ -9108,7 +9108,7 @@ FORMAT DE RÉPONSE, Réponds UNIQUEMENT en JSON valide (pas de markdown, pas de 
           <Lock className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
           <div>
             <p className="text-sm text-purple-900 font-bold">Analyse anonyme, sans données personnelles</p>
-            <p className="text-sm text-purple-800 mt-1">Vos documents sont envoyés directement à l'IA pour analyse et <strong>ne sont ni stockés, ni conservés, ni transmis</strong>. CareWatch™ n'a <strong>aucun accès</strong> à vos documents ni aux résultats. L'analyse se fait en temps réel, en mémoire uniquement — aucune donnée ne quitte votre navigateur sauf vers l'IA, qui ne conserve rien après la réponse.</p>
+            <p className="text-sm text-purple-800 mt-1">Vos documents sont envoyés directement à l'IA pour analyse et <strong>ne sont ni stockés, ni conservés, ni transmis</strong>. CareWatch™ n'a <strong>aucun accès</strong> à vos documents ni aux résultats. L'analyse se fait en temps réel, en mémoire uniquement, aucune donnée ne quitte votre navigateur sauf vers l'IA, qui ne conserve rien après la réponse.</p>
           </div>
         </div>
       </Card>
@@ -9420,11 +9420,11 @@ function LegalGuide() {
     const templates = {
       interne: `${expediteur}\n${adresseExp}\n${u.tel || '[Téléphone]'}\n${u.email || '[Email]'}\n\n${instName}\nÀ l\u2019attention de la Direction\n${addrs.direction.split('\n').slice(2).join('\n')}\n\n${adresseExp.split('\n').pop()}, le ${dateStr}\n\nObjet : Réclamation, traitement discriminatoire perçu\n${codeRef}\n\nMadame, Monsieur,\n\nJe me permets de vous écrire afin de porter à votre connaissance des faits survenus le ${dateIncident} au sein de votre établissement, dans le service ${serviceStr}.\n\n1. EXPOSÉ DES FAITS\n\n${descStr}\n\n2. MOTIFS DE DISCRIMINATION PERÇUS\n\nJ\u2019estime avoir été traité·e de manière différenciée en raison de : ${groundsStr}.\n\nJe précise qu\u2019il s\u2019agit de mon ressenti en tant que patient·e. Je ne porte pas d\u2019accusation mais souhaite que ces faits soient examinés.\n\n3. CONSÉQUENCES\n\n${impactStr}\n\n4. DEMANDES\n\nJe vous demande :\n- de prendre connaissance de cette réclamation et de l\u2019enregistrer conformément à votre procédure interne de gestion des plaintes ;\n- de me fournir une réponse écrite dans un délai de 30 jours ;\n- de prendre les mesures nécessaires pour éviter que de tels faits ne se reproduisent.\n\nJe me réserve le droit de saisir les autorités compétentes si cette réclamation ne devait pas recevoir de suite satisfaisante.\n\nJe vous prie d\u2019agréer, Madame, Monsieur, mes salutations distinguées.\n\n\n${expediteur}\n\nPièces jointes :\n- Résumé de signalement CareWatch™ (le cas échéant)\n- [Autres pièces justificatives]`,
 
-      medcantonal: `${expediteur}\n${adresseExp}\n${u.tel || '[Téléphone]'}\n${u.email || '[Email]'}\n\n${addrs.medecin}\n\n${adresseExp.split('\n').pop()}, le ${dateStr}\n\nObjet : Signalement de dysfonctionnement, discrimination perçue dans les soins\n${codeRef}\n\nMonsieur le Médecin cantonal,\nMadame la Médecin cantonale,\n\nConformément aux dispositions de la loi cantonale sur la santé, je souhaite porter à votre connaissance les faits suivants.\n\n1. ÉTABLISSEMENT CONCERNÉ\n\n${instName}\nService : ${serviceStr}\nCanton : ${lastCantonLabel || '[Canton]'}\n\n2. FAITS\n\nLe ${dateIncident}, j\u2019ai vécu la situation suivante :\n\n${descStr}\n\n3. MOTIFS DE DISCRIMINATION PERÇUS\n\nJ\u2019estime avoir été traité·e de manière différenciée en raison de : ${groundsStr}.\n\nIl s\u2019agit de mon ressenti. Je ne formule pas d\u2019accusation mais signale une situation qui me paraît contraire aux droits des patient·e·s tels que garantis par la loi cantonale sur la santé.\n\n4. CONSÉQUENCES SUR MA PRISE EN CHARGE\n\n${impactStr}\n\n5. DÉMARCHES PRÉALABLES\n\n[Indiquez si vous avez déjà contacté l\u2019établissement, un médiateur, ou si c\u2019est votre première démarche.]\n\n6. DEMANDES\n\nJe vous demande :\n- d\u2019examiner ce signalement ;\n- de prendre, le cas échéant, les mesures administratives appropriées ;\n- de m\u2019informer de la suite donnée à ce signalement.\n\nJe reste à votre disposition pour tout complément d\u2019information.\n\nJe vous prie d\u2019agréer, Monsieur le Médecin cantonal / Madame la Médecin cantonale, l\u2019expression de mes salutations distinguées.\n\n\n${expediteur}\n\nPièces jointes :\n- Résumé de signalement CareWatch™ (le cas échéant)\n- Copie de la réclamation interne et de la réponse de l\u2019établissement (le cas échéant)\n- [Autres pièces justificatives]`,
+      medcantonal: `${expediteur}\n${adresseExp}\n${u.tel || '[Téléphone]'}\n${u.email || '[Email]'}\n\n${addrs.medecin}\n\n${adresseExp.split('\n').pop()}, le ${dateStr}\n\nObjet : Signalement de dysfonctionnement, discrimination vécue dans les soins\n${codeRef}\n\nMonsieur le Médecin cantonal,\nMadame la Médecin cantonale,\n\nConformément aux dispositions de la loi cantonale sur la santé, je souhaite porter à votre connaissance les faits suivants.\n\n1. ÉTABLISSEMENT CONCERNÉ\n\n${instName}\nService : ${serviceStr}\nCanton : ${lastCantonLabel || '[Canton]'}\n\n2. FAITS\n\nLe ${dateIncident}, j\u2019ai vécu la situation suivante :\n\n${descStr}\n\n3. MOTIFS DE DISCRIMINATION PERÇUS\n\nJ\u2019estime avoir été traité·e de manière différenciée en raison de : ${groundsStr}.\n\nIl s\u2019agit de mon ressenti. Je ne formule pas d\u2019accusation mais signale une situation qui me paraît contraire aux droits des patient·e·s tels que garantis par la loi cantonale sur la santé.\n\n4. CONSÉQUENCES SUR MA PRISE EN CHARGE\n\n${impactStr}\n\n5. DÉMARCHES PRÉALABLES\n\n[Indiquez si vous avez déjà contacté l\u2019établissement, un médiateur, ou si c\u2019est votre première démarche.]\n\n6. DEMANDES\n\nJe vous demande :\n- d\u2019examiner ce signalement ;\n- de prendre, le cas échéant, les mesures administratives appropriées ;\n- de m\u2019informer de la suite donnée à ce signalement.\n\nJe reste à votre disposition pour tout complément d\u2019information.\n\nJe vous prie d\u2019agréer, Monsieur le Médecin cantonal / Madame la Médecin cantonale, l\u2019expression de mes salutations distinguées.\n\n\n${expediteur}\n\nPièces jointes :\n- Résumé de signalement CareWatch™ (le cas échéant)\n- Copie de la réclamation interne et de la réponse de l\u2019établissement (le cas échéant)\n- [Autres pièces justificatives]`,
 
       penal: `${expediteur}\n${adresseExp}\n${u.tel || '[Téléphone]'}\n${u.email || '[Email]'}\n\n${addrs.parquet}\n\n${adresseExp.split('\n').pop()}, le ${dateStr}\n\nObjet : Plainte pénale pour [discrimination raciale (art. 261bis CP) / injure (art. 177 CP) / contrainte (art. 181 CP), adaptez selon votre cas]\n${codeRef}\n\nMonsieur le Procureur,\nMadame la Procureure,\n\nPar la présente, je dépose plainte pénale contre :\n\n- [Nom du/de la professionnel·le si connu] et/ou\n- Inconnu·e(s) au sein de ${instName}, service ${serviceStr}\n\npour les infractions suivantes : [précisez les articles applicables].\n\n1. FAITS\n\nLe ${dateIncident}, dans le service ${serviceStr} de ${instName} :\n\n${descStr}\n\n2. QUALIFICATION PÉNALE\n\n[Adaptez selon votre situation :]\n- Art. 261bis CP (discrimination raciale) si propos ou actes discriminatoires fondés sur l\u2019appartenance raciale, ethnique ou religieuse, tenus devant des tiers\n- Art. 177 CP (injure) si propos méprisants\n- Art. 181 CP (contrainte) si vous avez été contraint·e d\u2019accepter ou de refuser un acte contre votre volonté\n- Art. 312 CP (abus d\u2019autorité) si l\u2019auteur est un fonctionnaire public\n\n3. PREUVES\n\n- Signalement CareWatch™${lastReport?.code ? ' n° ' + lastReport.code : ''} (plateforme de veille en équité des soins)\n- [Témoins : noms et coordonnées]\n- [Documents médicaux]\n- [Photos, captures d\u2019écran]\n- [Autres]\n\n4. CONSTITUTION DE PARTIE PLAIGNANTE\n\nJe me constitue partie plaignante au sens de l\u2019art. 118 CPP et demande à être informé·e de toute décision relative à cette procédure.\n\n5. CONSÉQUENCES\n\n${impactStr}\n\nJe me réserve le droit de compléter cette plainte par des éléments supplémentaires.\n\nJe vous prie d\u2019agréer, Monsieur le Procureur / Madame la Procureure, l\u2019expression de mes salutations distinguées.\n\n\n${expediteur}\n\nPièces jointes :\n- [Liste des pièces]`,
 
-      mediation: `${expediteur}\n${adresseExp}\n${u.tel || '[Téléphone]'}\n${u.email || '[Email]'}\n\n${addrs.mediation}\n\n${adresseExp.split('\n').pop()}, le ${dateStr}\n\nObjet : Demande de médiation\n${codeRef}\n\nMadame, Monsieur,\n\nJe souhaite recourir à vos services de médiation suite à une situation vécue le ${dateIncident} au sein de ${instName} (service ${serviceStr}).\n\n1. RÉSUMÉ DE LA SITUATION\n\n${descStr}\n\n2. CE QUE J\u2019AI RESSENTI\n\nJ\u2019ai perçu un traitement différencié possiblement lié à : ${groundsStr}.\n\n3. CE QUE J\u2019ATTENDS DE LA MÉDIATION\n\n— Être entendu·e et que mon vécu soit pris en compte\n— Comprendre les faits du point de vue de l\u2019institution\n— Trouver un terrain d\u2019entente et, si possible, des garanties pour la suite de ma prise en charge\n\nJe reste à votre disposition pour un premier entretien.\n\nJe vous prie d\u2019agréer, Madame, Monsieur, mes salutations distinguées.\n\n\n${expediteur}`,
+      mediation: `${expediteur}\n${adresseExp}\n${u.tel || '[Téléphone]'}\n${u.email || '[Email]'}\n\n${addrs.mediation}\n\n${adresseExp.split('\n').pop()}, le ${dateStr}\n\nObjet : Demande de médiation\n${codeRef}\n\nMadame, Monsieur,\n\nJe souhaite recourir à vos services de médiation suite à une situation vécue le ${dateIncident} au sein de ${instName} (service ${serviceStr}).\n\n1. RÉSUMÉ DE LA SITUATION\n\n${descStr}\n\n2. CE QUE J\u2019AI RESSENTI\n\nJ\u2019ai perçu un traitement différencié possiblement lié à : ${groundsStr}.\n\n3. CE QUE J\u2019ATTENDS DE LA MÉDIATION\n\n- Être entendu·e et que mon vécu soit pris en compte\n- Comprendre les faits du point de vue de l\u2019institution\n- Trouver un terrain d\u2019entente et, si possible, des garanties pour la suite de ma prise en charge\n\nJe reste à votre disposition pour un premier entretien.\n\nJe vous prie d\u2019agréer, Madame, Monsieur, mes salutations distinguées.\n\n\n${expediteur}`,
 
       dossier: `${expediteur}\n${adresseExp}\n${u.tel || '[Téléphone]'}\n${u.email || '[Email]'}\n\n${instName}\nService des archives médicales\n[Adresse de l\u2019établissement]\n\n${adresseExp.split('\n').pop()}, le ${dateStr}\n\nEnvoi recommandé\n\nObjet : Demande d\u2019accès à mon dossier médical\n(art. 25 LPD ; art. 40 let. f LPMéd ; loi cantonale sur la santé)\n\nMadame, Monsieur,\n\nConformément à la loi fédérale sur la protection des données (nLPD, art. 25) et aux dispositions cantonales applicables, je vous demande par la présente de me transmettre une copie complète de mon dossier médical.\n\nIdentification :\n- Nom, prénom : ${expediteur}\n- Date de naissance : [Votre date de naissance]\n- Numéro de patient (si connu) : [N° patient]\n- Période concernée : [du ... au ...]\n- Service(s) concerné(s) : ${serviceStr}\n\nJe souhaite recevoir :\n☐ L\u2019intégralité du dossier médical (notes médicales, résultats d\u2019examens, imagerie, protocoles opératoires, courriers, rapports)\n☐ Les notes infirmières et transmissions\n☐ Les prescriptions et ordonnances\n☐ Tout autre document me concernant\n\nFormat souhaité : [copie papier / format électronique sécurisé]\n\nConformément à la loi, je vous rappelle que :\n- Vous disposez d\u2019un délai de 30 jours pour répondre à cette demande ;\n- Le droit d\u2019accès ne peut être refusé que dans des cas très limités et motivés ;\n- En cas de refus, je me réserve le droit de saisir le Préposé cantonal à la protection des données.\n\nJe vous remercie de votre diligence et vous prie d\u2019agréer, Madame, Monsieur, mes salutations distinguées.\n\n\n${expediteur}\n\nAnnexe : copie d\u2019une pièce d\u2019identité`,
 
@@ -9619,7 +9619,7 @@ function LegalGuide() {
           </div>
           <div>
             <h2 className="text-xl font-bold text-gray-900 mb-1">Guide juridique</h2>
-      <div className="rounded-xl bg-amber-50 border border-amber-200 p-3 mb-4 text-sm text-amber-900"><span className="font-semibold">Alpha fermée.</span> Les modèles de courriers sont en relecture par des juristes partenaires. Vérifiez les délais et les adresses avant tout envoi ; en cas de doute, adressez-vous au Centre LAVI de votre canton.</div>
+      <div className="rounded-xl bg-amber-50 border border-amber-200 p-3 mb-4 text-sm text-amber-900"><span className="font-semibold">Version de test.</span> Les modèles de courriers sont en relecture par des juristes partenaires. Vérifiez les délais et les adresses avant tout envoi ; en cas de doute, adressez-vous au Centre LAVI de votre canton.</div>
             <p className="text-sm text-gray-600">Droits, cadre légal, voies de recours et délais, adapté au contexte de la discrimination dans les soins en Suisse</p>
             <p className="text-sm text-indigo-600 mt-2 bg-indigo-100 px-3 py-1 rounded-lg inline-block"><strong>Avertissement :</strong> Ce guide est informatif. Pour une situation concrète, consultez un·e avocat·e.</p>
             <p className="text-sm text-teal-700 mt-1 bg-teal-50 px-3 py-1 rounded-lg inline-block"><Shield className="w-3.5 h-3.5 inline mr-1" /> Consulter ce guide est anonyme, aucune trace n'est conservée.</p>
@@ -9971,7 +9971,7 @@ function LegalGuide() {
           <div>
             <h3 className="font-semibold text-gray-900 mb-3">Constituer votre dossier</h3>
             <Card className="p-4 bg-teal-50 border-teal-100 mb-3">
-              <p className="text-sm text-teal-800">Gardez vos preuves chez vous (dates, témoins, courriers). <strong>faisceau d'indices concordants</strong> — un ensemble d'éléments qui, pris individuellement, ne prouvent rien, mais qui ensemble rendent la discrimination plausible.</p>
+              <p className="text-sm text-teal-800">Gardez vos preuves chez vous (dates, témoins, courriers). <strong>faisceau d'indices concordants</strong>, un ensemble d'éléments qui, pris individuellement, ne prouvent rien, mais qui ensemble rendent la discrimination plausible.</p>
             </Card>
             <div className="space-y-3">
               {proofStrategies.map(ps => (
@@ -11467,7 +11467,7 @@ function AdminDashboard() {
           <TrendingUp className="w-5 h-5 text-emerald-500" />
           Services du moins au plus discriminant
         </h3>
-        <p className="text-xs text-gray-500 mb-3">Discrimination perçue moyenne, tous établissements confondus. Données fictives.</p>
+        <p className="text-xs text-gray-500 mb-3">Discrimination vécue moyenne, tous établissements confondus. Données fictives.</p>
         <div className="space-y-2">
           {[['Maternité', 412, 0.09], ['Pédiatrie', 268, 0.11], ['Oncologie', 187, 0.13], ['Chirurgie', 305, 0.17], ['Consultation externe', 640, 0.19], ['Médecine interne', 351, 0.24], ['Psychiatrie', 142, 0.27], ['Urgences adultes', 1024, 0.31], ['Accueil et admissions', 288, 0.34]].map(([svc, n, r], i) => (
             <div key={svc} className="flex items-center gap-3 text-sm">
@@ -11844,7 +11844,7 @@ function InspectionsView() {
     <div className="p-4 md:p-8">
       <h2 className="text-xl font-semibold mb-4">Inspections CEC</h2>
       <div className="bg-indigo-50 rounded-xl p-4 mb-6">
-        <h3 className="font-medium text-indigo-900 mb-2">Care Equity Commission (CEC) — Commission d'Équité des Soins</h3>
+        <h3 className="font-medium text-indigo-900 mb-2">Care Equity Commission (CEC), Commission d'Équité des Soins</h3>
         <p className="text-sm text-indigo-800">Évaluation indépendante des établissements selon cinq critères : sécurité, efficacité, bienveillance, réactivité, gouvernance.</p>
       </div>
       <Card>
@@ -11889,7 +11889,7 @@ function AboutPage() {
         {/* Qui sommes-nous, en premier */}
         <Card className="p-6">
           <h3 className="text-lg font-semibold mb-4 flex items-center gap-2"><Users className="w-5 h-5 text-indigo-600" /> Qui sommes-nous</h3>
-          <p className="text-gray-600 mb-4">CareWatch™ est l’observatoire participatif de la qualité des soins en Suisse romande, porté par des organisations engagées pour l’équité.</p>
+          <p className="text-gray-600 mb-4">CareWatch™ est la plateforme participative pour l’équité des soins en Suisse romande, portée par des organisations engagées pour l’équité.</p>
           <p className="text-gray-600 mb-4">La plateforme couvre la Suisse romande. Les ressources détaillées sont disponibles pour <strong>Genève et Vaud</strong>, et seront étendues aux autres cantons.</p>
           <div className="space-y-3">
             {[
@@ -12013,17 +12013,17 @@ function AboutPage() {
             <div className="p-4 bg-amber-50 rounded-xl">
               <details><summary className="font-bold text-amber-900 cursor-pointer">Microsystèmes cliniques (Suède)</summary>
               <p className="text-gray-700 leading-relaxed mt-2">En Suède, la qualité des soins repose sur les microsystèmes cliniques : de petites équipes qui mesurent leurs résultats, repèrent les problèmes et changent leurs pratiques à leur échelle. CareWatch™ leur fournit des données par service, pas seulement par établissement.</p>
-              <a href="https://www.microsystemfestival.com/" target="_blank" rel="noopener noreferrer" className="text-amber-600 hover:text-amber-700 font-medium flex items-center gap-1 mt-2 text-sm">Qulturum — Microsystem Festival (Jönköping) <ExternalLink className="w-3.5 h-3.5" /></a></details>
+              <a href="https://www.microsystemfestival.com/" target="_blank" rel="noopener noreferrer" className="text-amber-600 hover:text-amber-700 font-medium flex items-center gap-1 mt-2 text-sm">Qulturum, Microsystem Festival (Jönköping) <ExternalLink className="w-3.5 h-3.5" /></a></details>
             </div>
             <div className="p-4 bg-rose-50 rounded-xl">
-              <details><summary className="font-bold text-rose-900 cursor-pointer">Care Quality Commission — CQC (Royaume-Uni)</summary>
+              <details><summary className="font-bold text-rose-900 cursor-pointer">Care Quality Commission, CQC (Royaume-Uni)</summary>
               <p className="text-gray-700 leading-relaxed mt-2">La CQC inspecte et évalue tous les services de santé d’Angleterre selon cinq critères : sûrs, efficaces, bienveillants, adaptés, bien gouvernés. Ses rapports sont publics. CareWatch™ s’inspire de cette transparence.</p>
               <a href="https://www.cqc.org.uk/" target="_blank" rel="noopener noreferrer" className="text-rose-600 hover:text-rose-700 font-medium flex items-center gap-1 mt-2 text-sm">Care Quality Commission (CQC) <ExternalLink className="w-3.5 h-3.5" /></a></details>
             </div>
             <div className="p-4 bg-emerald-50 rounded-xl">
               <details><summary className="font-bold text-emerald-900 cursor-pointer">Représentant·e·s des usager·ère·s (France)</summary>
               <p className="text-gray-700 leading-relaxed mt-2">En France, des représentant·e·s des usager·ère·s siègent dans les instances hospitalières et rapportent à la Haute Autorité de Santé pour la certification des établissements. CareWatch™ transpose cette logique en Suisse : un rôle actif des usager·ère·s dans l’évaluation de l’équité.</p>
-              <a href="https://www.has-sante.fr/jcms/c_431816/fr/representation-des-usagers" target="_blank" rel="noopener noreferrer" className="text-emerald-600 hover:text-emerald-700 font-medium flex items-center gap-1 mt-2 text-sm">HAS — Représentation des usagers <ExternalLink className="w-3.5 h-3.5" /></a></details>
+              <a href="https://www.has-sante.fr/jcms/c_431816/fr/representation-des-usagers" target="_blank" rel="noopener noreferrer" className="text-emerald-600 hover:text-emerald-700 font-medium flex items-center gap-1 mt-2 text-sm">HAS, Représentation des usagers <ExternalLink className="w-3.5 h-3.5" /></a></details>
             </div>
           </div>
           <p className="text-gray-600 mt-4 text-sm">Notre approche combine ces modèles : <strong>Mesurer</strong> (indicateurs d'équité) → <strong>Transformer</strong> (accompagnement) → <strong>Certifier</strong> (label d'excellence).</p>
@@ -12089,7 +12089,7 @@ const CW_MATURITE = [
     'L’établissement recueille des retours de patient·e·s, sans dimension équité.',
     'Les équipes participent à la collecte (retours, mesure) et reçoivent un retour sur les résultats de leur propre service.',
     'Les plaintes et incidents sont codés par motif de discrimination perçu.',
-    'L’établissement participe à une mesure externe standardisée de l’expérience de traitement (échelle DMS) dans au moins un service.',
+    'L’établissement participe à une mesure externe standardisée de l’expérience de traitement (sept questions) dans au moins un service.',
     'La mesure couvre les services à forte affluence. Les résultats sont stratifiés par service et comparés dans le temps.',
     'Les indicateurs d’équité sont publiés en données ouvertes et intégrés au rapport qualité.',
   ]},
@@ -12129,10 +12129,10 @@ const CW_MATURITE = [
 // Plafond observé à partir des données CareWatch de l'établissement : sans mesure, le stade global ne dépasse pas 3.
 const cwMaturiteObservee = (stat) => {
   if (!stat || !stat.verifies) return { plafond: 3, motif: 'aucun témoignage vérifié dans CareWatch' };
-  if (stat.indice == null) return { plafond: 4, motif: `${stat.verifies} témoignage${stat.verifies > 1 ? 's' : ''} vérifié${stat.verifies > 1 ? 's' : ''}, indice publié dès 5` };
-  if (stat.indice >= 75) return { plafond: 6, motif: `indice d’équité ${stat.indice}` };
-  if (stat.indice >= 50) return { plafond: 5, motif: `indice d’équité ${stat.indice}` };
-  return { plafond: 4, motif: `indice d’équité ${stat.indice}` };
+  if (stat.indice == null) return { plafond: 4, motif: `${stat.verifies} témoignage${stat.verifies > 1 ? 's' : ''} vérifié${stat.verifies > 1 ? 's' : ''}, note pas encore publiée` };
+  if (stat.indice >= 75) return { plafond: 6, motif: `note d’équité ${stat.indice}` };
+  if (stat.indice >= 50) return { plafond: 5, motif: `note d’équité ${stat.indice}` };
+  return { plafond: 4, motif: `note d’équité ${stat.indice}` };
 };
 
 // Pyramide des stades : une couleur par stade ; plein = atteint, contour pointillé = déclaré sans confirmation, pâle = à atteindre.
@@ -12205,7 +12205,7 @@ function MaturitePage({ mode, etabFixe }) {
   useEffect(() => { if (etabMode && etabFixe && Object.keys(niveaux).length === 0) { const mienne = publiees.find(x => x.etablissement_id === etabFixe); if (mienne && mienne.niveaux) setNiveaux(mienne.niveaux); } }, [publiees]);
   const grainePour = (id) => [...(id || 'demo')].reduce((acc, c) => (acc * 31 + c.charCodeAt(0)) >>> 0, 7);
   const demoActif = !etabMode && showDemo && publiees.length === 0;
-  const demoPub = demoActif ? DB.institutions.filter(i => /HUG — Cluse|CHUV — Site principal|Riviera-Chablais|HFR — Fribourg|HNE — Pourtalès|Hôpital du Valais — Sion/.test(i.fullName)).map(i => { const g = grainePour(i.id); return { etablissement_id: i.id, nom: i.fullName, niveaux: Object.fromEntries(CW_MATURITE.map((d, k) => [d.id, Math.min(6, Math.max(1, 1 + (g % 5) + ((g >> (k + 2)) & 1)))])), modifie_le: null }; }).sort((x, y) => x.nom.localeCompare(y.nom)) : [];
+  const demoPub = demoActif ? DB.institutions.filter(i => /HUG, Cluse|CHUV, Site principal|Riviera-Chablais|HFR, Fribourg|HNE, Pourtalès|Hôpital du Valais, Sion/.test(i.fullName)).map(i => { const g = grainePour(i.id); return { etablissement_id: i.id, nom: i.fullName, niveaux: Object.fromEntries(CW_MATURITE.map((d, k) => [d.id, Math.min(6, Math.max(1, 1 + (g % 5) + ((g >> (k + 2)) & 1)))])), modifie_le: null }; }).sort((x, y) => x.nom.localeCompare(y.nom)) : [];
   const listePub = demoActif ? demoPub : publiees;
   const pub = listePub.find(x => x.etablissement_id === etab);
   const graine = grainePour(etab);
@@ -12309,8 +12309,8 @@ function MaturitePage({ mode, etabFixe }) {
               <Radar />
             </div>
             <div className="divide-y text-sm mt-3">
-              {CW_MATURITE.map(d => <div key={d.id} className="py-1.5 flex justify-between gap-3"><span className="text-gray-700">{d.titre}</span><span className="font-semibold">{niveauxAff[d.id] !== undefined ? `${niveauxAff[d.id]} · ${CW_MATURITE_STADES[niveauxAff[d.id]]}` : '—'}</span></div>)}
-              <div className="py-1.5 flex justify-between gap-3"><span className="text-gray-700">Stade déclaré (minimum des six)</span><span className="font-semibold">{stadeDeclare === null ? '—' : `${stadeDeclare} · ${CW_MATURITE_STADES[stadeDeclare]}`}</span></div>
+              {CW_MATURITE.map(d => <div key={d.id} className="py-1.5 flex justify-between gap-3"><span className="text-gray-700">{d.titre}</span><span className="font-semibold">{niveauxAff[d.id] !== undefined ? `${niveauxAff[d.id]} · ${CW_MATURITE_STADES[niveauxAff[d.id]]}` : '-'}</span></div>)}
+              <div className="py-1.5 flex justify-between gap-3"><span className="text-gray-700">Stade déclaré (minimum des six)</span><span className="font-semibold">{stadeDeclare === null ? '-' : `${stadeDeclare} · ${CW_MATURITE_STADES[stadeDeclare]}`}</span></div>
               <div className="py-1.5 flex justify-between gap-3"><span className="text-gray-700">Plafond observé{etab ? '' : ' (établissement non choisi)'}</span><span className="font-semibold">{obs.plafond} <span className="text-gray-500 font-normal">· {obs.motif}</span></span></div>
               <div className="py-2 flex justify-between gap-3 text-base"><span className="font-semibold text-gray-900">Stade global</span><span className="font-bold text-teal-800">{stadeGlobal === null ? '-' : `${stadeGlobal} · ${CW_MATURITE_STADES[stadeGlobal]}`}</span></div>
             </div>
@@ -12366,8 +12366,8 @@ function FeedbackPage() {
   return (
     <div className="p-4 md:p-8 max-w-2xl mx-auto">
       <h2 className="text-2xl font-bold mb-2">Bug ou avis</h2>
-      <p className="text-gray-700 mb-2">CareWatch™ est en alpha fermée. Vos retours nous aident à l’améliorer. Un bug, une idée ou une faute dans un texte, tout nous intéresse.</p>
-      <p className="text-sm text-gray-600 mb-5">Ce formulaire sert aux retours sur le site. Pour raconter une expérience de soins, utilisez Témoigner. Évitez d’y écrire des noms de personnes ou des données de santé.</p>
+      <p className="text-gray-700 mb-2">CareWatch™ est en version de test. Vos retours nous aident à l’améliorer. Un bug, une idée ou une faute dans un texte, tout nous intéresse.</p>
+      <p className="text-sm text-gray-600 mb-5">Ce formulaire sert aux retours sur le site. Pour raconter une expérience de soins, utilisez « Signaler une discrimination ». Évitez d’y écrire des noms de personnes ou des données de santé.</p>
       <Card className="p-5">
         <form onSubmit={envoyer} className="space-y-5">
           <fieldset>
@@ -12410,12 +12410,12 @@ const CW_GLOSSAIRE_TERMES = [
   ['CER-VD', 'Commission cantonale d’éthique de la recherche sur l’être humain du canton de Vaud.'],
   ['CIRS', 'Système interne de déclaration des incidents de sécurité, géré par chaque établissement.'],
   ['Culture juste', 'Une organisation où l’on peut signaler un problème sans craindre de sanction injuste, et où l’on cherche les causes plutôt que des coupables.'],
-  ['Discrimination perçue', 'Le fait d’avoir été moins bien traité·e que les autres, par exemple moins de courtoisie, de respect ou de qualité de soins.'],
+  ['Discrimination vécue', 'Le fait d’avoir été moins bien traité·e que les autres, par exemple moins de courtoisie, de respect ou de qualité de soins.'],
   ['DMS', 'Échelle Discrimination in Medical Settings. Questionnaire de sept questions sur la façon dont on est traité·e dans les soins.'],
   ['Équité', 'Chaque personne reçoit ce dont elle a besoin pour être bien soignée, avec la même courtoisie, le même respect et la même qualité de soins que toute autre personne.'],
   ['Inégalité', 'Une différence mesurable entre des groupes de personnes, par exemple l’espérance de vie selon le revenu.'],
   ['Inéquité (ou iniquité)', 'Une inégalité que l’on pourrait éviter et que l’on juge injuste. Le terme est employé en santé publique.'],
-  ['Indice d’équité', 'Note par établissement, de 0 à 100. Elle est publiée à partir de cinq témoignages vérifiés. Plus elle est haute, mieux c’est.'],
+  ['Note d’équité', 'Note par établissement, de 0 à 100. Elle est publiée à partir de cinq témoignages vérifiés. Plus elle est haute, mieux c’est.'],
   ['LAMal', 'Loi fédérale sur l’assurance-maladie.'],
   ['LAVI', 'Loi fédérale sur l’aide aux victimes d’infractions. Les centres LAVI conseillent et aident gratuitement.'],
   ['Pair·e aidant·e', 'Une personne qui a vécu une maladie ou une situation difficile et qui accompagne d’autres personnes.'],
@@ -12457,14 +12457,14 @@ function EtatProjetPage() {
     ['Retour positif', 'Bonnes pratiques vécues, mêmes garanties', 'Opérationnel'],
     ['Questionnaire rapide', 'Questions à cocher pour les patient·e·s, les proches et le personnel : traitement, partenariat, qualité de vie au travail', 'Alpha'],
     ['Modération et vérification', 'Relecture par l’équipe, journal des décisions, second facteur', 'Opérationnel'],
-    ['Indice d’équité et niveaux', 'Calculés automatiquement, la même formule pour tous', 'Opérationnel'],
+    ['Note d’équité et niveaux', 'Calculés automatiquement, la même formule pour tous', 'Opérationnel'],
     ['Fiches résumées et données ouvertes', 'Anonymisées, avec l’accord de la personne, en CSV', 'Opérationnel'],
     ['Droit de réponse des établissements', 'Compte établissement, réponse sous 14 jours visible par la personne et sur la fiche publiée', 'En test'],
     ['Tableau de bord par établissement', 'Indicateurs par service, par motif et par mois, sans texte libre, export CSV', 'En test'],
     ['Rapport annuel aux autorités cantonales', 'Chiffres par canton et par type d’établissement, recommandations', 'Prévu'],
     ['Actualités et veille', 'Annonces de l’équipe et titres relevés automatiquement', 'Opérationnel'],
-    ['Maturité en équité des soins', 'Grille en six dimensions et six stades, autoévaluation, plafond fixé par les données mesurées', 'Alpha'],
-    ['Fiche publique par établissement', 'Indice, témoignages, fiches résumées et réponses de l’établissement', 'Opérationnel'],
+    ['Maturité en équité des soins', 'Grille en six dimensions et six stades, autoévaluation, plafond fixé par les données mesurées', 'En test'],
+    ['Fiche publique par établissement', 'Note, témoignages, fiches résumées et réponses de l’établissement', 'Opérationnel'],
   ];
   const complementaires = [
     ['Signalement par les professionnel·le·s', 'Canal indépendant de l’employeur, détails généralisés, vérification facultative de l’adresse professionnelle', 'Opérationnel'],
@@ -12492,7 +12492,7 @@ function EtatProjetPage() {
   return (
     <div className="p-4 md:p-8 max-w-3xl mx-auto">
       <h2 className="text-2xl font-bold mb-2">Périmètre et état du projet</h2>
-      <p className="text-gray-600 mb-6">Version {CW_VERSION}, alpha fermée. Fonctionnel, en essai, exemple, à construire.</p>
+      <p className="text-gray-600 mb-6">Version {CW_VERSION}, en test. Fonctionnel, en essai, exemple, à construire.</p>
 
       <Card className="p-5 mb-4">
         <h3 className="font-semibold text-gray-900 mb-2">Objet</h3>
@@ -12504,12 +12504,12 @@ function EtatProjetPage() {
       <div className="mb-6"><Liste items={noyau} /></div>
       <h3 className="font-semibold text-gray-900 mb-2">Accompagnement des personnes</h3>
       <div className="mb-6"><Liste items={complementaires} /></div>
-      <p className="text-xs text-gray-500 mb-6">Opérationnel : fonctionne avec de vraies données. Alpha : en test avec les personnes invitées. Démonstration : contenu fictif, signalé en tête de page. Prévu : à construire.</p>
+      <p className="text-xs text-gray-500 mb-6">Opérationnel : fonctionne avec de vraies données. Test : essai avec les personnes invitées. Démonstration : contenu fictif, signalé en tête de page. Prévu : à construire.</p>
 
       <Card className="p-5 mb-4">
         <h3 className="font-semibold text-gray-900 mb-2">Mesure systématique</h3>
         <p className="text-sm text-gray-700 mb-2">Trois sources : signalements, retours positifs et questionnaire rapide.</p>
-        <p className="text-sm text-gray-700 mb-2">L’indice d’équité par établissement combine la discrimination perçue (70 %) et la part de retours positifs (30 %), sur témoignages vérifiés. <button onClick={() => setView('methodology')} className="text-teal-700 underline">Méthodologie</button></p>
+        <p className="text-sm text-gray-700 mb-2">La note d’équité par établissement combine la discrimination vécue (70 %) et la part de retours positifs (30 %), sur témoignages vérifiés. <button onClick={() => setView('methodology')} className="text-teal-700 underline">Méthodologie</button></p>
         <p className="text-sm text-gray-700">Pour les établissements, une grille de maturité en six dimensions et six stades relie leur organisation aux résultats mesurés. <button onClick={() => setView('maturite')} className="text-teal-700 underline">Grille et autoévaluation</button></p>
       </Card>
 
@@ -12521,7 +12521,7 @@ function EtatProjetPage() {
           <li>Agir : actions correctives décidées et documentées par l’établissement dans son plan qualité.</li>
           <li>Réévaluer : suivre la note à six et douze mois.</li>
         </ol>
-        <p className="text-sm text-gray-700 mt-3">Les effets suivis : discrimination perçue par établissement et par service, retours positifs, délai et contenu des réponses des établissements, actions correctives, renoncement aux soins, confiance dans le canal, épuisement, leadership vécu, sens de cohérence au travail et partenariat de soins. Les cibles et la méthode avant-après figurent dans la <button onClick={() => setView('methodology')} className="text-teal-700 underline">Méthodologie</button>, point 6b. Un comité de suivi réunit établissements partenaires, autorités cantonales invitées et associations ; sa composition sera publiée.</p>
+        <p className="text-sm text-gray-700 mt-3">Les effets suivis : discrimination vécue par établissement et par service, retours positifs, délai et contenu des réponses des établissements, actions correctives, renoncement aux soins, confiance dans le canal, épuisement, leadership vécu, sens de cohérence au travail et partenariat de soins. Les cibles et la méthode avant-après figurent dans la <button onClick={() => setView('methodology')} className="text-teal-700 underline">Méthodologie</button>, point 6b. Un comité de suivi réunit établissements partenaires, autorités cantonales invitées et associations ; sa composition sera publiée.</p>
       </Card>
 
       <Card className="p-5 mb-4">
@@ -12556,14 +12556,14 @@ function MethodologyPage() {
       <p className="text-sm text-gray-500 mb-5 flex items-center gap-1.5"><Shield className="w-3.5 h-3.5 text-teal-600" /> Méthode publique et reproductible ; données individuelles anonymisées.</p>
       <div className="space-y-6">
         <Card className="p-6">
-          <h3 className="font-semibold mb-3">1. Échelle DMS</h3>
-          <p className="text-gray-600 mb-2">L’échelle DMS (Discrimination in Medical Settings) mesure, en 7 questions, l’expérience de discrimination dans les soins.</p>
-          <p className="text-gray-600">Elle est posée dans les signalements et dans le questionnaire rapide, ouvert à toute personne soignée. Les réponses au questionnaire comptent dans la discrimination perçue de l’établissement, comme les signalements vérifiés.</p>
+          <h3 className="font-semibold mb-3">1. Les sept questions</h3>
+          <p className="text-gray-600 mb-2">Sept questions mesurent la discrimination vécue dans les soins. Elles viennent d’un questionnaire scientifique, le DMS (Discrimination in Medical Settings).</p>
+          <p className="text-gray-600">Elle est posée dans les signalements et dans le questionnaire rapide, ouvert à toute personne soignée. Les réponses au questionnaire comptent dans la discrimination vécue de l’établissement, comme les signalements vérifiés.</p>
         </Card>
         <Card className="p-6">
-          <h3 className="font-semibold mb-3">2. Indice d’équité par établissement</h3>
+          <h3 className="font-semibold mb-3">2. Note d’équité par établissement</h3>
           <p className="text-gray-600 mb-2">Calculé automatiquement, uniquement à partir des témoignages <strong>vérifiés</strong> par la modération, et seulement à partir de <strong>5 témoignages vérifiés</strong> pour un établissement. En dessous, l’établissement affiche « Pas encore d’évaluation ».</p>
-          <p className="text-gray-600 mb-2"><strong>Indice (0 à 100) = 70 × (1 − discrimination perçue) + 30 × part des retours positifs.</strong> La discrimination perçue est la moyenne des réponses à l’échelle DMS (0 = jamais, 1 = toujours) sur les signalements vérifiés ; la part des retours positifs est le nombre de retours positifs vérifiés divisé par le total des témoignages vérifiés.</p>
+          <p className="text-gray-600 mb-2"><strong>Note (0 à 100) = 70 × (1 − discrimination vécue moyenne) + 30 × part des retours positifs.</strong> La discrimination vécue est la moyenne des réponses aux sept questions (0 = jamais, 1 = toujours) sur les signalements vérifiés ; la part des retours positifs est le nombre de retours positifs vérifiés divisé par le total des témoignages vérifiés.</p>
           <p className="text-gray-600">Niveaux : 75 et plus, Exemplaire · 50 à 74, Satisfaisant · 25 à 49, À améliorer · moins de 25, Insuffisant. La formule est appliquée dans la base elle-même, identique pour le site et les données ouvertes, sans autre pondération.</p>
         </Card>
         <Card className="p-6">
@@ -12583,7 +12583,7 @@ function MethodologyPage() {
             <li>Vérification du code postal</li>
             <li>Modération sous 48h</li>
             <li>Droit de contestation (14 jours)</li>
-            <li>Indice d’équité calculée seulement dès 5 témoignages vérifiés</li>
+            <li>Note d’équité calculée seulement dès 5 témoignages vérifiés</li>
           </ul>
         </Card>
         <Card className="p-6 bg-blue-50 border-blue-200">
@@ -12600,7 +12600,7 @@ function MethodologyPage() {
         <Card className="p-6">
           <h3 className="font-semibold mb-3">6. Boucle d’amélioration avec les établissements</h3>
           <p className="text-gray-600 text-sm mb-2">Mesurer, restituer, agir, réévaluer. L’établissement reçoit ses indicateurs par service et par motif, avec un droit de réponse de 14 jours, documente ses actions correctives dans son plan qualité, et suit l’évolution à six et douze mois.</p>
-          <p className="text-gray-600 text-sm">Les effets suivis : discrimination perçue par établissement et par service, retours positifs, délai et contenu des réponses, actions correctives, renoncement aux soins, épuisement, leadership vécu, sens de cohérence au travail et partenariat de soins.</p>
+          <p className="text-gray-600 text-sm">Les effets suivis : discrimination vécue par établissement et par service, retours positifs, délai et contenu des réponses, actions correctives, renoncement aux soins, épuisement, leadership vécu, sens de cohérence au travail et partenariat de soins.</p>
         </Card>
         <Card className="p-6">
           <h3 className="font-semibold mb-3">6b. Effets attendus sur les prestations : cibles et méthode</h3>
@@ -12616,10 +12616,10 @@ function MethodologyPage() {
                   ['Actions correctives', 'Actions documentées dans le plan qualité, par service et par semestre', 'Au moins une action par service participant et par semestre'],
                   ['Renoncement aux soins', 'Réponse à la question « avez-vous renoncé à des soins après cette expérience ? »', 'Baisse de 25 % entre référence et mois 24'],
                   ['Confiance dans le canal', 'Enquête annuelle auprès des patient·e·s et du personnel des services participants', 'Au moins 60 % de confiance déclarée au mois 24'],
-                  ['Épuisement du personnel', 'Question dédiée du baromètre du personnel : épuisement ressenti par le travail sur les quatre dernières semaines, 0 à 10, par service', 'Baisse de 20 % entre la référence et le mois 24 ; part des réponses à 8 ou plus divisée par deux'],
+                  ['Épuisement du personnel', 'Question dédiée du questionnaire rapide du personnel : épuisement ressenti par le travail sur les quatre dernières semaines, 0 à 10, par service', 'Baisse de 20 % entre la référence et le mois 24 ; part des réponses à 8 ou plus divisée par deux'],
                   ['Leadership vécu', 'Question dédiée : « ma ou mon responsable se met au service de l’équipe », accord 0 à 10, par service', 'Au moins 70 % de réponses à 7 ou plus au mois 24 ; services sous 5 signalés à la direction'],
-                  ['Sens de cohérence au travail', 'Six questions du baromètre du personnel : comprendre, gérer, donner du sens, ramenées de 0 à 10, par service ; ressources et stresseurs suivis à part. Formulations originales, inspirées d’Antonovsky, de Work-SoC et de SALSA', 'Hausse d’un point entre la référence et le mois 24 ; ressources supérieures aux stresseurs'],
-                  ['Partenariat de soins', 'Trois questions du baromètre, vues par les patient·e·s et par le personnel : comprendre, être écouté·e, décider ensemble, 0 à 10, par service. Inspirées de CollaboRATE (Elwyn et al., 2013) et du modèle de Montréal (Pomey et al., 2015), formulation adaptée', 'Hausse d’un point entre la référence et le mois 24 ; écart entre patient·e·s et personnel inférieur à un point'],
+                  ['Sens de cohérence au travail', 'Six questions du questionnaire rapide du personnel : comprendre, gérer, donner du sens, ramenées de 0 à 10, par service ; ressources et stresseurs suivis à part. Formulations originales, inspirées d’Antonovsky, de Work-SoC et de SALSA', 'Hausse d’un point entre la référence et le mois 24 ; ressources supérieures aux stresseurs'],
+                  ['Partenariat de soins', 'Trois questions du questionnaire rapide, vues par les patient·e·s et par le personnel : comprendre, être écouté·e, décider ensemble, 0 à 10, par service. Inspirées de CollaboRATE (Elwyn et al., 2013) et du modèle de Montréal (Pomey et al., 2015), formulation adaptée', 'Hausse d’un point entre la référence et le mois 24 ; écart entre patient·e·s et personnel inférieur à un point'],
                 ].map(([i, m, c]) => <tr key={i} className="border-b border-gray-100"><td data-label="Indicateur" className="py-1.5 pr-3 font-medium text-gray-800">{i}</td><td data-label="Mesure" className="py-1.5 pr-3 text-gray-600">{m}</td><td data-label="Cible à 24 mois" className="py-1.5 pr-3 text-gray-800">{c}</td></tr>)}
               </tbody>
             </table>
@@ -12648,24 +12648,24 @@ function MethodologyPage() {
 function FAQPage() {
   const { setView } = useApp();
   const faqs = [
-    { q: 'Que faites-vous avec les données recueillies ?', a: 'Chaque témoignage — positif ou négatif — alimente quatre usages : recueillir et structurer les expériences du terrain, produire des indicateurs d\'équité publics librement accessibles, outiller le plaidoyer des associations partenaires, et offrir aux établissements un miroir pour s\'améliorer. Seules des données regroupées sont publiées — jamais des témoignages individuels. L\'établissement ne voit jamais votre signalement : les détails trop spécifiques sont automatiquement généralisés avant publication.' },
-    { q: 'Peut-on aussi signaler une bonne expérience ?', a: 'Oui, absolument ! Les retours positifs permettent de valoriser les équipes qui font bien les choses, et contribuent à leur score d\'équité. Utilisez le bouton « Retour positif » depuis votre espace. Comme pour les signalements négatifs, l\'anonymat est total et aucune donnée personnelle n\'est collectée.' },
+    { q: 'Que faites-vous avec les données recueillies ?', a: 'Chaque témoignage, positif ou négatif, alimente quatre usages : recueillir et structurer les expériences du terrain, produire des indicateurs d\'équité publics librement accessibles, outiller le plaidoyer des associations partenaires, et offrir aux établissements un miroir pour s\'améliorer. Seules des données regroupées sont publiées, jamais des témoignages individuels. L\'établissement ne voit jamais votre signalement : les détails trop spécifiques sont automatiquement généralisés avant publication.' },
+    { q: 'Peut-on aussi partager un retour positif ?', a: 'Oui, absolument ! Les retours positifs permettent de valoriser les équipes qui font bien les choses, et contribuent à leur score d\'équité. Utilisez le bouton « Partager un retour positif » depuis votre espace. Comme pour les signalements négatifs, l\'anonymat est total et aucune donnée personnelle n\'est collectée.' },
     { q: 'Mes données sont-elles anonymes ?', a: 'Oui. CareWatch™ ne vous demande pas votre identité : l\'accès se fait par un code d\'invitation anonyme. Votre adresse IP n\'est pas conservée avec votre témoignage ; une empreinte non réversible limite les abus pendant 24 heures. Votre code postal est vérifié dans votre navigateur puis effacé. L\'établissement ne reçoit que des chiffres d’ensemble. Si votre témoignage décrit une situation trop précise (petit service, date précise), les détails sont généralisés avant publication (voir question suivante).' },
-    { q: 'Comment empêchez-vous qu\'on me reconnaisse à travers mon témoignage ?', a: 'Même sans votre nom, une combinaison de détails précis (date, petit service, motif rare) pourrait théoriquement permettre de deviner qui a témoigné. Pour éviter cela, avant toute publication, l\'équipe de modération généralise les détails trop précis (une vérification automatique de k-anonymat, au moins 5 personnes par combinaison, est en préparation) : certains détails sont généralisés — par exemple, « 3 février » devient « février 2026 », ou « Unité 4B de médecine interne » devient « Médecine interne ». Votre témoignage complet est conservé pour l\'analyse statistique, mais les données rendues publiques sont toujours généralisées. Cela réduit considérablement le risque qu\'on puisse vous identifier — même si aucun système au monde ne peut garantir un anonymat absolu à 100%.' },
+    { q: 'Comment empêchez-vous qu\'on me reconnaisse à travers mon témoignage ?', a: 'Même sans votre nom, une combinaison de détails précis (date, petit service, motif rare) pourrait théoriquement permettre de deviner qui a témoigné. Pour éviter cela, avant toute publication, l\'équipe de modération généralise les détails trop précis (une vérification automatique de k-anonymat, au moins 5 personnes par combinaison, est en préparation) : certains détails sont généralisés, par exemple, « 3 février » devient « février 2026 », ou « Unité 4B de médecine interne » devient « Médecine interne ». Votre témoignage complet est conservé pour l\'analyse statistique, mais les données rendues publiques sont toujours généralisées. Cela réduit considérablement le risque qu\'on puisse vous identifier, même si aucun système au monde ne peut garantir un anonymat absolu à 100%.' },
     { q: 'Comment sont stockées les données ?', a: 'Le site est hébergé chez Infomaniak à Genève (certifié ISO 27001). Les signalements sont enregistrés dans une base de données Supabase, à Zurich (Suisse, centre de données AWS eu-central-2), chiffrée au repos par l\'hébergeur. La base contient : votre récit et son impact, le canton, l\'établissement et le service, le type d\'incident, les motifs perçus, le score de ressenti, le résultat de cohérence géographique, vos choix de suivi, ainsi que le numéro du signalement et l\'empreinte (hachage) de votre code personnel. Votre adresse e-mail et votre adresse IP n\'y sont pas conservées ; une empreinte non réversible de l\'IP sert uniquement à limiter les abus, 24 heures au plus. La notification à l\'équipe part depuis l\'hébergement suisse du site. Les données regroupées sont publiées en open data (licence CC BY-NC-SA 4.0). Le détail figure dans la politique de confidentialité, conforme à la nLPD.' },
     { q: 'Quels mécanismes de sécurité sont en place ?', a: 'Chiffrement : toutes les communications sont chiffrées en transit (HTTPS) et la base de données est chiffrée au repos par l\'hébergeur. Anonymat : votre identité n\'est pas demandée, l\'anonymat fait partie de la conception. Code personnel haché : votre code n\'est jamais stocké en clair, seule son empreinte l\'est, et il est indispensable pour lire, modifier ou retirer un signalement. Accès cloisonné : la base n\'est pas accessible directement depuis le navigateur, seules des fonctions contrôlées le sont, et seule l\'équipe de modération, tenue au secret par contrat, lit les récits. Journal : chaque opération (envoi, modification, retrait) est journalisée avec le numéro du signalement, sans information sur la personne. Vérification locale : le code postal est traité uniquement dans votre navigateur et n\'est jamais envoyé. Protection contre les abus : limites de fréquence côté base. Le détail figure dans la politique de confidentialité.' },
-          { q: 'Je suis professionnel·le — risque de représailles ?', a: 'Non. Votre identité n\'est jamais demandée et votre adresse IP n\'est pas conservée avec votre témoignage. Les détails trop précis sont généralisés avant publication. Le CO art. 328 et 336 protègent les lanceurs d\'alerte : un licenciement faisant suite à un signalement de bonne foi est juridiquement abusif.' },
-    { q: 'Comment fonctionne la vérification ?', a: 'Le code postal est vérifié localement dans votre navigateur pour s\'assurer de la cohérence géographique avec l\'établissement signalé. Il n\'est jamais transmis ni stocké — seul le résultat (cohérent ou incohérent) est envoyé. Un signalement géographiquement incohérent sera flaggé pour vérification manuelle.' },
+          { q: 'Je suis professionnel·le, risque de représailles ?', a: 'Non. Votre identité n\'est jamais demandée et votre adresse IP n\'est pas conservée avec votre témoignage. Les détails trop précis sont généralisés avant publication. Le CO art. 328 et 336 protègent les lanceurs d\'alerte : un licenciement faisant suite à un signalement de bonne foi est juridiquement abusif.' },
+    { q: 'Comment fonctionne la vérification ?', a: 'Le code postal est vérifié localement dans votre navigateur pour s\'assurer de la cohérence géographique avec l\'établissement signalé. Il n\'est jamais transmis ni stocké, seul le résultat (cohérent ou incohérent) est envoyé. Un signalement géographiquement incohérent sera flaggé pour vérification manuelle.' },
     { q: 'Combien de temps prend la modération ?', a: 'Chaque signalement est examiné sous 48h par notre équipe indépendante. L\'établissement dispose ensuite de 14 jours pour apporter son point de vue avant toute publication des données regroupées.' },
-    { q: 'L\'établissement peut-il contester ?', a: 'Oui, chaque établissement dispose de 14 jours pour contester un signalement avec des éléments factuels. L\'objectif est constructif : accompagner l\'amélioration, pas punir. La contestation se fait sur la base de données strictement anonymisées — l\'établissement ne sait jamais qui a témoigné et ne peut pas vous identifier.' },
+    { q: 'L\'établissement peut-il contester ?', a: 'Oui, chaque établissement dispose de 14 jours pour contester un signalement avec des éléments factuels. L\'objectif est constructif : accompagner l\'amélioration, pas punir. La contestation se fait sur la base de données strictement anonymisées, l\'établissement ne sait jamais qui a témoigné et ne peut pas vous identifier.' },
     { q: 'Comment un établissement est-il évalué ?', a: 'Par un indice d\'équité de 0 à 100, calculé automatiquement à partir des seuls témoignages vérifiés par la modération, et seulement dès 5 témoignages vérifiés : 70 % pour le ressenti moyen de discrimination (questionnaire DMS, inversé) et 30 % pour la part de retours positifs. Il n\'y a pas de « score de fiabilité » ni de pondération cachée : la formule est publique, sur la page Méthodologie.' },
     { q: 'Qui peut accéder aux données ?', a: 'Les données regroupées sont en open data (licence CC BY-NC-SA 4.0) : chercheurs, journalistes, associations, citoyens. Les signalements individuels restent strictement anonymes et ne sont jamais publiés tels quels.' },
     { q: 'Professionnel·le de santé, suis-je exposé·e à des représailles ?', a: 'Non. Votre identité n\'est jamais demandée et votre adresse IP n\'est pas conservée avec votre témoignage. Les détails trop précis sont généralisés avant publication, et votre employeur ne voit que des indicateurs globaux. De plus, le droit suisse protège les lanceurs et lanceuses d\'alerte : le CO art. 328 impose à l\'employeur de protéger votre personnalité, et le CO art. 336 qualifie d\'abusif tout licenciement faisant suite à un signalement de bonne foi. CareWatch™ vous fournit les bases légales et peut vous orienter vers un·e délégué·e pour vous accompagner.' },
     { q: "Le module « Accès aux soins », c’est quoi ?", a: "En plus de documenter comment les patient·e·s sont traité·e·s, CareWatch™ cartographie l'accès aux soins spécialisés : équipements (pose de voie veineuse écho-guidée, aphérèse...), consultations maladies rares (drépanocytose, thalassémie...), programmes pour populations vulnérables (migrants, sans-papiers...) et services d'interprétariat. L'objectif : savoir non seulement si on est bien traité, mais aussi si les soins dont on a besoin existent là où on vit." },
-    { q: 'D\'où proviennent les données d\'accès aux soins ?', a: 'Les informations proviennent des sites institutionnels des établissements, des réseaux européens de référence (ERN EuroBloodNet), d\'ORPHANET Suisse et de nos partenaires. Elles sont vérifiées régulièrement et mises à jour par notre équipe indépendante. Consulter ces données ne laisse aucune trace — votre navigation est anonyme.' },
+    { q: 'D\'où proviennent les données d\'accès aux soins ?', a: 'Les informations proviennent des sites institutionnels des établissements, des réseaux européens de référence (ERN EuroBloodNet), d\'ORPHANET Suisse et de nos partenaires. Elles sont vérifiées régulièrement et mises à jour par notre équipe indépendante. Consulter ces données ne laisse aucune trace, votre navigation est anonyme.' },
     { q: 'Pourquoi inclure les maladies rares et négligées ?', a: 'Parce que l\'accès aux soins spécialisés est un enjeu majeur d\'équité. Cela concerne les maladies du sang comme la drépanocytose, mais aussi les syndromes d\'Ehlers-Danlos (délai diagnostique de 10-15 ans), l\'endométriose (7-10 ans), le COVID long (feuille de route de l\'Office fédéral de la santé publique en cours, peu de consultations dédiées), la polyarthrite rhumatoïde (souvent 3+ consultations avant diagnostic), le trouble du déficit de l\'attention (TDAH) adulte (sous-diagnostiqué chez les femmes), les troubles du spectre de l\'autisme (listes d\'attente de 12-24 mois), ou le syndrome de fatigue chronique (quasi aucun spécialiste en Suisse). Rendre cette information visible est un premier pas vers l\'équité. Toutes ces consultations sont accessibles anonymement via CareWatch™.' },
-    { q: 'Quelles extensions sont prévues pour la plateforme ?', a: 'CareWatch™ évolue par phases. Phase 1 (actuelle) : établissements hospitaliers et cliniques de Suisse romande, avec précision au niveau du service, département, consultation ou unité. Phase 2 : offices AI, bureaux d\'expertise des assurances, institutions sociales et de protection de l\'enfance (SPMi, DGEJ, APEA/KESB), et services de soins à domicile (IMAD, CMS Vaud, etc.). Phase 3 : cabinets et professionnel·le·s de santé pluri-disciplinaires (physiothérapie, ergothérapie, ostéopathie, chiropraxie). L\'objectif est de couvrir l\'ensemble du parcours de soins, pas seulement l\'hôpital — avec les mêmes garanties de protection de l\'identité à chaque étape.' },
-    { q: 'Les hôpitaux n\'ont-ils pas déjà un système de signalement ?', a: 'Si, et c\'est important de le savoir. Chaque hôpital suisse dispose d\'un système interne (CIRS — Critical Incident Reporting System). Mais ces systèmes ont des limites structurelles bien documentées : au Royaume-Uni, le scandale de Mid Staffordshire (2005-2009) a montré que les signalements internes ne fonctionnent pas quand la culture institutionnelle décourage la parole — des centaines de décès évitables n\'avaient jamais été remontés. De plus, les systèmes internes ne couvrent pas les discriminations perçues. Personne ne remplit un formulaire CIRS pour signaler qu\'on l\'a fait attendre plus longtemps à cause de son accent. CareWatch™ est complémentaire : externe, indépendant, anonymisé (détails généralisés), centré sur l\'équité — une mesure hors de portée des dispositifs internes.' },
+    { q: 'Quelles extensions sont prévues pour la plateforme ?', a: 'CareWatch™ évolue par phases. Phase 1 (actuelle) : établissements hospitaliers et cliniques de Suisse romande, avec précision au niveau du service, département, consultation ou unité. Phase 2 : offices AI, bureaux d\'expertise des assurances, institutions sociales et de protection de l\'enfance (SPMi, DGEJ, APEA/KESB), et services de soins à domicile (IMAD, CMS Vaud, etc.). Phase 3 : cabinets et professionnel·le·s de santé pluri-disciplinaires (physiothérapie, ergothérapie, ostéopathie, chiropraxie). L\'objectif est de couvrir l\'ensemble du parcours de soins, pas seulement l\'hôpital, avec les mêmes garanties de protection de l\'identité à chaque étape.' },
+    { q: 'Les hôpitaux n\'ont-ils pas déjà un système de signalement ?', a: 'Si, et c\'est important de le savoir. Chaque hôpital suisse dispose d\'un système interne (CIRS, Critical Incident Reporting System). Mais ces systèmes ont des limites structurelles bien documentées : au Royaume-Uni, le scandale de Mid Staffordshire (2005-2009) a montré que les signalements internes ne fonctionnent pas quand la culture institutionnelle décourage la parole, des centaines de décès évitables n\'avaient jamais été remontés. De plus, les systèmes internes ne couvrent pas les discriminations vécues. Personne ne remplit un formulaire CIRS pour signaler qu\'on l\'a fait attendre plus longtemps à cause de son accent. CareWatch™ est complémentaire : externe, indépendant, anonymisé (détails généralisés), centré sur l\'équité, une mesure hors de portée des dispositifs internes.' },
   ];
 
   return (
@@ -13106,7 +13106,7 @@ function AdminAcces({ signaler, dateFr }) {
               <thead><tr className="text-left text-xs text-gray-500 border-b"><th className="py-1 pr-3">Nom</th><th className="py-1 pr-3">E-mail</th><th className="py-1 pr-3">Rôle</th><th className="py-1 pr-3">Dernière connexion</th><th></th></tr></thead>
               <tbody>{acces.moderateurs.map(m => (
                 <tr key={m.user_id} className="border-b border-gray-100">
-                  <td data-label="Nom" className="py-1 pr-3">{m.nom || '—'}</td><td data-label="E-mail" className="py-1 pr-3">{m.email}</td>
+                  <td data-label="Nom" className="py-1 pr-3">{m.nom || '-'}</td><td data-label="E-mail" className="py-1 pr-3">{m.email}</td>
                   <td data-label="Rôle" className="py-1 pr-3"><select aria-label="Rôle" value={m.role} onChange={e => ecrire('role', { user_id: m.user_id, role: e.target.value }, 'Rôle modifié.')} className="border rounded px-1 py-0.5 text-xs"><option value="moderateur">modérateur·rice</option><option value="admin">admin</option></select></td>
                   <td data-label="Dernière connexion" className="py-1 pr-3">{m.derniere_connexion ? dateFr(m.derniere_connexion) : 'jamais'}</td>
                   <td className="py-1 text-right"><button onClick={() => { if (window.confirm('Retirer ' + (m.nom || m.email) + ' ? Ses droits et son compte de connexion sont supprimés.')) ecrire('retirer_moderateur', { user_id: m.user_id }, 'Compte retiré.'); }} className="text-rose-600 underline text-xs">Retirer</button></td>
@@ -13386,7 +13386,7 @@ function ModerationPage({ integre }) {
     if (rafraichirStats) rafraichirStats();
   };
 
-  const dateFr = (d) => d ? new Date(d).toLocaleString((window.cwLocale || 'fr-CH'), { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—';
+  const dateFr = (d) => d ? new Date(d).toLocaleString((window.cwLocale || 'fr-CH'), { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-';
   const dateJournal = (j) => { const k = Object.keys(j).find(k => !['action', 'numero', 'id'].includes(k) && j[k] && !isNaN(Date.parse(j[k]))); return k ? dateFr(j[k]) : ''; };
   const Badge = ({ s }) => { const m = STATUTS_MODERATION[s] || { label: s, cls: 'bg-gray-100 text-gray-600' }; return <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${m.cls}`}>{m.label}</span>; };
   const Oui = ({ v }) => v ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <X className="w-3.5 h-3.5 text-gray-400" />;
@@ -13677,7 +13677,7 @@ function OpenDataPage({ integre }) {
           <div className="text-center mb-8">
             <div className="flex justify-center mb-4"><Logo size="xl" /></div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Données ouvertes</h1>
-            <p className="text-gray-600">Les données publiées ici sortent directement de la base de l’observatoire, en lecture seule, sous licence CC BY-NC-SA 4.0. Jamais de récit individuel.</p>
+            <p className="text-gray-600">Les données publiées ici sortent directement de la base de la plateforme, en lecture seule, sous licence CC BY-NC-SA 4.0. Jamais de récit individuel.</p>
           </div>
         ) : (
           <p className="text-sm text-gray-600 mb-6">Contenu vu et téléchargé par le public. Les fiches n’apparaissent qu’avec le consentement de la personne, après décision « Publier ».</p>
@@ -13696,7 +13696,7 @@ function OpenDataPage({ integre }) {
           )}
         </Bloc>
 
-        <Bloc titre="2. Établissements : comptes et indice d’équité">
+        <Bloc titre="2. Établissements : comptes et note d’équité">
           <p className="text-sm text-gray-600 mb-3">{DB.institutions.length} établissements référencés en Suisse romande. La note (0 à 100) n’est calculée qu’à partir de 5 témoignages vérifiés, selon la formule de la page Méthodologie.</p>
           <div className="overflow-x-auto mb-3">
             <table className="cw-tableau w-full text-sm">
@@ -13713,7 +13713,7 @@ function OpenDataPage({ integre }) {
         </Bloc>
 
         <Bloc titre="3. Fiches résumées des témoignages publiés">
-          <p className="text-sm text-gray-600 mb-3">Une fiche n’apparaît que si la personne a coché « Publier la fiche résumée » et si la modération a publié le témoignage. Elle contient : numéro, type, année, tranche d’âge, canton, établissement, service, type d’incident ou catégories, score de discrimination perçue. Sans récit ni date précise.</p>
+          <p className="text-sm text-gray-600 mb-3">Une fiche n’apparaît que si la personne a coché « Publier la fiche résumée » et si la modération a publié le témoignage. Elle contient : numéro, type, année, tranche d’âge, canton, établissement, service, type d’incident ou catégories, score de discrimination vécue. Sans récit ni date précise.</p>
           {erreur && <p role="alert" className="text-sm text-amber-700 mb-3">{erreur}</p>}
           {fiches === null ? <p className="text-sm text-gray-500">Chargement…</p> : fiches.length === 0 ? (
             <p className="text-sm text-gray-500 mb-3">Aucune fiche publiée pour l’instant.</p>
@@ -13746,7 +13746,7 @@ function OpenDataPage({ integre }) {
 
         <Bloc titre="5. Licence et bonnes pratiques">
           <p className="text-sm text-gray-600 mb-2"><strong>Licence Creative Commons BY-NC-SA 4.0</strong> : réutilisation autorisée avec attribution « CareWatch™, carewat.ch », sans usage commercial, et partage aux mêmes conditions.</p>
-          <p className="text-sm text-gray-600">N’essayez pas de réidentifier des personnes à partir de ces données : c’est contraire à la licence, à la loi sur la protection des données et à l’esprit de l’observatoire. Les seuils de publication existent pour cela.</p>
+          <p className="text-sm text-gray-600">N’essayez pas de réidentifier des personnes à partir de ces données : c’est contraire à la licence, à la loi sur la protection des données et à l’esprit de la plateforme. Les seuils de publication existent pour cela.</p>
         </Bloc>
       </div>
     </div>
@@ -13770,7 +13770,7 @@ const PRIVACY_SECTIONS = [
     'Nous n’utilisons aucun cookie de suivi, aucun outil de mesure d’audience tiers et aucune publicité.',
   ]},
   { title: '3. Données enregistrées lors d’un signalement ou d’un retour positif', body: [
-    'Les champs que vous remplissez : rôle (patient·e, proche, témoin, professionnel·le), tranche d’âge si vous la donnez, canton, établissement, service, période ou date approximative, type d’incident, motifs perçus, votre récit, son impact, vos réponses au questionnaire de ressenti et le score qui en découle, ainsi que vos réponses aux cases « Votre situation » et « Suivi ».',
+    'Les champs que vous remplissez : rôle (patient·e, proche, témoin, professionnel·le), tranche d’âge si vous la donnez, canton, établissement, service, période ou date approximative, type d’incident, motifs perçus, votre récit, son impact, vos réponses au questionnaire de sept questions et le score qui en découle, ainsi que vos réponses aux cases « Votre situation » et « Suivi ».',
     'Des éléments techniques : un numéro de signalement (CW-année-numéro), la date d’envoi, et l’empreinte cryptographique (hachage) de votre code personnel. Le code personnel lui-même n’est jamais stocké : il vous est affiché une seule fois et nous ne pouvons pas le retrouver pour vous.',
     'Votre récit peut contenir des données sensibles au sens de l’art. 5 let. c nLPD, notamment des données sur la santé. Vous en gardez la maîtrise et pouvez les faire effacer à tout moment (section 8).',
   ]},
@@ -13781,7 +13781,7 @@ const PRIVACY_SECTIONS = [
   ]},
   { title: '5. Pourquoi nous traitons ces données et sur quelle base', body: [
     'Finalités : documenter les expériences d’équité dans les soins, produire des chiffres d’ensemble anonymes par canton, type d’établissement et service, permettre à l’établissement concerné d’exercer un droit de réponse sur des éléments dépersonnalisés et, si vous l’acceptez expressément, alimenter la recherche, la sensibilisation et la formation.',
-    'Base : votre consentement, exprimé par l’envoi volontaire du formulaire après acceptation de la charte, et, pour chaque usage facultatif (résultats par e-mail, recontact, publication d’une fiche résumée, usage de données dé-identifiées à des fins de recherche, de sensibilisation et de formation, lecture du texte complet par l’équipe), par la case que vous cochez. Chaque case peut être décochée plus tard (section 8). Les traitements respectent les principes de licéité, de bonne foi, de proportionnalité et de finalité de l’art. 6 nLPD.',
+    'Base : votre consentement, exprimé par l’envoi volontaire du formulaire après acceptation de la charte, et, pour chaque usage facultatif (résultats par e-mail, recontact, publication d’une fiche résumée, usage de données anonymisées à des fins de recherche, de sensibilisation et de formation, lecture du texte complet par l’équipe), par la case que vous cochez. Chaque case peut être décochée plus tard (section 8). Les traitements respectent les principes de licéité, de bonne foi, de proportionnalité et de finalité de l’art. 6 nLPD.',
   ]},
   { title: '6. Protection contre les abus', body: [
     'Pour empêcher l’envoi automatisé de faux signalements, la base applique des limites de fréquence. Une limite globale compte les envois sur l’ensemble du site, sans aucune donnée personnelle. Une seconde limite calcule, au moment de l’envoi, une empreinte non réversible (hachage salé) de l’adresse IP. Cette empreinte n’est pas reliée au signalement, n’est pas conservée au-delà de 24 heures, et l’adresse IP en clair n’est jamais écrite dans la base.',
@@ -13857,7 +13857,7 @@ function PrivacyPage() {
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4"><Logo size="xl" /></div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Confidentialité et mentions légales</h1>
-          <p className="text-sm text-gray-500">Dernière mise à jour : {PRIVACY_MAJ} · Alpha fermée {CW_VERSION}</p>
+          <p className="text-sm text-gray-500">Dernière mise à jour : {PRIVACY_MAJ} · Version de test {CW_VERSION}</p>
         </div>
         <Card className="p-4 mb-6 border-amber-200 bg-amber-50">
           <p className="text-sm text-amber-800">Ce document est en cours de validation juridique. Les passages entre crochets seront complétés avant l'ouverture publique du site.</p>
@@ -13962,7 +13962,7 @@ function PublicPageContenu() {
             <blockquote className="border-l-4 border-amber-400 pl-4 mb-4 italic text-amber-800">
               "Il manque des données qui documentent l'équité dans la qualité des soins en Suisse."
             </blockquote>
-            <p className="text-sm text-amber-700 mb-4">— Observatoire Suisse de la Santé (OBSAN), 2023</p>
+            <p className="text-sm text-amber-700 mb-4">Source : Observatoire Suisse de la Santé (OBSAN), 2023</p>
             <p className="text-amber-800">Les études montrent des disparités dans l’expérience de soins selon l’origine, la couleur de peau ou le statut socio-économique. Rien ne permet encore de les documenter de façon systématique et participative.</p>
           </Card>
 
@@ -14006,17 +14006,17 @@ function PublicPageContenu() {
               <div className="p-5 bg-amber-50 rounded-xl">
                 <details><summary className="font-bold text-amber-900 text-lg cursor-pointer">Microsystèmes cliniques (Suède)</summary>
                 <p className="text-gray-700 leading-relaxed mt-2">En Suède, la qualité des soins repose sur les microsystèmes cliniques : de petites équipes qui mesurent leurs résultats, repèrent les problèmes et changent leurs pratiques à leur échelle. CareWatch™ leur fournit des données par service, pas seulement par établissement.</p>
-                <a href="https://www.microsystemfestival.com/" target="_blank" rel="noopener noreferrer" className="text-amber-600 hover:text-amber-700 font-medium flex items-center gap-1 mt-2">Qulturum — Microsystem Festival (Jönköping) <ExternalLink className="w-4 h-4" /></a></details>
+                <a href="https://www.microsystemfestival.com/" target="_blank" rel="noopener noreferrer" className="text-amber-600 hover:text-amber-700 font-medium flex items-center gap-1 mt-2">Qulturum, Microsystem Festival (Jönköping) <ExternalLink className="w-4 h-4" /></a></details>
               </div>
               <div className="p-5 bg-rose-50 rounded-xl">
-                <details><summary className="font-bold text-rose-900 text-lg cursor-pointer">Care Quality Commission — CQC (Royaume-Uni)</summary>
+                <details><summary className="font-bold text-rose-900 text-lg cursor-pointer">Care Quality Commission, CQC (Royaume-Uni)</summary>
                 <p className="text-gray-700 leading-relaxed mt-2">La CQC inspecte et évalue tous les services de santé d’Angleterre selon cinq critères : sûrs, efficaces, bienveillants, adaptés, bien gouvernés. Ses rapports sont publics. CareWatch™ s’inspire de cette transparence.</p>
                 <a href="https://www.cqc.org.uk/" target="_blank" rel="noopener noreferrer" className="text-rose-600 hover:text-rose-700 font-medium flex items-center gap-1 mt-2">Care Quality Commission (CQC) <ExternalLink className="w-4 h-4" /></a></details>
               </div>
               <div className="p-5 bg-emerald-50 rounded-xl">
                 <details><summary className="font-bold text-emerald-900 text-lg cursor-pointer">Représentant·e·s des usager·ère·s (France)</summary>
                 <p className="text-gray-700 leading-relaxed mt-2">En France, des représentant·e·s des usager·ère·s siègent dans les instances hospitalières et rapportent à la Haute Autorité de Santé pour la certification des établissements. CareWatch™ transpose cette logique en Suisse : un rôle actif des usager·ère·s dans l’évaluation de l’équité.</p>
-                <a href="https://www.has-sante.fr/jcms/c_431816/fr/representation-des-usagers" target="_blank" rel="noopener noreferrer" className="text-emerald-600 hover:text-emerald-700 font-medium flex items-center gap-1 mt-2">HAS — Représentation des usagers <ExternalLink className="w-4 h-4" /></a></details>
+                <a href="https://www.has-sante.fr/jcms/c_431816/fr/representation-des-usagers" target="_blank" rel="noopener noreferrer" className="text-emerald-600 hover:text-emerald-700 font-medium flex items-center gap-1 mt-2">HAS, Représentation des usagers <ExternalLink className="w-4 h-4" /></a></details>
               </div>
             </div>
             <p className="text-gray-600 mt-5">Notre approche combine ces modèles : <strong>Mesurer</strong> (indicateurs d'équité) → <strong>Transformer</strong> (accompagnement) → <strong>Certifier</strong> (label d'excellence).</p>
@@ -14063,7 +14063,7 @@ function PublicPageContenu() {
                   <span className="text-sm font-bold text-teal-700">1</span>
                 </div>
                 <div>
-                  <h3 className="font-medium text-gray-900">Phase 1 — Établissements hospitaliers <span className="text-xs font-semibold text-teal-700 bg-teal-100 px-2 py-0.5 rounded ml-2">En cours</span></h3>
+                  <h3 className="font-medium text-gray-900">Phase 1, Établissements hospitaliers <span className="text-xs font-semibold text-teal-700 bg-teal-100 px-2 py-0.5 rounded ml-2">En cours</span></h3>
                   <p className="text-sm text-gray-700">Hôpitaux et cliniques de Suisse romande, avec précision au niveau du service, département, consultation ou unité.</p>
                 </div>
               </div>
@@ -14072,7 +14072,7 @@ function PublicPageContenu() {
                   <span className="text-sm font-bold text-amber-700">2</span>
                 </div>
                 <div>
-                  <h3 className="font-medium text-gray-900">Phase 2 — AI, assurances, institutions sociales et soins à domicile</h3>
+                  <h3 className="font-medium text-gray-900">Phase 2, AI, assurances, institutions sociales et soins à domicile</h3>
                   <p className="text-sm text-gray-700">Offices AI, bureaux d'expertise des assurances, institutions sociales et de protection de l'enfance (SPMi, DGEJ, APEA/KESB), et services de soins à domicile (IMAD, CMS).</p>
                 </div>
               </div>
@@ -14081,7 +14081,7 @@ function PublicPageContenu() {
                   <span className="text-sm font-bold text-purple-700">3</span>
                 </div>
                 <div>
-                  <h3 className="font-medium text-gray-900">Phase 3 — Cabinets et professionnel·le·s de santé</h3>
+                  <h3 className="font-medium text-gray-900">Phase 3, Cabinets et professionnel·le·s de santé</h3>
                   <p className="text-sm text-gray-700">Physiothérapie, ergothérapie, ostéopathie, chiropraxie et autres professions de santé : l’ensemble du parcours de soins, hôpital compris.</p>
                 </div>
               </div>
@@ -14212,7 +14212,7 @@ function PublicPageContenu() {
               </div>
               <div className="p-3 bg-white rounded-xl border border-teal-200">
                 <p className="text-sm font-bold text-teal-800 uppercase mb-1">CareWatch™ / Qualité des soins</p>
-                <p className="text-sm text-gray-700">Externe et indépendant. Initié par l'usager·ère. Couvre les discriminations perçues dans l'expérience de soins. Données regroupées publiques.</p>
+                <p className="text-sm text-gray-700">Externe et indépendant. Initié par l'usager·ère. Couvre les discriminations vécues dans l'expérience de soins. Données regroupées publiques.</p>
               </div>
             </div>
             <p className="text-sm text-amber-800">Si un·e patient·e se sent traité·e différemment à cause de son origine, de son accent ou de son assurance, aucun formulaire CIRS ne retient cette expérience. CareWatch™ documente les angles morts des dispositifs actuels.</p>
@@ -14225,7 +14225,7 @@ function PublicPageContenu() {
                 <ClipboardList className="w-6 h-6 text-teal-600" />
               </div>
               <div>
-                <h2 className="text-xl font-bold text-gray-900">Échelle DMS</h2>
+                <h2 className="text-xl font-bold text-gray-900">Les sept questions (DMS)</h2>
                 <p className="text-sm text-teal-600">Discrimination in Medical Settings Scale</p>
               </div>
             </div>
@@ -14286,18 +14286,18 @@ function PublicPageContenu() {
                 <Award className="w-6 h-6 text-indigo-600" />
               </div>
               <div>
-                <h2 className="text-xl font-bold text-gray-900">Indice d’équité par établissement</h2>
+                <h2 className="text-xl font-bold text-gray-900">Note d’équité par établissement</h2>
                 <p className="text-sm text-indigo-600">Une formule publique, appliquée dans la base de données elle-même</p>
               </div>
             </div>
             <p className="text-gray-600 mb-3">L’indice va de 0 à 100. Il repose sur les témoignages <strong>vérifiés par la modération</strong> et n’est calculé qu’à partir de <strong>5 témoignages vérifiés</strong> par établissement ; en dessous : « Pas encore d’évaluation ».</p>
             <div className="bg-indigo-50 rounded-xl p-4 mb-3 text-center">
-              <p className="font-mono text-sm text-indigo-900">indice = 70 × (1 − discrimination perçue) + 30 × part des retours positifs</p>
+              <p className="font-mono text-sm text-indigo-900">indice = 70 × (1 − discrimination vécue) + 30 × part des retours positifs</p>
             </div>
             <div className="grid sm:grid-cols-2 gap-3">
               <div className="p-3 bg-gray-50 rounded-xl">
-                <p className="font-medium text-sm text-gray-900 mb-1">Discrimination perçue (70 %)</p>
-                <p className="text-sm text-gray-700">Moyenne des réponses aux sept questions sur le traitement, de 0 (jamais) à 1 (toujours), sur les témoignages vérifiés. Moins il y a de discrimination perçue, plus l’indice est élevé.</p>
+                <p className="font-medium text-sm text-gray-900 mb-1">Discrimination vécue (70 %)</p>
+                <p className="text-sm text-gray-700">Moyenne des réponses aux sept questions sur le traitement, de 0 (jamais) à 1 (toujours), sur les témoignages vérifiés. Moins il y a de discrimination vécue, plus l’indice est élevé.</p>
               </div>
               <div className="p-3 bg-gray-50 rounded-xl">
                 <p className="font-medium text-sm text-gray-900 mb-1">Retours positifs (30 %)</p>
@@ -14378,7 +14378,7 @@ function PublicPageContenu() {
           { q: 'Un exemple du côté des soignant·e·s ?', a: 'Une infirmière a dix minutes par patient·e. Un patient qui ne parle pas français a besoin de plus de temps et d’un·e interprète. Sans ces moyens, l’équipe ne peut pas soigner tout le monde de la même façon. L’inéquité vient alors de l’organisation du travail.' },
           { q: 'Équité ou égalité : est-ce la même chose ?', a: 'Non. L’égalité donne la même chose à tout le monde. L’équité donne à chacun·e ce qui lui est nécessaire. Une personne qui ne parle pas français a besoin d’un·e interprète, une autre n’en a pas besoin. Soigner de façon équitable demande de s’adapter à chaque situation.' },
           { q: 'Inéquité ou iniquité : quel mot est juste ?', a: 'Les deux existent. Iniquité est le mot courant, au sens large d’injustice. Inéquité est le terme employé en santé publique pour une inégalité de santé évitable et injuste. CareWatch utilise inéquité dans ce sens.' },
-          { q: 'Comment CareWatch mesure-t-elle l’équité des soins ?', a: 'CareWatch demande aux personnes comment elles ont été traitées : courtoisie, respect, qualité des soins. Les témoignages vérifiés sont regroupés en un indice d’équité par établissement, de 0 à 100. Plus l’indice est haut, plus les personnes se sont senties traitées de la même façon que les autres.' },
+          { q: 'Comment CareWatch mesure-t-elle l’équité des soins ?', a: 'CareWatch demande aux personnes comment elles ont été traitées : courtoisie, respect, qualité des soins. Les témoignages vérifiés sont regroupés en une note d’équité par établissement, de 0 à 100. Plus la note est haute, plus les personnes se sont senties traitées de la même façon que les autres.' },
         ]
       },
       {
@@ -14387,10 +14387,10 @@ function PublicPageContenu() {
         color: 'teal',
         items: [
           { q: 'Qui peut faire un signalement ?', a: 'Toute personne ayant vécu ou observé une situation de discrimination dans un établissement de santé suisse : patient·e·s, proches, témoins, ou professionnel·le·s de santé. Les signalements sont anonymes.' },
-          { q: 'Combien de temps prend un signalement ?', a: 'Entre 5 et 10 minutes. Le formulaire est guidé, anonyme, à votre rythme — vous pouvez prendre votre temps. L\'enregistrement vocal est aussi disponible si vous préférez raconter votre expérience oralement.' },
+          { q: 'Combien de temps prend un signalement ?', a: 'Entre 5 et 10 minutes. Le formulaire est guidé, anonyme, à votre rythme, vous pouvez prendre votre temps. L\'enregistrement vocal est aussi disponible si vous préférez raconter votre expérience oralement.' },
           { q: 'Puis-je modifier mon signalement après l\'avoir envoyé ?', a: 'Oui, à tout moment, avec le numéro et le code personnel reçus à la fin de l\'envoi. Dans « Mes témoignages », le bouton Modifier permet de corriger la description et l\'impact ; le témoignage repasse ensuite en relecture par l\'équipe. Vous pouvez aussi modifier vos autorisations ou retirer le témoignage dans « Gérer mon signalement ». Le numéro et le code suffisent.' },
           { q: 'Que se passe-t-il si je fais un faux signalement ?', a: 'Les faux signalements sont détectables grâce à nos mécanismes de vérification (cohérence géographique, patterns suspects). Cette rigueur protège à la fois les établissements et les témoins de bonne foi : plus les données sont fiables, plus votre témoignage a du poids. Un signalement honnête, même subjectif, n\'est jamais considéré comme abusif. Votre témoignage est protégé et votre anonymat garanti.' },
-          { q: 'Les hôpitaux n\'ont-ils pas déjà un système de signalement ?', a: 'Si. Chaque hôpital suisse dispose d\'un système interne (CIRS). Mais ces systèmes présentent des limites bien documentées : au Royaume-Uni, le scandale de Mid Staffordshire a montré que des centaines de décès évitables n\'avaient jamais été signalés en interne, car la culture institutionnelle décourageait la parole. De plus, aucun formulaire interne ne couvre les discriminations perçues. CareWatch™ est complémentaire : externe, indépendant, anonymisé (détails généralisés), centré sur l\'équité de l\'expérience de soins.' },
+          { q: 'Les hôpitaux n\'ont-ils pas déjà un système de signalement ?', a: 'Si. Chaque hôpital suisse dispose d\'un système interne (CIRS). Mais ces systèmes présentent des limites bien documentées : au Royaume-Uni, le scandale de Mid Staffordshire a montré que des centaines de décès évitables n\'avaient jamais été signalés en interne, car la culture institutionnelle décourageait la parole. De plus, aucun formulaire interne ne couvre les discriminations vécues. CareWatch™ est complémentaire : externe, indépendant, anonymisé (détails généralisés), centré sur l\'équité de l\'expérience de soins.' },
         ]
       },
       {
@@ -14398,9 +14398,9 @@ function PublicPageContenu() {
         icon: CheckCircle,
         color: 'emerald',
         items: [
-          { q: 'Comment fonctionne la modération ?', a: 'Chaque signalement est examiné par notre équipe indépendante dans un délai de 48h ouvrées. Nous vérifions la cohérence géographique, la clarté du témoignage, et le respect de la charte. Aucun signalement n\'est publié automatiquement. L\'équipe de modération n\'a accès qu\'à des données anonymes — elle ne peut pas vous identifier.' },
-          { q: 'L\'établissement peut-il contester un signalement ?', a: 'Oui. Chaque établissement reçoit une notification anonymisée et dispose de 14 jours pour contester avec des éléments factuels. La contestation est examinée par un comité indépendant. L\'établissement ne sait jamais qui a témoigné — votre protection est absolue.' },
-          { q: 'L’indice d’équité, c’est quoi ?', a: 'Un indicateur de 0 à 100 par établissement : 70 × (1 − ressenti moyen de discrimination) + 30 × part des retours positifs, calculé uniquement sur les témoignages vérifiés par la modération et seulement à partir de 5 témoignages vérifiés. Aucune donnée individuelle n\'est publiée pour l\'obtenir. La formule complète est sur la page Méthodologie.' },
+          { q: 'Comment fonctionne la modération ?', a: 'Chaque signalement est examiné par notre équipe indépendante dans un délai de 48h ouvrées. Nous vérifions la cohérence géographique, la clarté du témoignage, et le respect de la charte. Aucun signalement n\'est publié automatiquement. L\'équipe de modération n\'a accès qu\'à des données anonymes, elle ne peut pas vous identifier.' },
+          { q: 'L\'établissement peut-il contester un signalement ?', a: 'Oui. Chaque établissement reçoit une notification anonymisée et dispose de 14 jours pour contester avec des éléments factuels. La contestation est examinée par un comité indépendant. L\'établissement ne sait jamais qui a témoigné, votre protection est absolue.' },
+          { q: 'La note d’équité, c’est quoi ?', a: 'Une note de 0 à 100 par établissement : 70 × (1 − discrimination vécue moyenne) + 30 × part des retours positifs, calculé uniquement sur les témoignages vérifiés par la modération et seulement à partir de 5 témoignages vérifiés. Aucune donnée individuelle n\'est publiée pour l\'obtenir. La formule complète est sur la page Méthodologie.' },
         ]
       },
       {
@@ -14410,8 +14410,8 @@ function PublicPageContenu() {
         items: [
           { q: 'Mes données sont-elles anonymes ?', a: 'Oui. CareWatch™ ne vous demande pas votre identité. L\'accès se fait par code d\'invitation, et votre adresse IP n\'est pas conservée avec votre témoignage. Le code postal est vérifié dans votre navigateur, sans être transmis. Votre récit, lui, est enregistré pour être lu par l\'équipe ; vous pouvez le retirer à tout moment avec votre numéro et votre code personnel. Avant publication, l\'équipe de modération généralise les détails trop spécifiques : par exemple, « 3 février » devient « février 2026 », ou « Unité 4B » devient « Médecine interne ». Un témoignage ne peut ainsi pas être relié à une seule personne.' },
           { q: 'Comment sont stockées et sécurisées les données ?', a: 'Site hébergé chez Infomaniak à Genève (ISO 27001) ; base des signalements chez Supabase, à Zurich (Suisse, centre de données AWS eu-central-2), chiffrée au repos. Communications chiffrées (HTTPS). Anonymat intégré dès la conception. Code personnel stocké uniquement sous forme d\'empreinte. Base inaccessible directement depuis le navigateur. Journal des opérations sans donnée personnelle. Politique de confidentialité conforme à la nLPD en pied de page.' },
-          { q: 'Qui a accès aux signalements ?', a: 'Uniquement l\'équipe de modération CareWatch™, sous strict accord de confidentialité. Les données publiques sont toujours agrégées et anonymes. Aucun signalement individuel n\'est jamais publié ni transmis à l\'établissement. Même l\'équipe de modération ne peut pas vous identifier.' },
-          { q: 'Comment sont utilisées les données ?', a: 'Pour calculer les évaluations des établissements, alimenter la recherche sur l\'équité des soins, et informer les politiques publiques. Toutes les données publiées sont agrégées et anonymes — les détails sont agrégés et généralisés — jamais publiés individuellement. Licence CC BY-NC-SA 4.0.' },
+          { q: 'Qui a accès aux signalements ?', a: 'Uniquement l\'équipe de modération CareWatch™, sous strict accord de confidentialité. Les données publiques sont toujours des chiffres d’ensemble anonymes. Aucun signalement individuel n\'est jamais publié ni transmis à l\'établissement. Même l\'équipe de modération ne peut pas vous identifier.' },
+          { q: 'Comment sont utilisées les données ?', a: 'Pour calculer les évaluations des établissements, alimenter la recherche sur l\'équité des soins, et informer les politiques publiques. Toutes les données publiées sont des chiffres d’ensemble anonymes. Les détails sont généralisés, jamais publiés individuellement. Licence CC BY-NC-SA 4.0.' },
         ]
       },
       {
@@ -14419,9 +14419,9 @@ function PublicPageContenu() {
         icon: Building,
         color: 'amber',
         items: [
-          { q: 'Comment sont calculées les indices des établissements ?', a: 'Le niveau (Exemplaire, Satisfaisant, À améliorer, Insuffisant) découle directement de l\'indice d\'équité : 75 et plus, 50 à 74, 25 à 49, moins de 25. L\'indice n\'est calculé qu\'à partir de 5 témoignages vérifiés, selon la seule formule publique. L\'objectif est d\'accompagner l\'amélioration et de protéger les patient·e·s.' },
-          { q: 'Un établissement peut-il améliorer sa note ?', a: 'Oui, c\'est tout l\'objectif. Les établissements peuvent s\'engager dans une démarche d\'amélioration, former leur personnel, et voir leur note évoluer positivement. CareWatch™ n\'est pas un tribunal — c\'est un levier d\'amélioration, en toute confidentialité pour les témoins. Chaque signalement contribue à des soins plus justes pour tout le monde.' },
-          { q: 'Que signifie chaque niveau d\'évaluation ?', a: 'Exemplaire : excellence dans tous les critères. Satisfaisant : bon niveau avec points d\'amélioration. À améliorer : actions nécessaires. Insuffisant : actions correctives urgentes requises. Ces évaluations sont toujours basées sur des données regroupées, anonymes et vérifiées — jamais sur un seul témoignage isolé. Votre signalement individuel n\'est jamais identifiable.' },
+          { q: 'Comment sont calculées les notes des établissements ?', a: 'Le niveau (Exemplaire, Satisfaisant, À améliorer, Insuffisant) découle directement de l\'indice d\'équité : 75 et plus, 50 à 74, 25 à 49, moins de 25. L\'indice n\'est calculé qu\'à partir de 5 témoignages vérifiés, selon la seule formule publique. L\'objectif est d\'accompagner l\'amélioration et de protéger les patient·e·s.' },
+          { q: 'Un établissement peut-il améliorer sa note ?', a: 'Oui, c\'est tout l\'objectif. Les établissements peuvent s\'engager dans une démarche d\'amélioration, former leur personnel, et voir leur note évoluer positivement. CareWatch™ n\'est pas un tribunal, c\'est un levier d\'amélioration, en toute confidentialité pour les témoins. Chaque signalement contribue à des soins plus justes pour tout le monde.' },
+          { q: 'Que signifie chaque niveau d\'évaluation ?', a: 'Exemplaire : excellence dans tous les critères. Satisfaisant : bon niveau avec points d\'amélioration. À améliorer : actions nécessaires. Insuffisant : actions correctives urgentes requises. Ces évaluations sont toujours basées sur des données regroupées, anonymes et vérifiées, jamais sur un seul témoignage isolé. Votre signalement individuel n\'est jamais identifiable.' },
         ]
       },
       {

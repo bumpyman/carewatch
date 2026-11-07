@@ -8,7 +8,7 @@ Changements de la version 0.2 : ajout du stade 2 « Engagé » entre « Sensibil
 
 La grille décrit six dimensions de l’organisation d’un établissement de soins, chacune en six stades, auxquels s’ajoute le stade 0. Un stade est atteint quand son critère et ceux des stades inférieurs sont remplis. Le stade global déclaré est le plus bas des six dimensions.
 
-La déclaration est plafonnée par ce que mesurent les patient·e·s. Sans témoignage vérifié dans CareWatch, un établissement ne dépasse pas le stade 3. Avec des témoignages vérifiés mais sans indice publié (moins de cinq), il ne dépasse pas le stade 4. Un indice d’équité de 50 ou plus ouvre le stade 5, de 75 ou plus le stade 6.
+La déclaration est plafonnée par ce que mesurent les patient·e·s. Sans témoignage vérifié dans CareWatch, un établissement ne dépasse pas le stade 3. Avec des témoignages vérifiés mais sans note publiée (moins de cinq témoignages), il ne dépasse pas le stade 4. Une note d’équité de 50 ou plus ouvre le stade 5, de 75 ou plus le stade 6.
 
 | Stade | Nom | Sens |
 |---|---|---|
@@ -44,7 +44,7 @@ Le stade 2 exige donc des actes : participation à des ateliers, charte signée,
 1. L’établissement recueille des retours de patient·e·s, sans dimension équité.
 2. Les équipes participent à la collecte (retours, mesure) et reçoivent un retour sur les résultats de leur propre service.
 3. Les plaintes et incidents sont codés par motif de discrimination perçu.
-4. L’établissement participe à une mesure externe standardisée de l’expérience de traitement (échelle DMS) dans au moins un service.
+4. L’établissement participe à une mesure externe identique pour tous de la discrimination vécue (les sept questions du DMS) dans au moins un service.
 5. La mesure couvre les services à forte affluence ; les résultats sont stratifiés par service et comparés dans le temps.
 6. Les indicateurs d’équité sont publiés en données ouvertes et intégrés au rapport qualité.
 
