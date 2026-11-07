@@ -19,6 +19,9 @@ identifiers:
   - type: doi
     value: 10.5281/zenodo.22285144
     description: DOI de la version v0.4.1-alpha
+  - type: doi
+    value: 10.5281/zenodo.24021754
+    description: DOI de la version v0.4.4-alpha
 keywords:
   - équité des soins
   - discrimination
